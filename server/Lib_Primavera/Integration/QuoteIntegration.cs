@@ -7,19 +7,19 @@ using FirstREST.Lib_Primavera.Model;
 
 namespace FirstREST.Lib_Primavera.Integration
 {
-    public class OpportunityIntegration
+    public class QuoteIntegration
     {
-        public static List<Opportunity> GetOpportunities()
+        public static List<Quote> GetQuotes()
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 return null;
             }
 
-            return new List<Opportunity>();
+            return new List<Quote>();
         }
 
-        public static Opportunity GetOpportunity(string paramId)
+        public static Quote GetQuote(string paramId)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -34,14 +34,14 @@ namespace FirstREST.Lib_Primavera.Integration
             return null;
         }
 
-        public static bool UpdateOpportunity(string leadId, Opportunity myLead)
+        public static bool UpdateQuote(string paramId, Quote paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseException("LeadIntegration");
             }
 
-            if (PriEngine.Clientes.Existe(leadId) == false)
+            if (PriEngine.Clientes.Existe(paramId) == false)
             {
                 return false;
             }
@@ -49,7 +49,7 @@ namespace FirstREST.Lib_Primavera.Integration
             return true;
         }
 
-        public static bool CreateOpportunity(string leadId, Opportunity leadModel)
+        public static bool CreateQuote(string paramId, Quote paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

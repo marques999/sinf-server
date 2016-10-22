@@ -1,31 +1,40 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class Address
     {
-        public string Street
+        [JsonProperty(PropertyName = "street")]
+        public string Rua
+        {
+            get;
+            set;
+        }
+        
+        [JsonProperty(PropertyName = "postalCode")]
+        public string CodigoPostal
         {
             get;
             set;
         }
 
-        public string PostalCode
+        [JsonProperty(PropertyName = "city")]
+        public string Zona
         {
             get;
             set;
         }
 
-        public string City
+        [JsonProperty(PropertyName = "country")]
+        public string Pais
         {
             get;
             set;
         }
 
-        public string Country
-        {
-            get;
-            set;
-        }
-
+        [JsonProperty(PropertyName = "coordinates")]
         public string Coordinates
         {
             get;

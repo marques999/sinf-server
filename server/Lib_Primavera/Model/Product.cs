@@ -1,21 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+
+using Newtonsoft.Json;
 
 namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class Product
     {
-        public string ID
+        [JsonProperty(PropertyName = "id")]
+        public string Artigo
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "name")]
         public string Nome
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "cost")]
         public double Cost
         {
             get
@@ -35,6 +42,7 @@ namespace FirstREST.Lib_Primavera.Model
             }
         }
 
+        [JsonProperty(PropertyName = "price")]
         public double Price
         {
             get
@@ -54,6 +62,7 @@ namespace FirstREST.Lib_Primavera.Model
             }
         }
 
+        [JsonProperty(PropertyName = "tax")]
         public double Tax
         {
             get
@@ -77,29 +86,38 @@ namespace FirstREST.Lib_Primavera.Model
             }
         }
 
-        public double Discount 
+        [JsonProperty(PropertyName = "discountValue")]
+        public double DiscountValue
         {
             get
             {
-                return Discount;
+                return DiscountValue;
             }
             set
             {
                 if (value < 0.0)
                 {
-                    Discount = 0.0;
+                    DiscountValue = 0.0;
                 }
                 else if (value > 1.0)
                 {
-                    Discount = 1.0;
+                    DiscountValue = 1.0;
                 }
                 else
                 {
-                    Discount = value;
+                    DiscountValue = value;
                 }
             }
         }
 
+        [JsonProperty(PropertyName = "discountEnabled")]
+        public bool DiscountEnabled
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "warehouses")]
         public IEnumerable<Warehouse> Warehouses
         {
             get;

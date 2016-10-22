@@ -1,4 +1,5 @@
 ﻿using FirstREST.Lib_Primavera.Model;
+using Interop.GcpBE900;
 using System;
 using System.Collections.Generic;
 
@@ -10,21 +11,26 @@ namespace FirstREST.Lib_Primavera.Integration
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
-                return null;
+                throw new DatabaseException("AccountIntegration");
             }
 
             var accounts = new List<Account>();
-            var queryResult = PriEngine.Engine.Consulta("SELECT Cliente, Nome, Moeda, NumContrib as NumContribuinte, Fac_Mor AS campo_exemplo FROM  CLIENTES");
+            var queryResult = PriEngine.Consulta("SELECT Cliente, Nome, Moeda, NumContrib as NumContribuinte, Fac_Mor AS campo_exemplo FROM CLIENTES");
 
             while (!queryResult.NoFim())
             {
                 accounts.Add(new Account
                 {
-                    ID = queryResult.Valor("Cliente"),
-                    NomeCliente = queryResult.Valor("Nome"),
+                    Nome = queryResult.Valor("Nome"),
                     Moeda = queryResult.Valor("Moeda"),
-                    NumContribuinte = queryResult.Valor("NumContribuinte"),
-                    Morada = queryResult.Valor("campo_exemplo")
+                    NumContribuinte = queryResult.Valor("NumContribuinte"),/*
+                    Address = new Address
+                    {
+                        Street = queryResult.Valor("Morada"),
+                        PostalCode = queryResult.Valor("CodigoPostal"),
+                        Country = queryResult.Valor("Pais"),
+                        City = queryResult.Valor("Zona")
+                    }*/
                 });
 
                 queryResult.Seguinte();
@@ -37,83 +43,94 @@ namespace FirstREST.Lib_Primavera.Integration
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
-                return null;
+                throw new DatabaseException("AccountIntegration");
             }
 
-            if (PriEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
+            if (PriEngine.Clientes.Existe(paramId) == false)
             {
                 return null;
             }
 
-            var queryResult = PriEngine.Engine.Comercial.Clientes.Edita(paramId);
-           
+            var queryResult = PriEngine.Clientes.Edita(paramId);
+
             return new Account
             {
-                ID = queryResult.get_Cliente();
-                Nome = queryResult.get_Nome();
-                Currency = queryResult.get_Moeda();
-                myAccount.NumContribuinte = queryResult.get_NumContribuinte();
-                myAccount.Morada = queryResult.get_Morada();
+                Nome = queryResult.get_Nome(),
+                Moeda = queryResult.get_Moeda(),
+                NumContribuinte = queryResult.get_NumContribuinte(),
+
+                Morada = new Address
+                {
+                    Rua = queryResult.get_Morada(),
+                    CodigoPostal = queryResult.get_CodigoPostal(),
+                    Pais = queryResult.get_Pais(),
+                    Zona = queryResult.get_Zona()
+                }
             };
         }
 
-        public static ServerResponse updateAccount(Account myCustomer)
+        public static bool UpdateAccount(string accountId, Account paramAccount)
         {
-            try
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
-                if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-                {
-                    return new ServerResponse(1, "Erro ao abrir a empresa");
-                }
-
-                if (PriEngine.Engine.Comercial.Clientes.Existe(myCustomer.ID) == false)
-                {
-                    return new ServerResponse(1, "O cliente não existe");
-                }
-
-                var myAccount = PriEngine.Engine.Comercial.Clientes.Edita(myCustomer.ID);
-
-                myAccount.set_EmModoEdicao(true);
-                myAccount.set_Nome(myCustomer.Name);
-                myAccount.set_NumContribuinte(myCustomer.NumContribuinte);
-                myAccount.set_Moeda(myCustomer.Currency);
-                myAccount.set_CodigoPostal(myCustomer.Address.PostalCode);
-                myAccount.set_Pais(myCustomer.Address.Coordinates);
-
-                PriEngine.Engine.Comercial.Clientes.Actualiza(myAccount);
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse(1, ex.Message);
+                throw new DatabaseException("AccountIntegration");
             }
 
-            return new ServerResponse(0, "Success");
+            if (PriEngine.Clientes.Existe(accountId) == false)
+            {
+                return false;
+            }
+
+            var myAccount = PriEngine.Clientes.Edita(accountId);
+
+            myAccount.set_EmModoEdicao(true);
+            myAccount.set_Nome(paramAccount.Nome);
+            myAccount.set_NumContribuinte(paramAccount.NumContribuinte);
+            myAccount.set_Moeda(paramAccount.Moeda);
+            myAccount.set_Morada(paramAccount.Morada.Rua);
+            myAccount.set_Zona(paramAccount.Morada.Zona);
+            myAccount.set_Pais(paramAccount.Morada.Pais);
+            myAccount.set_CodigoPostal(paramAccount.Morada.CodigoPostal);
+            myAccount.set_Pais(paramAccount.Morada.Coordinates);
+            PriEngine.Clientes.Actualiza(myAccount);
+
+            return true;
         }
 
-        public static ServerResponse deleteAccount(string accountId)
+        public static bool deleteAccount(string accountId)
         {
-            try
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
-                if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-                {
-                    return new ServerResponse(1, "Error loading company database!");
-                }
-
-                if (PriEngine.Engine.Comercial.Clientes.Existe(accountId))
-                {
-                    PriEngine.Engine.Comercial.Clientes.Remove(accountId);
-                }
-                else
-                {
-                    return new ServerResponse(1, "Customer not found!");
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ServerResponse(1, ex.Message);
+                throw new DatabaseException("AccountIntegration");
             }
 
-            return new ServerResponse(0, "Success");
+            if (PriEngine.Clientes.Existe(accountId) == false)
+            {
+                return false;
+            }
+
+            PriEngine.Clientes.Remove(accountId);
+
+            return true;
+        }
+
+        public static bool CreateAccount(string accountId, Account paramAccount)
+        {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseException("AccountIntegration");
+            }
+
+            var myAccount = new GcpBECliente();
+
+            myAccount.set_Cliente(accountId);
+            myAccount.set_Nome(paramAccount.Nome);
+            myAccount.set_NumContribuinte(paramAccount.NumContribuinte);
+            myAccount.set_Moeda(paramAccount.Moeda);
+            myAccount.set_Morada(paramAccount.Morada.Rua);
+            PriEngine.Clientes.Actualiza(myAccount);
+
+            return true;
         }
     }
 }

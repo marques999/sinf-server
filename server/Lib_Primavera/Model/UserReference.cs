@@ -1,38 +1,29 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class UserReference
     {
-        public UserReference(string paramId, string paramFirst, string paramLast)
+        public UserReference(string paramId, string paramNome)
         {
-            ID = paramId;
-            FirstName = paramFirst;
-            LastName = paramLast;
+            Utilizador = paramId;
+            Nome = paramNome;
         }
 
-        public string ID
+        [JsonProperty(PropertyName = "id")]
+        public string Utilizador
         {
             get;
             set;
         }
 
-        public string FirstName
+        [JsonProperty(PropertyName = "name")]
+        public string Nome
         {
             get;
             set;
-        }
-
-        public string LastName
-        {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get
-            {
-                return FirstName + " " + LastName;
-            }
         }
     }
 }

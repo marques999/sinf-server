@@ -1,7 +1,12 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class Quote
     {
+        [JsonProperty(PropertyName = "billingAddress")]
         public Address BillingAddress
         {
             get
@@ -17,6 +22,7 @@
             }
         }
 
+        [JsonProperty(PropertyName = "shippingAddress")]
         public Address ShippingAddress
         {
             get

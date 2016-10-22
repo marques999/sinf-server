@@ -1,30 +1,37 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class Warehouse
     {
-        public string ID
+        [JsonProperty(PropertyName = "id")]
+        public string Armazem
         {
             get;
             set;
         }
 
-        public string Name
+        [JsonProperty(PropertyName = "name")]
+        public string Nome
         {
             get;
             set;
         }
 
-        public Address Address
+        [JsonProperty(PropertyName = "location")]
+        public Address Localizacao
         {
             get
             {
-                return Address;
+                return Localizacao;
             }
             set
             {
                 if (value != null)
                 {
-                    Address = value;
+                    Localizacao = value;
                 }
             }
         }

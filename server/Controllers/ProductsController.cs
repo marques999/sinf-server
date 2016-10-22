@@ -1,31 +1,52 @@
-﻿using System.Web;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Collections.Generic;
 
-using FirstREST.Lib_Primavera;
+using Newtonsoft.Json;
+
 using FirstREST.Lib_Primavera.Model;
+using FirstREST.Lib_Primavera.Integration;
 
 namespace FirstREST.Controllers
 {
     public class ProductsController : ApiController
     {
-        public IEnumerable<Product> Get()
+        // GET api/products/
+        // FEATURE: Listar produtos
+        public ServerResponse Get()
         {
-            return PriIntegration.listProducts();
+            try
+            {
+                return new SuccessResponse(ProductIntegration.listProducts());
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponse(ex.Message);
+            }
         }
 
-        public Product Get(string id)
+        // GET api/products/?id={$productId}
+        // FEATURE: Visualizar produto
+        public ServerResponse Get([FromUri] string id)
         {
-            var product = PriIntegration.getProduct(id);
-
-            if (product != null)
+            try
             {
-                return product;
-            }
+                var myInstance = ProductIntegration.getProduct(id);
 
-            throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+                if (myInstance == null)
+                {
+                    return new ErrorResponse("notFound");
+                }
+                else
+                {
+                    return new SuccessResponse(myInstance);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponse(ex.Message);
+            }
         }
     }
 }

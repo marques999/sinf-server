@@ -1,23 +1,21 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using System.Net;
+using System.Net.Http;
+
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
-    public class ServerResponse
+    [Serializable]
+    public abstract class ServerResponse
     {
-        public ServerResponse(int paramCode, string paramMessage)
+        public ServerResponse()
         {
-            Code = paramCode;
-            Message = paramMessage;
         }
 
-        public int Code
+        public HttpResponseMessage sendResponse(HttpRequestMessage paramRequest)
         {
-            get;
-            set;
-        }
-
-        public string Message
-        {
-            get;
-            set;
+            return paramRequest.CreateResponse(HttpStatusCode.BadRequest, this);
         }
     }
 }

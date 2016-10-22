@@ -15,16 +15,16 @@ namespace FirstREST.Lib_Primavera.Integration
                 return null;
             }
 
-            if (PriEngine.Engine.Comercial.Artigos.Existe(productId) == false)
+            if (PriEngine.Produtos.Existe(productId) == false)
             {
                 return null;
             }
 
-            var queryResult = PriEngine.Engine.Comercial.Artigos.Edita(productId);
+            var queryResult = PriEngine.Produtos.Edita(productId);
 
             return new Product
             {
-                ID = queryResult.get_Artigo(),
+                Artigo = queryResult.get_Artigo(),
                 Nome = queryResult.get_Descricao()
             };
         }
@@ -37,16 +37,16 @@ namespace FirstREST.Lib_Primavera.Integration
             }
 
             var productList = new List<Product>();
-            var queryResult = PriEngine.Engine.Comercial.Artigos.LstArtigos();
+            var queryResult = PriEngine.Produtos.LstArtigos();
 
             while (!queryResult.NoFim())
             {
                 productList.Add(new Product
                 {
-                    ID = queryResult.Valor("artigo"),
+                    Artigo = queryResult.Valor("artigo"),
                     Nome = queryResult.Valor("descricao")
                 });
-                
+
                 queryResult.Seguinte();
             }
 

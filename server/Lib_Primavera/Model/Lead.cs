@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.Lib_Primavera.Model
 {
-    public class Account
+    public class Lead
     {
         [JsonProperty(PropertyName = "name")]
         public string Nome
@@ -42,21 +42,7 @@ namespace FirstREST.Lib_Primavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "taxNumber")]
-        public string NumContribuinte
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "currency")]
-        public string Moeda
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "lastUpdated")]
+        [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(JavaScriptDateTimeConverter))]
         public DateTime LastUpdated
         {
@@ -64,9 +50,17 @@ namespace FirstREST.Lib_Primavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "createdAt")]
+        [JsonProperty(PropertyName = "dateCreated")]
         [JsonConverter(typeof(JavaScriptDateTimeConverter))]
         public DateTime CreatedAt
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "lastContact")]
+        [JsonConverter(typeof(JavaScriptDateTimeConverter))]
+        public DateTime ModifiedAt
         {
             get;
             set;

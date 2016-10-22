@@ -1,39 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using Newtonsoft.Json;
 
 namespace FirstREST.Lib_Primavera.Model
 {
+    [Serializable]
     public class ProductOrder
     {
-        public ProductOrder(Product paramProduct, int paramQuantity)
+        public ProductOrder(Product paramArtigo, int paramQuantidade)
         {
-            Product = paramProduct;
-            Quantity = paramQuantity;
+            Artigo = paramArtigo;
+            Quantidade = paramQuantidade;
         }
 
-        public Product Product
+        [JsonProperty(PropertyName = "product")]
+        public Product Artigo
         {
             get;
             set;
         }
 
-        public int Quantity
+        [JsonProperty(PropertyName = "quantity")]
+        public int Quantidade
         {
             get
             {
-                return Quantity;
+                return Quantidade;
             }
             set
             {
                 if (value < 0)
                 {
-                    Quantity = 0;
+                    Quantidade = 0;
                 }
                 else
                 {
-                    Quantity = value;
+                    Quantidade = value;
                 }
             }
         }

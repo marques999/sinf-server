@@ -8,6 +8,7 @@ using Interop.ErpBS900;
 using Interop.StdPlatBS900;
 using Interop.StdBE900;
 using ADODB;
+using Interop.IGcpBS900;
 
 namespace FirstREST.Lib_Primavera
 {
@@ -25,6 +26,27 @@ namespace FirstREST.Lib_Primavera
             set;
         }
 
+        public static IGcpBSArtigos Produtos
+        {
+            get
+            {
+                return Engine.Comercial.Artigos;
+            }
+        }
+
+        public static IGcpBSClientes Clientes
+        {
+            get
+            {
+                return Engine.Comercial.Clientes;
+            }
+        }
+
+        public static StdBELista Consulta(string queryString)
+        {
+            return Engine.Consulta(queryString);    
+        }
+
         public static bool InitializeCompany(string Company, string User, string Password)
         {
             var objAplConf = new StdBSConfApl();
@@ -34,13 +56,13 @@ namespace FirstREST.Lib_Primavera
             objAplConf.PwdUtilizador = Password;
             objAplConf.Utilizador = User;
             objAplConf.LicVersaoMinima = "9.00";
-           
+
             var MotorLE = new ErpBS();
             bool blnModoPrimario = true;
             var Plataforma = new StdPlatBS();
-            var objStdTransac = new StdBETransaccao();     
+            var objStdTransac = new StdBETransaccao();
             var tipoPlataforma = EnumTipoPlataforma.tpProfissional;
-  
+
             try
             {
                 Plataforma.AbrePlataformaEmpresa(ref Company, ref objStdTransac, ref objAplConf, ref tipoPlataforma, "");
