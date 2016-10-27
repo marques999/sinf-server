@@ -3,6 +3,7 @@ using FirstREST.Lib_Primavera.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,7 +29,7 @@ namespace FirstREST.Controllers
         {
             if (string.IsNullOrEmpty(value))
             {
-                return AgendaType.Everything;
+                return AgendaType.All;
             }
 
             AgendaType parseResult;
@@ -38,41 +39,33 @@ namespace FirstREST.Controllers
                 return parseResult;
             }
 
-            return AgendaType.Everything;
+            return AgendaType.All;
         }
 
-        // GET api/agenda/
-        public ServerResponse Get()
+        public static AgendaStatus ParseStatus(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return AgendaStatus.Any;
+            }
+
+            AgendaStatus parseResult;
+
+            if (Enum.TryParse(value, true, out parseResult))
+            {
+                return parseResult;
+            }
+
+            return AgendaStatus.Any;
+        }
+
+        // GET api/agenda/?type=calls&when=today&status=ongoing
+        // Feature: Visualizar agenda
+        public ServerResponse Get([FromUri] string type = "all", [FromUri] string when = "today", [FromUri] string status = "any")
         {
             try
             {
-                return new SuccessResponse(AgendaIntegration.Get(AgendaType.Everything, AgendaStatus.Ongoing, Agenda.Today));
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
-        // GET api/agenda/today/
-        public ServerResponse Get(string when)
-        {
-            try
-            {
-                return new SuccessResponse(AgendaIntegration.Get(AgendaType.Everything, AgendaStatus.Ongoing, ParseWhen(when)));
-            }
-            catch (Exception ex)
-            {
-                return new ErrorResponse(ex.Message);
-            }
-        }
-
-        // GET api/agenda/calls/today/
-        public ServerResponse Get(string type, string when)
-        {
-            try
-            {
-                return new SuccessResponse(AgendaIntegration.Get(ParseType(type), AgendaStatus.Ongoing, ParseWhen(when)));
+                return new SuccessResponse(AgendaIntegration.Get(ParseType(type), ParseStatus(status), ParseWhen(when)));
             }
             catch (Exception ex)
             {

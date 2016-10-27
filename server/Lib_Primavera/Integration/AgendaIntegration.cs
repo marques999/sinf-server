@@ -2,6 +2,7 @@
 
 using FirstREST.Lib_Primavera.Model;
 using FirstREST.Lib_Primavera.Enums;
+using System.Diagnostics;
 
 namespace FirstREST.Lib_Primavera.Integration
 {
@@ -9,6 +10,10 @@ namespace FirstREST.Lib_Primavera.Integration
     {
         public static List<Activity> Get(AgendaType agendaType, AgendaStatus agendaStatus, Agenda agendaWhen)
         {
+            Debug.WriteLine("AgendaType: " + agendaType.ToString());
+            Debug.WriteLine("AgendaStatus: " + agendaStatus.ToString());
+            Debug.WriteLine("AgendaWhen: " + agendaWhen.ToString());
+
             return null;
         }
 
