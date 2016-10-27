@@ -17,8 +17,7 @@ internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
 {
     private JsonSerializerSettings serializerSettings;
 
-    public JsonNetMediaTypeFormatter()
-        : this(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+    public JsonNetMediaTypeFormatter() : this(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
     {
     }
 
@@ -44,20 +43,20 @@ internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
     {
         var serializer = JsonSerializer.Create(serializerSettings);
         var writer = GetWriter(contentHeaders.Headers, stream);
-        
+
         return Task.Factory.StartNew(() =>
         {
-             if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IQueryable<>)))
-             {
-                 serializer.Serialize(writer, ((IEnumerable)value).OfType<object>().ToList());
-             }
-             else
-             {
-                 serializer.Serialize(writer, value);
-             }
+            if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IQueryable<>)))
+            {
+                serializer.Serialize(writer, ((IEnumerable)value).OfType<object>().ToList());
+            }
+            else
+            {
+                serializer.Serialize(writer, value);
+            }
 
-             writer.Flush();
-         });
+            writer.Flush();
+        });
     }
 
     public override Task<object> ReadFromStreamAsync(Type type, Stream stream, HttpContent contentHeaders, IFormatterLogger formatterLogger)
@@ -67,7 +66,7 @@ internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
             return JsonSerializer.Create(serializerSettings).Deserialize(GetReader(contentHeaders.Headers, stream), type);
         });
     }
-    
+
     private static JsonReader GetReader(HttpContentHeaders contentHeaders, Stream stream)
     {
         if (contentHeaders.ContentType.MediaType.EndsWith("json"))

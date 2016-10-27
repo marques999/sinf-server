@@ -12,6 +12,13 @@ namespace FirstREST.Lib_Primavera.Model
             set;
         }
 
+        [JsonProperty(PropertyName = "status")]
+        public string Status
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "taxNumber")]
         public string TaxNumber
         {

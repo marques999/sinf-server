@@ -14,7 +14,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                return new SuccessResponse(ProductIntegration.listProducts());
+                return new SuccessResponse(ProductIntegration.Get());
             }
             catch (Exception ex)
             {
@@ -22,13 +22,13 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/products/?id={$productId}
+        // GET api/products/{$productId}/
         // FEATURE: Visualizar produto
-        public ServerResponse Get([FromUri] string id)
+        public ServerResponse Get(string id)
         {
             try
             {
-                return new SuccessResponse(ProductIntegration.getProduct(id));
+                return new SuccessResponse(ProductIntegration.Get(id));
             }
             catch (Exception ex)
             {

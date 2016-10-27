@@ -15,7 +15,7 @@ namespace FirstREST.Lib_Primavera.Model
 
         public HttpResponseMessage sendResponse(HttpRequestMessage paramRequest)
         {
-            return paramRequest.CreateResponse(HttpStatusCode.BadRequest, this);
+            return paramRequest.CreateResponse(HttpStatusCode.OK, this);
         }
     }
 }

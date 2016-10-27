@@ -224,13 +224,18 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Lib_Primavera\Integration\AccountIntegration.cs" />
+    <Compile Include="Lib_Primavera\Integration\AgendaIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\ContactIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\LeadIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\OpportunityIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\ProductIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\QuoteIntegration.cs" />
+    <Compile Include="Lib_Primavera\Integration\WarehouseIntegration.cs" />
     <Compile Include="Lib_Primavera\Model\Activity.cs" />
+    <Compile Include="Lib_Primavera\Model\Agenda.cs" />
+    <Compile Include="Lib_Primavera\Model\Company.cs" />
     <Compile Include="Lib_Primavera\Model\Contact.cs" />
+    <Compile Include="Lib_Primavera\SqlColumn.cs" />
     <Compile Include="Models\DatabaseException.cs" />
     <Compile Include="Models\EntityExistsException.cs" />
     <Compile Include="Models\ErrorResponse.cs" />
@@ -255,6 +260,19 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Lib_Primavera\Clauses\JoinClause.cs" />
+    <Compile Include="Lib_Primavera\Clauses\OrderByClause.cs" />
+    <Compile Include="Lib_Primavera\Clauses\TopClause.cs" />
+    <Compile Include="Lib_Primavera\Clauses\WhereClause.cs" />
+    <Compile Include="Lib_Primavera\Clauses\WhereStatement.cs" />
+    <Compile Include="Lib_Primavera\Enums\Comparison.cs" />
+    <Compile Include="Lib_Primavera\Enums\JoinType.cs" />
+    <Compile Include="Lib_Primavera\Enums\LogicOperator.cs" />
+    <Compile Include="Lib_Primavera\Enums\Sorting.cs" />
+    <Compile Include="Lib_Primavera\Enums\TopUnit.cs" />
+    <Compile Include="Lib_Primavera\IQueryBuilder.cs" />
+    <Compile Include="Lib_Primavera\QueryBuilder.cs" />
+    <Compile Include="Lib_Primavera\SqlLiteral.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
@@ -376,7 +394,9 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="QueryBuilder\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>

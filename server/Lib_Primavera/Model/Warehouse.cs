@@ -23,17 +23,15 @@ namespace FirstREST.Lib_Primavera.Model
         [JsonProperty(PropertyName = "location")]
         public Address Location
         {
-            get
-            {
-                return Location;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    Location = value;
-                }
-            }
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "stock")]
+        public double Stock
+        {
+            get;
+            set;
         }
     }
 }

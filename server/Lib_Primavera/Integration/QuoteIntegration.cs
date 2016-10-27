@@ -24,7 +24,9 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == false)
+            var quotesTable = PriEngine.Engine.Comercial.Vendas;
+
+            if (quotesTable.ExisteID(paramId) == false)
             {
                 return null;
             }
@@ -39,7 +41,9 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == false)
+            var quotesTable = PriEngine.Engine.Comercial.Vendas;
+
+            if (quotesTable.ExisteID(paramId) == false)
             {
                 throw new NotFoundException();
             }
@@ -52,7 +56,9 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == true)
+            var quotesTable = PriEngine.Engine.Comercial.Vendas;
+
+            if (quotesTable.ExisteID(paramId))
             {
                 throw new EntityExistsException();
             }

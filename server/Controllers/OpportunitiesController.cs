@@ -26,9 +26,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/opportunities/?id={$opportuniyId}
+        // GET api/opportunities/{$opportuniyId}/
         // FEATURE: Visualizar oportunidade
-        public ServerResponse Get([FromUri] string id)
+        public ServerResponse Get(string id)
         {
             try
             {

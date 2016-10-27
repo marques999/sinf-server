@@ -2,13 +2,55 @@
 using System.Collections.Generic;
 
 using Interop.GcpBE900;
+using Interop.StdBE900;
 
+using FirstREST.Lib_Primavera.Enums;
 using FirstREST.Lib_Primavera.Model;
 
 namespace FirstREST.Lib_Primavera.Integration
 {
     public class LeadIntegration
     {
+        private static SqlColumn[] sqlColummns =
+        {
+            new SqlColumn("CONTACTOS.Contacto", null),
+            new SqlColumn("CONTACTOS.Titulo", null),
+            new SqlColumn("CONTACTOS.PrimeiroNome", null),
+            new SqlColumn("CONTACTOS.UltimoNome", null),
+            new SqlColumn("CONTACTOS.DataUltContacto", null),
+            new SqlColumn("CONTACTOS.Email", null),
+            new SqlColumn("CONTACTOS.Telefone", null),
+            new SqlColumn("CONTACTOS.Telemovel", null),
+            new SqlColumn("CONTACTOS.CodPostal", null),
+            new SqlColumn("CONTACTOS.Morada", null),
+            new SqlColumn("CONTACTOS.Pais", null),
+            new SqlColumn("CONTACTOS.Localidade", null),
+            new SqlColumn("CONTACTOS.Distrito", null)
+        };
+
+        private static Lead Generate(StdBELista queryResult)
+        {
+            return new Lead()
+            {
+                Identifier = queryResult.Valor("Contacto"),
+                Title = queryResult.Valor("Titulo"),
+                Name = queryResult.Valor("PrimeiroNome") + " " + queryResult.Valor("UltimoNome"),
+                Email = queryResult.Valor("Email"),
+                Phone = queryResult.Valor("Telefone"),
+                LastContact = queryResult.Valor("DataUltContacto"),
+                MobilePhone = queryResult.Valor("Telemovel"),
+
+                Location = new Address
+                {
+                    PostalCode = queryResult.Valor("CodPostal"),
+                    Street = queryResult.Valor("Morada"),
+                    Country = queryResult.Valor("Pais"),
+                    Parish = queryResult.Valor("Localidade"),
+                    State = queryResult.Valor("Distrito"),
+                },
+            };
+        }
+
         public static List<Lead> GetLeads()
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
@@ -16,27 +58,26 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var accounts = new List<Lead>();
-            var queryResult = PriEngine.Consulta("SELECT Cliente, Nome, Moeda, NumContrib as NumContribuinte, Fac_Mor AS campo_exemplo FROM CLIENTES");
+            var queryResult = new List<Lead>();
+            var queryObject = PriEngine.Consulta(new QueryBuilder().FromTable("CONTACTOS").Columns(sqlColummns));
 
-            while (!queryResult.NoFim())
+            while (!queryObject.NoFim())
             {
-                accounts.Add(new Lead
-                {
-                    Name = queryResult.Valor("Nome"),
-                    /*                    Address = new Address
-                                        {
-                                            Street = queryResult.Valor("Morada"),
-                                            PostalCode = queryResult.Valor("CodigoPostal"),
-                                            Country = queryResult.Valor("Pais"),
-                                            City = queryResult.Valor("Zona")
-                                        }*/
-                });
-
-                queryResult.Seguinte();
+                queryResult.Add(Generate(queryObject));
+                queryObject.Seguinte();
             }
 
-            return accounts;
+            queryResult.Sort(delegate(Lead lhs, Lead rhs)
+            {
+                if (lhs.Identifier == null || rhs.Identifier == null)
+                {
+                    return -1;
+                }
+
+                return lhs.Identifier.CompareTo(rhs.Identifier);
+            });
+
+            return queryResult;
         }
 
         public static Lead GetLead(string paramId)
@@ -46,69 +87,66 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == false)
+            /*if (PriEngine.Clientes.Existe(paramId) == false)
             {
                 throw new NotFoundException();
-            }
+            }*/
 
-            var queryResult = PriEngine.Clientes.Edita(paramId);
-
-            return new Lead
-            {
-                Name = queryResult.get_Nome(),
-
-                Location = new Address
-                {
-                    Street = queryResult.get_Morada(),
-                    PostalCode = queryResult.get_CodigoPostal(),
-                    Country = queryResult.get_Pais(),
-                    City = queryResult.get_Zona()
-                }
-            };
+            return Generate(PriEngine.Consulta(new QueryBuilder()
+                .FromTable("CONTACTOS")
+                .Columns(sqlColummns)
+                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
         }
 
-        public static void updateLead(string paramId, Lead paramObject)
+        public static void UpdateLead(string paramId, Lead paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == false)
+            var tabelaLeads = PriEngine.Engine.Comercial.Clientes;
+
+            if (tabelaLeads.Existe(paramId) == false)
             {
                 throw new NotFoundException();
             }
 
-            var myLead = PriEngine.Clientes.Edita(paramId);
+            var newInstance = tabelaLeads.Edita(paramId);
 
-            myLead.set_EmModoEdicao(true);
-            myLead.set_Nome(paramObject.Name);
-            myLead.set_Morada(paramObject.Location.Street);
-            myLead.set_Zona(paramObject.Location.City);
-            myLead.set_Pais(paramObject.Location.Country);
-            myLead.set_CodigoPostal(paramObject.Location.PostalCode);
-            myLead.set_Pais(paramObject.Location.Coordinates);
-            PriEngine.Clientes.Actualiza(myLead);
+            newInstance.set_EmModoEdicao(true);
+            newInstance.set_Nome(paramObject.Name);
+            newInstance.set_Morada(paramObject.Location.Street);
+            newInstance.set_Zona(paramObject.Location.State);
+            newInstance.set_Pais(paramObject.Location.Country);
+            newInstance.set_CodigoPostal(paramObject.Location.PostalCode);
+            newInstance.set_Pais(paramObject.Location.Country);
+            tabelaLeads.Actualiza(newInstance);
         }
 
-        public static void createLead(string paramId, Lead paramObject)
+        public static void CreateLead(string paramId, Lead paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Clientes.Existe(paramId) == true)
+            var newInstance = new GcpBECliente();
+            var tabelaLeads = PriEngine.Engine.Comercial.Clientes;
+
+            if (tabelaLeads.Existe(paramId))
             {
                 throw new EntityExistsException();
             }
 
-            var myLead = new GcpBECliente();
-
-            myLead.set_Cliente(paramId);
-            myLead.set_Nome(paramObject.Name);
-            myLead.set_Morada(paramObject.Location.Street);
-            PriEngine.Clientes.Actualiza(myLead);
+            newInstance.set_Cliente(paramId);
+            newInstance.set_Nome(paramObject.Name);
+            newInstance.set_Morada(paramObject.Location.Street);
+            newInstance.set_Zona(paramObject.Location.State);
+            newInstance.set_Pais(paramObject.Location.Country);
+            newInstance.set_CodigoPostal(paramObject.Location.PostalCode);
+            newInstance.set_Pais(paramObject.Location.Country);
+            tabelaLeads.Actualiza(newInstance);
         }
     }
 }

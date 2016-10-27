@@ -1,55 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Interop.StdBE900;
+
+using FirstREST.Lib_Primavera;
 using FirstREST.Lib_Primavera.Model;
+using FirstREST.Lib_Primavera.Enums;
 
 namespace FirstREST.Lib_Primavera.Integration
 {
     public class ProductIntegration
     {
-        public static Product getProduct(string productId)
+        private static SqlColumn[] sqlColumns =
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
+            new SqlColumn("ARTIGO.Artigo", null),
+            new SqlColumn("ARTIGO.Descricao", null),
+            new SqlColumn("ARTIGO.PCMedio", null),
+            new SqlColumn("ARTIGO.Desconto", null),
+            new SqlColumn("ARTIGO.Iva", null),
+            new SqlColumn("FAMILIAS.Descricao", "Familia"),
+            new SqlColumn("ARTIGO.STKActual", "Stock")
+        };
 
+        private static Product Generate(StdBELista queryResult)
+        {
+            string productId = queryResult.Valor("Artigo");
+
+            return new Product()
+            {
+                Identifier = productId,
+                Name = queryResult.Valor("Descricao"),
+                Price = queryResult.Valor("PCMedio"),
+                DiscountValue = queryResult.Valor("Desconto"),
+                Tax = Convert.ToDouble(queryResult.Valor("Iva")),
+                Category = queryResult.Valor("Familia"),
+                Stock = queryResult.Valor("Stock"),
+                Warehouses = WarehouseIntegration.GetWarehouses(productId)
+            };
+        }
+
+        public static Product Get(string productId)
+        {
             if (PriEngine.Produtos.Existe(productId) == false)
             {
                 throw new NotFoundException();
             }
 
-            var queryResult = PriEngine.Produtos.Edita(productId);
-
-            return new Product
-            {
-                Identifier = queryResult.get_Artigo(),
-                Name = queryResult.get_Descricao()
-            };
+            return Generate(PriEngine.Consulta(new QueryBuilder()
+                .FromTable("ARTIGO")
+                .Columns(sqlColumns)
+                .Where("ARTIGO.Artigo", Comparison.Equals, productId)
+                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")));
         }
 
-        public static List<Product> listProducts()
+        public static List<Product> Get()
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            var queryResult = new List<Product>();
+            var queryObject = PriEngine.Consulta(new QueryBuilder()
+                .FromTable("ARTIGO")
+                .Columns(sqlColumns)
+                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
+
+            while (!queryObject.NoFim())
             {
-                throw new DatabaseConnectionException();
+                queryResult.Add(Generate(queryObject));
+                queryObject.Seguinte();
             }
 
-            var productList = new List<Product>();
-            var queryResult = PriEngine.Produtos.LstArtigos();
-
-            while (!queryResult.NoFim())
+            queryResult.Sort(delegate(Product lhs, Product rhs)
             {
-                productList.Add(new Product
+                if (lhs.Identifier == null || rhs.Identifier == null)
                 {
-                    Identifier = queryResult.Valor("artigo"),
-                    Name = queryResult.Valor("descricao")
-                });
+                    return -1;
+                }
 
-                queryResult.Seguinte();
-            }
+                return lhs.Identifier.CompareTo(rhs.Identifier);
+            });
 
-            return productList;
+            return queryResult;
         }
     }
 }

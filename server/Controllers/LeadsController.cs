@@ -26,9 +26,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/leads/?id={$leadId}
+        // GET api/leads/{$leadId}/
         // FEATURE: Visualizar lead
-        public ServerResponse Get([FromUri] string id)
+        public ServerResponse Get(string id)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                LeadIntegration.createLead("leadId", myInstance);
+                LeadIntegration.CreateLead("leadId", myInstance);
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace FirstREST.Controllers
             return new SuccessResponse(true).sendResponse(Request);
         }
 
-        // POST api/leads/{$paramId}
+        // POST api/leads/{$paramId}/
         // FEATURE: Modificar lead existente
         public HttpResponseMessage Post(string leadId, [FromBody] string jsonString)
         {
@@ -86,7 +86,7 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                LeadIntegration.updateLead(leadId, myInstance);
+                LeadIntegration.UpdateLead(leadId, myInstance);
             }
             catch (Exception ex)
             {

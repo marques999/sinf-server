@@ -9,11 +9,20 @@ using Interop.ErpBS900;
 using Interop.StdPlatBS900;
 using Interop.StdBE900;
 using Interop.IGcpBS900;
+using FirstREST.Lib_Primavera.Model;
 
 namespace FirstREST.Lib_Primavera
 {
     public class PriEngine
     {
+        static PriEngine()
+        {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+        }
+        
         public static StdPlatBS Platform
         {
             get;
@@ -42,13 +51,18 @@ namespace FirstREST.Lib_Primavera
             }
         }
 
-        public static StdBELista Consulta(string queryString)
+        public static StdBELista Consulta(QueryBuilder queryString)
         {
-            return Engine.Consulta(queryString);
+            return Engine.Consulta(queryString.BuildQuery());
         }
 
         public static bool InitializeCompany(string Company, string User, string Password)
         {
+            if (Platform != null && Platform.Inicializada)
+            {
+                return true;
+            }
+            
             var objAplConf = new StdBSConfApl();
 
             objAplConf.Instancia = "Default";

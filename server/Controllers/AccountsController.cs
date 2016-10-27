@@ -18,7 +18,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                return new SuccessResponse(AccountIntegration.listAccounts());
+                return new SuccessResponse(AccountIntegration.GetAccounts());
             }
             catch (Exception ex)
             {
@@ -26,13 +26,13 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/accounts/?id={$accountId}
+        // GET api/accounts/{$accountId}/
         // FEATURE: Visualizar cliente
-        public ServerResponse Get([FromUri] string id)
+        public ServerResponse Get(string id)
         {
             try
             {
-                return new SuccessResponse(AccountIntegration.getAccount(id));
+                return new SuccessResponse(AccountIntegration.GetAccount(id));
             }
             catch (Exception ex)
             {

@@ -26,9 +26,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/contacts/?id={$contactId}
+        // GET api/contacts/{$contactId}/
         // FEATURE: Visualizar cliente
-        public ServerResponse Get([FromUri] string id)
+        public ServerResponse Get(string id)
         {
             try
             {

@@ -1,4 +1,5 @@
-﻿using FirstREST.Lib_Primavera.Model;
+﻿using FirstREST.Lib_Primavera.Integration;
+using FirstREST.Lib_Primavera.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,56 +12,72 @@ namespace FirstREST.Controllers
 {
     public class AgendaController : ApiController
     {
-        // GET api/agenda/calls/
-        public IEnumerable<string> Get(string when, string type)
+        public static Agenda ParseWhen(string value)
         {
-            if (when != null) Console.WriteLine(when);
-
-            switch (type)
+            if (string.IsNullOrEmpty(value))
             {
-                case "tasks":
-                    return GetTasks(when);
-                case " meetings":
-                    return GetMeetings(when);
-                case "calls":
-                    return GetCalls(when);
+                return Agenda.Today;
             }
 
-            return GetActivities(when);
+            Agenda parseResult;
+
+            return Enum.TryParse(value, true, out parseResult) ? parseResult : Agenda.Today;
+        }
+
+        public static AgendaType ParseType(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return AgendaType.Everything;
+            }
+
+            AgendaType parseResult;
+
+            if (Enum.TryParse(value, true, out parseResult))
+            {
+                return parseResult;
+            }
+
+            return AgendaType.Everything;
         }
 
         // GET api/agenda/
-        public IEnumerable<string> Get(string when)
+        public ServerResponse Get()
         {
-            return GetActivities(when);
+            try
+            {
+                return new SuccessResponse(AgendaIntegration.Get(AgendaType.Everything, AgendaStatus.Ongoing, Agenda.Today));
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponse(ex.Message);
+            }
         }
 
-        // GET api/agenda/calls/
-        // FEATURE: Histórico de chamadas
-        private IEnumerable<string> GetCalls(string activityId)
+        // GET api/agenda/today/
+        public ServerResponse Get(string when)
         {
-            return new string[] { "value1", activityId };
+            try
+            {
+                return new SuccessResponse(AgendaIntegration.Get(AgendaType.Everything, AgendaStatus.Ongoing, ParseWhen(when)));
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponse(ex.Message);
+            }
         }
 
-        // GET api/agenda/all/
-        // FEATURE: Histórico de actividades
-        private IEnumerable<string> GetActivities(string activityId)
+        // GET api/agenda/calls/today/
+        public ServerResponse Get(string type, string when)
         {
-            return new string[] { "value1", activityId };
-        }
-
-        // GET api/agenda/tasks/
-        // FEATURE: Histórico de tarefas
-        private IEnumerable<string> GetTasks(string activityId)
-        {
-            return new string[] { "value1", activityId };
-        }
-
-        // GET api/agenda/meetings
-        // FEATURE: Histórico de reuniões
-        private IEnumerable<string> GetMeetings(string activityId)
-        {
-            return new string[] { "value1", activityId };
+            try
+            {
+                return new SuccessResponse(AgendaIntegration.Get(ParseType(type), AgendaStatus.Ongoing, ParseWhen(when)));
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResponse(ex.Message);
+            }
         }
 
         // POST api/agenda/
