@@ -6,6 +6,16 @@ namespace FirstREST.Lib_Primavera.Model
     [Serializable]
     public class Warehouse
     {
+        /// <summary>
+        /// Private access fields
+        /// </summary>
+
+        private double _stock;
+
+        /// <summary>
+        /// Public access properties
+        /// </summary>
+
         [JsonProperty(PropertyName = "id")]
         public string Identifier
         {
@@ -30,8 +40,21 @@ namespace FirstREST.Lib_Primavera.Model
         [JsonProperty(PropertyName = "stock")]
         public double Stock
         {
-            get;
-            set;
+            get
+            {
+                return _stock;
+            }
+            set
+            {
+                if (value < 0.0)
+                {
+                    _stock = 0.0;
+                }
+                else
+                {
+                    _stock = value;
+                }
+            }
         }
     }
 }

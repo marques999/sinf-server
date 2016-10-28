@@ -49,16 +49,9 @@ namespace FirstREST.Lib_Primavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "lastContact")]
-        public string LastContact
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "createdAt")]
+        [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(JavaScriptDateTimeConverter))]
-        public DateTime DateCreated
+        public DateTime DateModified
         {
             get;
             set;

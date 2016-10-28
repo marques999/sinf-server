@@ -7,7 +7,7 @@ namespace FirstREST.Controllers
         public static void RegisterJsonNetMediaTypeFormatter(MediaTypeFormatterCollection formatters)
         {
             formatters.Clear();
-            formatters.Add(new JsonNetMediaTypeFormatter());
+            formatters.Add(new JsonFormatter());
         }
     }
 }

@@ -15,14 +15,6 @@ namespace FirstREST.Lib_Primavera
 {
     public class PriEngine
     {
-        static PriEngine()
-        {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-        }
-        
         public static StdPlatBS Platform
         {
             get;
@@ -62,7 +54,8 @@ namespace FirstREST.Lib_Primavera
             {
                 return true;
             }
-            
+
+            bool blnModoPrimario = true;
             var objAplConf = new StdBSConfApl();
 
             objAplConf.Instancia = "Default";
@@ -72,7 +65,6 @@ namespace FirstREST.Lib_Primavera
             objAplConf.LicVersaoMinima = "9.00";
 
             var MotorLE = new ErpBS();
-            bool blnModoPrimario = true;
             var Plataforma = new StdPlatBS();
             var objStdTransac = new StdBETransaccao();
             var tipoPlataforma = EnumTipoPlataforma.tpProfissional;
@@ -83,14 +75,14 @@ namespace FirstREST.Lib_Primavera
             }
             catch
             {
-                throw new Exception("Error on open Primavera Platform.");
+                return false;
             }
 
             if (Plataforma.Inicializada)
             {
                 Platform = Plataforma;
                 MotorLE.AbreEmpresaTrabalho(EnumTipoPlataforma.tpProfissional, ref Company, ref User, ref Password, ref objStdTransac, "Default", ref blnModoPrimario);
-                MotorLE.set_CacheActiva(false);
+                MotorLE.set_CacheActiva(true);
                 Engine = MotorLE;
             }
 

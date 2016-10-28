@@ -46,7 +46,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -58,14 +58,19 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                OpportunityIntegration.CreateOpportunity("opportunityId", myInstance);
+                if (OpportunityIntegration.CreateOpportunity("opportunityId", myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
 
         // POST api/opportunities/{$opportunityId}/
@@ -74,7 +79,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -86,14 +91,19 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                OpportunityIntegration.UpdateOpportunity(opportunityId, myInstance);
+                if (OpportunityIntegration.UpdateOpportunity(opportunityId, myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
     }
 }

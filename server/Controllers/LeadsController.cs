@@ -46,7 +46,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -58,23 +58,28 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                LeadIntegration.CreateLead("leadId", myInstance);
+                if (LeadIntegration.CreateLead("leadId", myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
 
         // POST api/leads/{$paramId}/
         // FEATURE: Modificar lead existente
-        public HttpResponseMessage Post(string leadId, [FromBody] string jsonString)
+        public HttpResponseMessage Post(string paramId, [FromBody] string jsonString)
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -86,14 +91,19 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                LeadIntegration.UpdateLead(leadId, myInstance);
+                if (LeadIntegration.UpdateLead(paramId, myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
     }
 }

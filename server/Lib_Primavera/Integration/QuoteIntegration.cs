@@ -34,34 +34,34 @@ namespace FirstREST.Lib_Primavera.Integration
             return null;
         }
 
-        public static void UpdateQuote(string paramId, Quote paramObject)
+        public static bool UpdateQuote(string paramId, Quote paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var quotesTable = PriEngine.Engine.Comercial.Vendas;
-
-            if (quotesTable.ExisteID(paramId) == false)
+            if (PriEngine.Engine.Comercial.Vendas.ExisteID(paramId) == false)
             {
-                throw new NotFoundException();
+                return false;
             }
+
+            return true;
         }
 
-        public static void CreateQuote(string paramId, Quote paramObject)
+        public static bool CreateQuote(string paramId, Quote paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var quotesTable = PriEngine.Engine.Comercial.Vendas;
-
-            if (quotesTable.ExisteID(paramId))
+            if (PriEngine.Engine.Comercial.Vendas.ExisteID(paramId))
             {
-                throw new EntityExistsException();
+                return false;
             }
+
+            return true;
         }
     }
 }

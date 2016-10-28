@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using Interop.StdBE900;
-
 using FirstREST.Lib_Primavera.Enums;
 using FirstREST.Lib_Primavera.Model;
 
@@ -23,6 +21,11 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static List<Warehouse> GetWarehouses(string productId)
         {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
             var queryResult = new List<Warehouse>();
             var queryObject = PriEngine.Consulta(new QueryBuilder()
                 .FromTable("ARTIGOARMAZEM")
@@ -34,32 +37,22 @@ namespace FirstREST.Lib_Primavera.Integration
             {
                 queryResult.Add(new Warehouse
                 {
-                    Identifier = queryObject.Valor("Armazem"),
-                    Name = queryObject.Valor("Descricao"),
-                    Stock = queryObject.Valor("StkActual"),
+                    Identifier = TypeParser.String(queryObject.Valor("Armazem")),
+                    Name = TypeParser.String(queryObject.Valor("Descricao")),
+                    Stock = TypeParser.Double(queryObject.Valor("StkActual")),
 
                     Location = new Address
                     {
-                        PostalCode = queryObject.Valor("Cp"),
-                        Street = queryObject.Valor("Morada"),
-                        Country = queryObject.Valor("Pais"),
-                        Parish = queryObject.Valor("Localidade"),
-                        State = queryObject.Valor("Distrito"),
+                        PostalCode = TypeParser.String(queryObject.Valor("Cp")),
+                        Street = TypeParser.String(queryObject.Valor("Morada")),
+                        Country = TypeParser.String(queryObject.Valor("Pais")),
+                        Parish = TypeParser.String(queryObject.Valor("Localidade")),
+                        State = TypeParser.String(queryObject.Valor("Distrito")),
                     }
                 });
 
                 queryObject.Seguinte();
             }
-
-            queryResult.Sort(delegate(Warehouse lhs, Warehouse rhs)
-            {
-                if (lhs.Identifier == null || rhs.Identifier == null)
-                {
-                    return -1;
-                }
-
-                return lhs.Identifier.CompareTo(rhs.Identifier);
-            });
 
             return queryResult;
         }

@@ -31,21 +31,21 @@ namespace FirstREST.Lib_Primavera.Integration
         {
             return new Account()
             {
-                Identifier = queryResult.Valor("Cliente"),
-                Name = queryResult.Valor("Nome"),
-                Status = queryResult.Valor("Situacao"),
-                DateCreated = queryResult.Valor("DataCriacao"),
-                LastContact = queryResult.Valor("DataUltimaActualizacao"),
-                Website = queryResult.Valor("EnderecoWeb"),
-                Phone = queryResult.Valor("Fac_Tel"),
+                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
+                Name = TypeParser.String(queryResult.Valor("Nome")),
+                Status = TypeParser.String(queryResult.Valor("Situacao")),
+                DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
+                DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
+                Website = TypeParser.String(queryResult.Valor("EnderecoWeb")),
+                Phone = TypeParser.String(queryResult.Valor("Fac_Tel")),
 
                 Location = new Address
                 {
-                    PostalCode = queryResult.Valor("Fac_Cp"),
-                    Street = queryResult.Valor("Fac_Mor"),
-                    Country = queryResult.Valor("Pais"),
-                    Parish = queryResult.Valor("Fac_Local"),
-                    State = queryResult.Valor("Distrito"),
+                    PostalCode = TypeParser.String(queryResult.Valor("Fac_Cp")),
+                    Street = TypeParser.String(queryResult.Valor("Fac_Mor")),
+                    Country = TypeParser.String(queryResult.Valor("Pais")),
+                    Parish = TypeParser.String(queryResult.Valor("Fac_Local")),
+                    State = TypeParser.String(queryResult.Valor("Distrito")),
                 },
             };
         }
@@ -86,12 +86,10 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            /*var accountsTable = PriEngine.Engine.Comercial.Clientes;
-
-            if (accountsTable.Existe(paramId) == false)
+            if (PriEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
             {
                 throw new NotFoundException();
-            }*/
+            }
 
             return Generate(PriEngine.Consulta(new QueryBuilder()
                 .FromTable("CLIENTES")
@@ -99,56 +97,117 @@ namespace FirstREST.Lib_Primavera.Integration
                 .Where("CLIENTES.Cliente", Comparison.Equals, paramId)));
         }
 
-        public static void UpdateAccount(string paramId, Account paramInstance)
+        private static void SetFields(GcpBECliente selectedRow, Account paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (paramObject.Name != null)
             {
-                throw new DatabaseConnectionException();
+                selectedRow.set_Nome(paramObject.Name.Trim());
             }
 
-            var accountsTable = PriEngine.Engine.Comercial.Clientes;
-
-            if (accountsTable.Existe(paramId) == false)
+            if (paramObject.Status != null)
             {
-                throw new NotFoundException();
+                selectedRow.set_Situacao(paramObject.Status);
             }
 
-            var myAccount = accountsTable.Edita(paramId);
+            if (paramObject.Currency != null)
+            {
+                selectedRow.set_Moeda(paramObject.Currency);
+            }
 
-            myAccount.set_EmModoEdicao(true);
-            myAccount.set_Nome(paramInstance.Name);
-            myAccount.set_NumContribuinte(paramInstance.TaxNumber);
-            myAccount.set_Moeda(paramInstance.Currency);
-            myAccount.set_Morada(paramInstance.Location.Street);
-            myAccount.set_Zona(paramInstance.Location.State);
-            myAccount.set_Pais(paramInstance.Location.Country);
-            myAccount.set_CodigoPostal(paramInstance.Location.PostalCode);
-            myAccount.set_Pais(paramInstance.Location.Country);
-            accountsTable.Actualiza(myAccount);
+            if (paramObject.TaxNumber != null)
+            {
+                selectedRow.set_NumContribuinte(paramObject.TaxNumber);
+            }
+
+            if (paramObject.DateModified != null)
+            {
+                selectedRow.set_DataUltimaActualizacao(paramObject.DateModified);
+            }
+
+            if (paramObject.Phone != null)
+            {
+                selectedRow.set_Telefone(paramObject.Phone);
+            }
+
+            if (paramObject.Website != null)
+            {
+                selectedRow.set_EnderecoWeb(paramObject.Website);
+            }
+
+            if (paramObject.Location != null)
+            {
+                var objectLocation = paramObject.Location;
+
+                if (objectLocation.Street != null)
+                {
+                    selectedRow.set_Morada(paramObject.Location.Street.Trim());
+                }
+
+                if (objectLocation.State != null)
+                {
+                    selectedRow.set_Distrito(paramObject.Location.State.Trim());
+                }
+
+                if (objectLocation.Parish != null)
+                {
+                    selectedRow.set_Localidade(paramObject.Location.Parish.Trim());
+                }
+
+                if (objectLocation.PostalCode != null)
+                {
+                    selectedRow.set_CodigoPostal(paramObject.Location.PostalCode.Trim());
+                }
+
+                if (objectLocation.Country != null)
+                {
+                    selectedRow.set_Pais(paramObject.Location.Country.Trim());
+                }
+            }
         }
 
-        public static void CreateAccount(string paramId, Account paramInstance)
+        public static bool UpdateAccount(string paramId, Account paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var accountsTable = PriEngine.Engine.Comercial.Clientes;
+            var selectedTable = PriEngine.Engine.Comercial.Clientes;
 
-            if (accountsTable.Existe(paramId) == true)
+            if (selectedTable.Existe(paramId) == false)
             {
-                throw new EntityExistsException();
+                return false;
             }
 
-            var myAccount = new GcpBECliente();
+            var selectedRow = selectedTable.Edita(paramId);
 
-            myAccount.set_Cliente(paramId);
-            myAccount.set_Nome(paramInstance.Name);
-            myAccount.set_NumContribuinte(paramInstance.TaxNumber);
-            myAccount.set_Moeda(paramInstance.Currency);
-            myAccount.set_Morada(paramInstance.Location.Street);
-            accountsTable.Actualiza(myAccount);
+            selectedRow.set_EmModoEdicao(true);
+            SetFields(selectedRow, paramObject);
+            selectedTable.Actualiza(selectedRow);
+
+            return true;
+        }
+
+        public static bool CreateAccount(string paramId, Account paramObject)
+        {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var selectedRow = new GcpBECliente();
+            var selectedTable = PriEngine.Engine.Comercial.Clientes;
+
+            if (selectedTable.Existe(paramId))
+            {
+                return false;
+            }
+
+            selectedRow.set_Cliente(paramId);
+            SetFields(selectedRow, paramObject);
+            selectedTable.Actualiza(selectedRow);
+
+            return true;
         }
     }
 }

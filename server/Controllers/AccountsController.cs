@@ -46,7 +46,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -58,23 +58,28 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                AccountIntegration.CreateAccount("accountId", myInstance);
+                if (AccountIntegration.CreateAccount("accountId", myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
 
         // POST api/accounts/{$accountId}/
         // FEATURE: Modificar cliente existente
-        public HttpResponseMessage Post(string accountId, [FromBody] string jsonString)
+        public HttpResponseMessage Post(string paramId, [FromBody] string jsonString)
         {
             try
             {
-                if (jsonString == null || jsonString.Length == 0)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
@@ -86,14 +91,19 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                AccountIntegration.UpdateAccount(accountId, myInstance);
+                if (AccountIntegration.UpdateAccount(paramId, myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return new ErrorResponse(ex.Message).sendResponse(Request);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-
-            return new SuccessResponse(true).sendResponse(Request);
         }
     }
 }

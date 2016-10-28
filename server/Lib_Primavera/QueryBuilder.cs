@@ -85,19 +85,25 @@ namespace FirstREST.Lib_Primavera
             _selectedColumns.Clear();
         }
 
-        public void SelectCount()
+        public QueryBuilder SelectCount()
         {
-            SelectColumn("count(1)", "count");
+            return Column("count(*)", "Count");
         }
 
-        public void SelectColumn(string column)
+        public QueryBuilder Column(string column)
         {
-            _selectedColumns.Add(new SqlColumn { Name = column, Alias = null });
+            return Column(column, null);
         }
 
-        public void SelectColumn(string column, string columnAs)
+        public QueryBuilder Column(string column, string columnAs)
         {
-            _selectedColumns.Add(new SqlColumn { Name = column, Alias = columnAs });
+            _selectedColumns.Add(new SqlColumn
+            {
+                Name = column,
+                Alias = columnAs
+            });
+
+            return this;
         }
 
         public QueryBuilder Columns(params string[] columns)
@@ -106,7 +112,11 @@ namespace FirstREST.Lib_Primavera
 
             foreach (string column in columns)
             {
-                _selectedColumns.Add(new SqlColumn { Name = column, Alias = null });
+                _selectedColumns.Add(new SqlColumn
+                {
+                    Name = column,
+                    Alias = null
+                });
             }
 
             return this;
@@ -131,12 +141,14 @@ namespace FirstREST.Lib_Primavera
         {
             _selectedTables.Clear();
             _selectedTables.AddRange(tables);
+
             return this;
         }
 
         public QueryBuilder AddJoin(JoinClause newJoin)
         {
             _joins.Add(newJoin);
+
             return this;
         }
 
@@ -149,7 +161,7 @@ namespace FirstREST.Lib_Primavera
         {
             return Join(JoinType.RightJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
         }
-        
+
         public QueryBuilder InnerJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             return Join(JoinType.InnerJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
@@ -163,6 +175,7 @@ namespace FirstREST.Lib_Primavera
         private QueryBuilder Join(JoinType join, string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             _joins.Add(new JoinClause(join, toTableName, toColumnName, @operator, fromTableName, fromColumnName));
+
             return this;
         }
 
@@ -224,12 +237,14 @@ namespace FirstREST.Lib_Primavera
             _orderByStatement.Add(new OrderByClause(field, order));
         }
 
-        public void GroupBy(params string[] columns)
+        public QueryBuilder GroupBy(params string[] columns)
         {
             foreach (string Column in columns)
             {
                 _groupByColumns.Add(Column);
             }
+
+            return this;
         }
 
         public WhereStatement Having

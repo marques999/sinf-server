@@ -70,6 +70,14 @@
       <HintPath>..\..\..\..\..\Program Files\Common Files\PRIMAVERA\SG900\Interop.GcpBE900.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Interop.ICrmBS900">
+      <HintPath>..\..\..\Program Files\PRIMAVERA\SG900\Apl\Interop.ICrmBS900.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.ICrmDS900">
+      <HintPath>..\..\..\Program Files\PRIMAVERA\SG900\Apl\Interop.ICrmDS900.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Interop.IGcpBS900">
       <HintPath>..\..\..\Program Files\PRIMAVERA\SG900\Apl\Interop.IGcpBS900.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -211,6 +219,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AgendaController.cs" />
+    <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\JsonFormatter.cs" />
     <Compile Include="App_Start\FormatterConfig.cs" />
@@ -225,6 +234,8 @@
     </Compile>
     <Compile Include="Lib_Primavera\Integration\AccountIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\AgendaIntegration.cs" />
+    <Compile Include="Lib_Primavera\Authentication.cs" />
+    <Compile Include="Lib_Primavera\Integration\CategoryIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\ContactIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\LeadIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\OpportunityIntegration.cs" />
@@ -233,9 +244,11 @@
     <Compile Include="Lib_Primavera\Integration\WarehouseIntegration.cs" />
     <Compile Include="Lib_Primavera\Model\Activity.cs" />
     <Compile Include="Lib_Primavera\Model\Agenda.cs" />
-    <Compile Include="Lib_Primavera\Model\Company.cs" />
+    <Compile Include="Lib_Primavera\Model\Category.cs" />
+    <Compile Include="Lib_Primavera\Model\CategoryReference.cs" />
     <Compile Include="Lib_Primavera\Model\Contact.cs" />
     <Compile Include="Lib_Primavera\SqlColumn.cs" />
+    <Compile Include="Lib_Primavera\TypeParser.cs" />
     <Compile Include="Models\DatabaseException.cs" />
     <Compile Include="Models\EntityExistsException.cs" />
     <Compile Include="Models\ErrorResponse.cs" />
@@ -243,15 +256,13 @@
     <Compile Include="Models\NotFoundException.cs" />
     <Compile Include="Lib_Primavera\Model\Opportunity.cs" />
     <Compile Include="Lib_Primavera\Model\ProductOrder.cs" />
-    <Compile Include="Lib_Primavera\Model\ProductSort.cs" />
     <Compile Include="Lib_Primavera\Model\Quote.cs" />
     <Compile Include="Models\SuccessResponse.cs" />
     <Compile Include="Lib_Primavera\Model\UserReference.cs" />
     <Compile Include="Lib_Primavera\Model\Warehouse.cs" />
     <Compile Include="Lib_Primavera\Model\Product.cs" />
     <Compile Include="Lib_Primavera\Model\Account.cs" />
-    <Compile Include="Lib_Primavera\Model\LinhaDocCompra.cs" />
-    <Compile Include="Lib_Primavera\Model\LinhaDocVenda.cs" />
+    <Compile Include="Lib_Primavera\Model\Venda.cs" />
     <Compile Include="Models\ServerResponse.cs" />
     <Compile Include="Lib_Primavera\PriEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -399,6 +410,53 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="CrmBE900">
+      <Guid>{2624D301-C395-4316-A97F-98B0170BEBD4}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="CrmBS900">
+      <Guid>{41A45CB9-DCEF-49F4-BF80-FA979E9D8401}</Guid>
+      <VersionMajor>8</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="ICrmBS900">
+      <Guid>{A8EEBB5C-16A7-497E-BCF4-01371814E586}</Guid>
+      <VersionMajor>3</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="StdBE900">
+      <Guid>{58693434-A0F1-4D12-91D6-B2A22A190F67}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>11</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="VBA">
+      <Guid>{000204EF-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>6</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>9</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

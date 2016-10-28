@@ -2,12 +2,23 @@
 {
     public enum Agenda
     {
-        Today, Yesterday, Past, Future, Week, Month, Year
+        Today,
+        Yesterday,
+        Tomorrow,
+        Past,
+        Future,
+        Week,
+        Month,
+        Year
     }
 
     public enum AgendaType
     {
-        All, Tasks, Visits, Meetings, Calls
+        All,
+        Tasks,
+        Visits,
+        Meetings,
+        Calls
     }
 
     public enum AgendaStatus

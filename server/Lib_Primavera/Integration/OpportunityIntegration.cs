@@ -32,7 +32,7 @@ namespace FirstREST.Lib_Primavera.Integration
             return null;
         }
 
-        public static void UpdateOpportunity(string paramId, Opportunity paramObject)
+        public static bool UpdateOpportunity(string paramId, Opportunity paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -41,11 +41,13 @@ namespace FirstREST.Lib_Primavera.Integration
 
             if (PriEngine.Clientes.Existe(paramId) == false)
             {
-                throw new NotFoundException();
+                return false;
             }
+
+            return true;
         }
 
-        public static void CreateOpportunity(string paramId, Opportunity paramObject)
+        public static bool CreateOpportunity(string paramId, Opportunity paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -54,8 +56,10 @@ namespace FirstREST.Lib_Primavera.Integration
 
             if (PriEngine.Clientes.Existe(paramId) == true)
             {
-                throw new EntityExistsException();
+                return false;
             }
+
+            return true;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace FirstREST.Lib_Primavera.Integration
             new SqlColumn("ARTIGO.PCMedio", null),
             new SqlColumn("ARTIGO.Desconto", null),
             new SqlColumn("ARTIGO.Iva", null),
+            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),
             new SqlColumn("FAMILIAS.Descricao", "Familia"),
             new SqlColumn("ARTIGO.STKActual", "Stock")
         };
@@ -29,18 +30,55 @@ namespace FirstREST.Lib_Primavera.Integration
             return new Product()
             {
                 Identifier = productId,
-                Name = queryResult.Valor("Descricao"),
-                Price = queryResult.Valor("PCMedio"),
-                DiscountValue = queryResult.Valor("Desconto"),
-                Tax = Convert.ToDouble(queryResult.Valor("Iva")),
-                Category = queryResult.Valor("Familia"),
-                Stock = queryResult.Valor("Stock"),
+                Name = TypeParser.String(queryResult.Valor("Descricao")),
+                Price = TypeParser.Double(queryResult.Valor("PCMedio")),
+                DiscountValue = TypeParser.Double(queryResult.Valor("Desconto")),
+                Tax = TypeParser.Double(queryResult.Valor("Iva")),
+                Stock = TypeParser.Double(queryResult.Valor("Stock")),
+                Category = CategoryIntegration.getReference(queryResult),
                 Warehouses = WarehouseIntegration.GetWarehouses(productId)
             };
         }
 
-        public static Product Get(string productId)
+        public static List<Product> Get()
         {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var queryResult = new List<Product>();
+            var queryObject = PriEngine.Consulta(new QueryBuilder()
+                .FromTable("ARTIGO")
+                .Columns(sqlColumns)
+                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
+
+            while (!queryObject.NoFim())
+            {
+                queryResult.Add(Generate(queryObject));
+                queryObject.Seguinte();
+            }
+
+            queryResult.Sort(delegate(Product lhs, Product rhs)
+            {
+                if (lhs.Identifier == null || rhs.Identifier == null)
+                {
+                    return -1;
+                }
+
+                return lhs.Identifier.CompareTo(rhs.Identifier);
+            });
+
+            return queryResult;
+        }
+
+        public static Product GetByIdentifier(string productId)
+        {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
             if (PriEngine.Produtos.Existe(productId) == false)
             {
                 throw new NotFoundException();
@@ -53,13 +91,24 @@ namespace FirstREST.Lib_Primavera.Integration
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")));
         }
 
-        public static List<Product> Get()
+        public static List<Product> GetByCategory(string categoryId)
         {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            if (PriEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
+            {
+                throw new NotFoundException();
+            }
+
             var queryResult = new List<Product>();
             var queryObject = PriEngine.Consulta(new QueryBuilder()
                 .FromTable("ARTIGO")
                 .Columns(sqlColumns)
-                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
+                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")
+                .Where("ARTIGO.Familia", Comparison.Equals, categoryId));
 
             while (!queryObject.NoFim())
             {

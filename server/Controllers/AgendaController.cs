@@ -79,40 +79,64 @@ namespace FirstREST.Controllers
         {
             try
             {
-                var myActivity = JsonConvert.DeserializeObject<Activity>(jsonString);
-
-                if (myActivity == null)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+                var myInstance = JsonConvert.DeserializeObject<Activity>(jsonString);
+
+                if (myInstance == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                if (AgendaIntegration.CreateActivity("activityId", myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            catch
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
 
         // POST /api/agenda/3
         // Feature: Modificar actividade
-        public HttpResponseMessage Post(int id, [FromBody] string jsonString)
+        public HttpResponseMessage Post(string paramId, [FromBody] string jsonString)
         {
             try
             {
-                var myActivity = JsonConvert.DeserializeObject<Activity>(jsonString);
-
-                if (myActivity == null)
+                if (JsonFormatter.ValidateJson(jsonString) == false)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+                var myInstance = JsonConvert.DeserializeObject<Activity>(jsonString);
+
+                if (myInstance == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                if (AgendaIntegration.UpdateActivity(paramId, myInstance))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            catch
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

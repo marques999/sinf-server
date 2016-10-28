@@ -1,55 +1,54 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿using System;
+using Newtonsoft.Json;
+
+namespace FirstREST.Lib_Primavera.Model
 {
-    public class LinhaDocVenda
+    [Serializable]
+    public class Venda
     {
+        [JsonProperty(PropertyName = "id")]
         public string CodArtigo
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "description")]
         public string DescArtigo
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "cabecalho")]
         public string IdCabecDoc
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "quantity")]
         public double Quantidade
         {
             get;
             set;
         }
 
-        public string Unidade
-        {
-            get;
-            set;
-        }
-
+        [JsonProperty(PropertyName = "discount")]
         public double Desconto
         {
             get;
             set;
         }
 
+        [JsonProperty(PropertyName = "unit")]
         public double PrecoUnitario
         {
             get;
             set;
         }
 
-        public double TotalILiquido
-        {
-            get;
-            set;
-        }
-
+        [JsonProperty(PropertyName = "total")]
         public double TotalLiquido
         {
             get;

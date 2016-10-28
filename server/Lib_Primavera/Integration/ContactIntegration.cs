@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Interop.StdBE900;
+using Interop.CrmBE900;
+
 using FirstREST.Lib_Primavera.Enums;
 using FirstREST.Lib_Primavera.Model;
-
-using Interop.ErpBS900;
-using Interop.StdBE900;
-using Interop.GcpBE900;
 
 namespace FirstREST.Lib_Primavera.Integration
 {
@@ -32,20 +31,20 @@ namespace FirstREST.Lib_Primavera.Integration
         {
             return new Contact()
             {
-                Identifier = queryResult.Valor("Contacto"),
-                Name = queryResult.Valor("PrimeiroNome") + " " + queryResult.Valor("UltimoNome"),
-                Email = queryResult.Valor("Email"),
-                Phone = queryResult.Valor("Telefone"),
-                LastContact = queryResult.Valor("DataUltContacto"),
-                MobilePhone = queryResult.Valor("Telemovel"),
+                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
+                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
+                Email = TypeParser.String(queryResult.Valor("Email")),
+                Phone = TypeParser.String(queryResult.Valor("Telefone")),
+                DateModified = TypeParser.Date(queryResult.Valor("DataUltContacto")),
+                MobilePhone = TypeParser.String(queryResult.Valor("Telemovel")),
 
                 Location = new Address
                 {
-                    PostalCode = queryResult.Valor("CodPostal"),
-                    Street = queryResult.Valor("Morada"),
-                    Country = queryResult.Valor("Pais"),
-                    Parish = queryResult.Valor("Localidade"),
-                    State = queryResult.Valor("Distrito"),
+                    PostalCode = TypeParser.String(queryResult.Valor("CodPostal")),
+                    Street = TypeParser.String(queryResult.Valor("Morada")),
+                    Country = TypeParser.String(queryResult.Valor("Pais")),
+                    Parish = TypeParser.String(queryResult.Valor("Localidade")),
+                    State = TypeParser.String(queryResult.Valor("Distrito")),
                 },
             };
         }
@@ -86,12 +85,10 @@ namespace FirstREST.Lib_Primavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            /* var accountsTable = PriEngine.Engine.Comercial.Clientes;
-
-             if (accountsTable.Existe(paramId) == false)
-             {
-                 throw new NotFoundException();
-             }*/
+            if (PriEngine.Engine.CRM.Contactos.Existe(paramId) == false)
+            {
+                throw new NotFoundException();
+            }
 
             return Generate(PriEngine.Consulta(new QueryBuilder()
                 .FromTable("CONTACTOS")
@@ -99,55 +96,107 @@ namespace FirstREST.Lib_Primavera.Integration
                 .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
         }
 
-        public static void UpdateContact(string paramId, Contact paramObject)
+        private static void SetFields(CrmBEContacto selectedRow, Contact paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (paramObject.Name != null)
             {
-                throw new DatabaseConnectionException();
+                selectedRow.set_Nome(paramObject.Name.Trim());
             }
 
-            var accountsTable = PriEngine.Engine.Comercial.Clientes;
-
-            if (accountsTable.Existe(paramId) == false)
+            if (paramObject.Email != null)
             {
-                throw new NotFoundException();
+                selectedRow.set_Email(paramObject.Email.Trim());
             }
 
-            var newInstance = accountsTable.Edita(paramId);
+            if (paramObject.Phone != null)
+            {
+                selectedRow.set_Telefone(paramObject.Phone.Trim());
+            }
 
-            newInstance.set_EmModoEdicao(true);
-            newInstance.set_Nome(paramObject.Name);
-            newInstance.set_Morada(paramObject.Location.Street);
-            newInstance.set_Zona(paramObject.Location.State);
-            newInstance.set_Pais(paramObject.Location.Country);
-            newInstance.set_CodigoPostal(paramObject.Location.PostalCode);
-            newInstance.set_Pais(paramObject.Location.Country);
-            accountsTable.Actualiza(newInstance);
+            if (paramObject.MobilePhone != null)
+            {
+                selectedRow.set_Telemovel(paramObject.MobilePhone.Trim());
+            }
+
+            if (paramObject.DateModified != null)
+            {
+                selectedRow.set_DataUltContacto(paramObject.DateModified);
+            }
+
+            if (paramObject.Location != null)
+            {
+                var objectLocation = paramObject.Location;
+
+                if (objectLocation.Street != null)
+                {
+                    selectedRow.set_Morada(paramObject.Location.Street.Trim());
+                }
+
+                if (objectLocation.State != null)
+                {
+                    selectedRow.set_Distrito(paramObject.Location.State.Trim());
+                }
+
+                if (objectLocation.Parish != null)
+                {
+                    selectedRow.set_Localidade(paramObject.Location.Parish.Trim());
+                }
+
+                if (objectLocation.PostalCode != null)
+                {
+                    selectedRow.set_CodPostal(paramObject.Location.PostalCode.Trim());
+                }
+
+                if (objectLocation.Country != null)
+                {
+                    selectedRow.set_Pais(paramObject.Location.Country.Trim());
+                }
+            }
         }
 
-        public static void CreateContact(string paramId, Contact paramObject)
+        public static bool UpdateContact(string paramId, Contact paramObject)
         {
             if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var newInstance = new GcpBECliente();
-            var accountsTable = PriEngine.Engine.Comercial.Clientes;
+            var selectedTable = PriEngine.Engine.CRM.Contactos;
 
-            if (accountsTable.Existe(paramId))
+            if (selectedTable.Existe(paramId) == false)
             {
-                throw new EntityExistsException();
+                return false;
             }
 
-            newInstance.set_Cliente(paramId);
-            newInstance.set_Nome(paramObject.Name);
-            newInstance.set_Morada(paramObject.Location.Street);
-            newInstance.set_Zona(paramObject.Location.State);
-            newInstance.set_Pais(paramObject.Location.Country);
-            newInstance.set_CodigoPostal(paramObject.Location.PostalCode);
-            newInstance.set_Pais(paramObject.Location.Country);
-            accountsTable.Actualiza(newInstance);
+            var selectedRow = selectedTable.Edita(paramId);
+
+            selectedRow.set_EmModoEdicao(true);
+            SetFields(selectedRow, paramObject);
+            selectedTable.Actualiza(selectedRow);
+
+            return true;
+        }
+
+        public static bool CreateContact(string paramId, Contact paramObject)
+        {
+            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var selectedRow = new CrmBEContacto();
+            var selectedTable = PriEngine.Engine.CRM.Contactos;
+
+            if (selectedTable.Existe(paramId))
+            {
+                return false;
+            }
+
+            selectedRow.set_Contacto(paramId);
+            SetFields(selectedRow, paramObject);
+            selectedTable.Actualiza(selectedRow);
+
+            return true;
         }
     }
 }

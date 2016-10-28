@@ -12,12 +12,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
-internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
+internal class JsonFormatter : MediaTypeFormatter
 {
     private JsonSerializerSettings serializerSettings;
 
-    public JsonNetMediaTypeFormatter() : this(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+    public JsonFormatter() : this(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
     {
     }
 
@@ -31,7 +32,7 @@ internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
         return true;
     }
 
-    public JsonNetMediaTypeFormatter(JsonSerializerSettings paramSettings)
+    public JsonFormatter(JsonSerializerSettings paramSettings)
     {
         serializerSettings = paramSettings;
         SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
@@ -85,5 +86,17 @@ internal class JsonNetMediaTypeFormatter : MediaTypeFormatter
         }
 
         return new BsonWriter(stream);
+    }
+
+    private static Regex jsonRegex = new Regex(@"data=(\[{.*}\])", RegexOptions.Multiline);
+
+    public static bool ValidateJson(string jsonString)
+    {
+        if (jsonString == null || jsonString.Length == 0)
+        {
+            return false;
+        }
+        
+        return jsonRegex.Match(jsonString).Success;
     }
 }

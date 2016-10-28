@@ -72,9 +72,10 @@ namespace FirstREST.Lib_Primavera
             SubClauses = new List<SubClause>();
         }
 
-        public void AddClause(LogicOperator logic, Comparison compareOperator, object compareValue)
+        public WhereClause AddClause(LogicOperator logic, Comparison compareOperator, object compareValue)
         {
             SubClauses.Add(new SubClause(logic, compareOperator, compareValue));
+            return this;
         }
     }
 }
