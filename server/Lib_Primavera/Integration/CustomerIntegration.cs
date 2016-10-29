@@ -4,18 +4,21 @@ using System.Collections.Generic;
 using Interop.GcpBE900;
 using Interop.StdBE900;
 
-using FirstREST.Lib_Primavera.Enums;
-using FirstREST.Lib_Primavera.Model;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
-    public class AccountIntegration
+    public class CustomerIntegration
     {
         private static SqlColumn[] sqlColumns =
         {
             new SqlColumn("CLIENTES.Cliente", null),
             new SqlColumn("CLIENTES.Situacao", null),
             new SqlColumn("CLIENTES.Nome", null),
+            new SqlColumn("CLIENTES.Moeda", null),
+            new SqlColumn("CLIENTES.NumContrib", null),
             new SqlColumn("CLIENTES.EnderecoWeb", null),
             new SqlColumn("CLIENTES.DataCriacao", null),
             new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
@@ -27,13 +30,15 @@ namespace FirstREST.Lib_Primavera.Integration
             new SqlColumn("CLIENTES.Distrito", null)
         };
 
-        private static Account Generate(StdBELista queryResult)
+        private static Customer Generate(StdBELista queryResult)
         {
-            return new Account()
+            return new Customer()
             {
                 Identifier = TypeParser.String(queryResult.Valor("Cliente")),
                 Name = TypeParser.String(queryResult.Valor("Nome")),
+                Currency = TypeParser.String(queryResult.Valor("Moeda")),
                 Status = TypeParser.String(queryResult.Valor("Situacao")),
+                TaxNumber = TypeParser.String(queryResult.Valor("NumContrib")),
                 DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
                 DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
                 Website = TypeParser.String(queryResult.Valor("EnderecoWeb")),
@@ -50,15 +55,15 @@ namespace FirstREST.Lib_Primavera.Integration
             };
         }
 
-        public static List<Account> GetAccounts()
+        public static List<Customer> GetCustomers(string sessionId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Account>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder().FromTable("CLIENTES").Columns(sqlColumns));
+            var queryResult = new List<Customer>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CLIENTES").Columns(sqlColumns));
 
             while (!queryObject.NoFim())
             {
@@ -66,7 +71,7 @@ namespace FirstREST.Lib_Primavera.Integration
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Account lhs, Account rhs)
+            queryResult.Sort(delegate(Customer lhs, Customer rhs)
             {
                 if (lhs.Identifier == null || rhs.Identifier == null)
                 {
@@ -79,25 +84,55 @@ namespace FirstREST.Lib_Primavera.Integration
             return queryResult;
         }
 
-        public static Account GetAccount(string paramId)
+        public static Customer GetCustomer(string sessionId, string paramId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
-            return Generate(PriEngine.Consulta(new QueryBuilder()
+            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CLIENTES")
                 .Columns(sqlColumns)
                 .Where("CLIENTES.Cliente", Comparison.Equals, paramId)));
         }
 
-        private static void SetFields(GcpBECliente selectedRow, Account paramObject)
+        private static SqlColumn[] sqlReference =
+        {
+            new SqlColumn("CLIENTES.Cliente", null),
+            new SqlColumn("CLIENTES.Nome", null)
+        };
+
+        public static UserReference GetReference(string paramId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
+            {
+                throw new NotFoundException();
+            }
+
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CLIENTES")
+                .Columns(sqlReference)
+                .Where("Cliente", Comparison.Equals, paramId));
+
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Cliente")),
+                Name = TypeParser.String(queryObject.Valor("Nome")),
+            };
+        }
+
+        private static void SetFields(GcpBECliente selectedRow, Customer paramObject)
         {
             if (paramObject.Name != null)
             {
@@ -106,17 +141,17 @@ namespace FirstREST.Lib_Primavera.Integration
 
             if (paramObject.Status != null)
             {
-                selectedRow.set_Situacao(paramObject.Status);
+                selectedRow.set_Situacao(paramObject.Status.Trim());
             }
 
             if (paramObject.Currency != null)
             {
-                selectedRow.set_Moeda(paramObject.Currency);
+                selectedRow.set_Moeda(paramObject.Currency.Trim());
             }
 
             if (paramObject.TaxNumber != null)
             {
-                selectedRow.set_NumContribuinte(paramObject.TaxNumber);
+                selectedRow.set_NumContribuinte(paramObject.TaxNumber.Trim());
             }
 
             if (paramObject.DateModified != null)
@@ -126,12 +161,12 @@ namespace FirstREST.Lib_Primavera.Integration
 
             if (paramObject.Phone != null)
             {
-                selectedRow.set_Telefone(paramObject.Phone);
+                selectedRow.set_Telefone(paramObject.Phone.Trim());
             }
 
             if (paramObject.Website != null)
             {
-                selectedRow.set_EnderecoWeb(paramObject.Website);
+                selectedRow.set_EnderecoWeb(paramObject.Website.Trim());
             }
 
             if (paramObject.Location != null)
@@ -165,21 +200,22 @@ namespace FirstREST.Lib_Primavera.Integration
             }
         }
 
-        public static bool UpdateAccount(string paramId, Account paramObject)
+        public static bool Update(string sessionId, Customer paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedTable = PriEngine.Engine.Comercial.Clientes;
+            var selectedId = paramObject.Identifier;
+            var selectedTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (selectedTable.Existe(paramId) == false)
+            if (selectedTable.Existe(selectedId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(paramId);
+            var selectedRow = selectedTable.Edita(selectedId);
 
             selectedRow.set_EmModoEdicao(true);
             SetFields(selectedRow, paramObject);
@@ -188,24 +224,37 @@ namespace FirstREST.Lib_Primavera.Integration
             return true;
         }
 
-        public static bool CreateAccount(string paramId, Account paramObject)
+        public static bool Insert(string sessionId, Customer paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var selectedRow = new GcpBECliente();
-            var selectedTable = PriEngine.Engine.Comercial.Clientes;
+            var selectedId = paramObject.Identifier;
+            var selectedTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (selectedTable.Existe(paramId))
+            if (selectedTable.Existe(selectedId))
             {
                 return false;
             }
 
-            selectedRow.set_Cliente(paramId);
+            selectedRow.set_Cliente(selectedId);
             SetFields(selectedRow, paramObject);
             selectedTable.Actualiza(selectedRow);
+
+            return true;
+        }
+
+        public static bool Delete(string sessionId, string paramId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
 
             return true;
         }

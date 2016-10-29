@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.LibPrimavera
 {
     public class TypeParser
     {
+        #region String Parser
+
         internal static string String(dynamic paramObject)
         {
             if (paramObject is string)
@@ -17,11 +19,22 @@ namespace FirstREST.Lib_Primavera
             return "";
         }
 
+        internal static string ToString(DateTime dateTime)
+        {
+            return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region Double Parser
+
         internal static double Double(dynamic paramObject)
         {
-            if (paramObject is string)
+            if (object.Equals(paramObject, null))
             {
-                return Convert.ToDouble(paramObject);
+                return 0.0;
             }
 
             if (paramObject is double)
@@ -29,16 +42,52 @@ namespace FirstREST.Lib_Primavera
                 return paramObject;
             }
 
-            return 0.0;
+            try
+            {
+                return Convert.ToBoolean(paramObject);
+            }
+            catch
+            {
+                return 0.0;
+            }
         }
+
+        public static bool IsNumber(Type paramType)
+        {
+            if (paramType.IsPrimitive)
+            {
+                return paramType != typeof(bool) && paramType != typeof(char) && paramType != typeof(IntPtr) && paramType != typeof(UIntPtr);
+            }
+
+            return paramType == typeof(decimal);
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region Date Parser
+
+        private static DateTime DefaultDate = DateTime.MinValue;
 
         internal static DateTime Date(dynamic paramObject)
         {
-            if (paramObject is string)
+            if (object.Equals(paramObject, null))
+            {
+                return DefaultDate;
+            }
+
+            var myType = (paramObject as object).GetType();
+
+            if (myType == typeof(DateTime))
+            {
+                return paramObject;
+            }
+            else if (myType == typeof(string))
             {
                 if (string.IsNullOrEmpty(paramObject))
                 {
-                    return DateTime.MinValue;
+                    return DefaultDate;
                 }
 
                 try
@@ -47,28 +96,82 @@ namespace FirstREST.Lib_Primavera
                 }
                 catch (FormatException)
                 {
-                    return DateTime.MinValue;
+                    return DefaultDate;
+                }
+            }
+            else if (IsNumber(myType))
+            {
+                try
+                {
+                    return DateTime.FromBinary((long)paramObject);
+                }
+                catch (FormatException)
+                {
+                    return DefaultDate;
                 }
             }
             else
             {
-                return paramObject;
+                return DefaultDate;
             }
         }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region Boolean Parser
 
         internal static bool Boolean(dynamic paramObject)
         {
-            if (paramObject is string)
+            if (object.Equals(paramObject, null))
             {
-                return Convert.ToBoolean(paramObject);
+                return false;
             }
 
-            if (paramObject is double)
+            if (paramObject is bool)
             {
                 return paramObject;
             }
 
-            return false;
+            try
+            {
+                return Convert.ToBoolean(paramObject);
+            }
+            catch
+            {
+                return false;
+            }
         }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region Integer Parser
+
+        internal static int Integer(dynamic paramObject)
+        {
+            if (object.Equals(paramObject, null))
+            {
+                return 0;
+            }
+
+            if (paramObject is int)
+            {
+                return paramObject;
+            }
+
+            try
+            {
+                return Convert.ToInt32(paramObject);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        #endregion
     }
 }

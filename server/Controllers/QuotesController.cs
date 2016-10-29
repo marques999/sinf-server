@@ -2,11 +2,11 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Threading;
 
-using Newtonsoft.Json;
-
-using FirstREST.Lib_Primavera.Model;
-using FirstREST.Lib_Primavera.Integration;
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
@@ -14,95 +14,146 @@ namespace FirstREST.Controllers
     {
         // GET api/quotes/
         // FEATURE: Listar encomendas
-        public ServerResponse Get()
+        [Authorize]
+        public HttpResponseMessage Get()
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(QuoteIntegration.GetQuotes());
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.GetQuotes(Thread.CurrentPrincipal.Identity.Name));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
-        // GET api/quotes/?id={$quoteId}
+        // GET api/quotes/{$quoteId}/
         // FEATURE: Visualizar encomenda
-        public ServerResponse Get([FromUri] string id)
+        [Authorize]
+        public HttpResponseMessage Get(string id)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(QuoteIntegration.GetQuote(id));
+                try
+                {
+                    var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
+                    var queryResult = QuoteIntegration.GetQuote(sessionUsername, id);
+
+                    if (queryResult == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
         // POST api/quotes/
         // FEATURE: Adicionar encomenda
-        public HttpResponseMessage Post([FromBody] string jsonString)
+        [Authorize]
+        public HttpResponseMessage Post([FromBody] Quote jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Identifier = 1;
+
+                    if (QuoteIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Quote>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (QuoteIntegration.CreateQuote("quoteId", myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
         // POST api/quotes/{$quoteId}/
         // FEATURE: Modificar encomenda existente
-        public HttpResponseMessage Post(string accountId, [FromBody] string jsonString)
+        [Authorize]
+        public HttpResponseMessage Post(string id, [FromBody] Quote jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Identifier = 1;
+
+                    if (QuoteIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Quote>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (QuoteIntegration.UpdateQuote(accountId, myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        // DELETE api/quotes/{$quoteId}/
+        // FEATURE: Remover encomenda existente
+        [Authorize]
+        public HttpResponseMessage Delete(string id)
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    if (QuoteIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, 1))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
     }

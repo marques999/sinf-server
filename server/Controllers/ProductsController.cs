@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http;
 
-using FirstREST.Lib_Primavera.Model;
-using FirstREST.Lib_Primavera.Integration;
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
@@ -10,29 +13,54 @@ namespace FirstREST.Controllers
     {
         // GET api/products/
         // FEATURE: Listar produtos
-        public ServerResponse Get()
+        [Authorize]
+        public HttpResponseMessage Get()
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(ProductIntegration.Get());
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.Get());
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
         // GET api/products/{$productId}/
         // FEATURE: Visualizar produto
-        public ServerResponse Get(string id)
+        [Authorize]
+        public HttpResponseMessage Get(string productId)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(ProductIntegration.GetByIdentifier(id));
+                try
+                {
+                    var queryResult = ProductIntegration.GetByIdentifier(productId);
+
+                    if (queryResult == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
     }

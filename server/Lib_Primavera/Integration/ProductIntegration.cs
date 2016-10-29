@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 using Interop.StdBE900;
 
-using FirstREST.Lib_Primavera;
-using FirstREST.Lib_Primavera.Model;
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
     public class ProductIntegration
     {
@@ -42,13 +42,13 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static List<Product> Get()
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var queryResult = new List<Product>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder()
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
                 .Columns(sqlColumns)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
@@ -74,17 +74,17 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static Product GetByIdentifier(string productId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Produtos.Existe(productId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Artigos.Existe(productId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
-            return Generate(PriEngine.Consulta(new QueryBuilder()
+            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
                 .Columns(sqlColumns)
                 .Where("ARTIGO.Artigo", Comparison.Equals, productId)
@@ -93,18 +93,18 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static List<Product> GetByCategory(string categoryId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
             var queryResult = new List<Product>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder()
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
                 .Columns(sqlColumns)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")

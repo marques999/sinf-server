@@ -3,7 +3,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
     public class Contact
     {
@@ -16,6 +16,13 @@ namespace FirstREST.Lib_Primavera.Model
 
         [JsonProperty(PropertyName = "name")]
         public string Name
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "title")]
+        public string Title
         {
             get;
             set;

@@ -1,7 +1,6 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
     public class CategoryReference
     {

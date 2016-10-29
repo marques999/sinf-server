@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Threading.Tasks;
 
 using ADODB;
+
 using Interop.ErpBS900;
 using Interop.StdPlatBS900;
 using Interop.StdBE900;
 using Interop.IGcpBS900;
-using FirstREST.Lib_Primavera.Model;
+using Interop.ICrmBS900;
 
-namespace FirstREST.Lib_Primavera
+using FirstREST.QueryBuilder;
+using FirstREST.LibPrimavera.Model;
+
+namespace FirstREST.LibPrimavera
 {
-    public class PriEngine
+    public class PrimaveraEngine
     {
         public static StdPlatBS Platform
         {
@@ -27,25 +32,31 @@ namespace FirstREST.Lib_Primavera
             set;
         }
 
-        public static IGcpBSArtigos Produtos
-        {
-            get
-            {
-                return Engine.Comercial.Artigos;
-            }
-        }
-
-        public static IGcpBSClientes Clientes
-        {
-            get
-            {
-                return Engine.Comercial.Clientes;
-            }
-        }
-
-        public static StdBELista Consulta(QueryBuilder queryString)
+        public static StdBELista Consulta(SqlBuilder queryString)
         {
             return Engine.Consulta(queryString.BuildQuery());
+        }
+
+        private static Dictionary<string, string> loggedIn = new Dictionary<string, string>();
+
+        public static bool ValidateSession(string sesssionId)
+        {
+            return loggedIn.ContainsKey(sesssionId);
+        }
+
+        public static string GetUsername(string sesssionId)
+        {
+            if (loggedIn.ContainsKey(sesssionId))
+            {
+                return loggedIn[sesssionId];
+            }
+
+            return null;
+        }
+
+        static PrimaveraEngine()
+        {
+            loggedIn.Add("4c3b314d9ec74f7690dd819df973fb82", "marques999");
         }
 
         public static bool InitializeCompany(string Company, string User, string Password)
@@ -87,6 +98,24 @@ namespace FirstREST.Lib_Primavera
             }
 
             return Plataforma.Inicializada;
+        }
+
+        public static bool IsAuthenticated()
+        {
+            try
+            {
+                var sessionUsername = HttpContext.Current.User.Identity.Name;
+                return sessionUsername != null && string.IsNullOrWhiteSpace(sessionUsername) == false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        internal static bool ApiLogin(string username, string password)
+        {
+            return username == "merda" && password == "merda";
         }
     }
 }

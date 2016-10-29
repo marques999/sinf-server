@@ -3,12 +3,29 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
     public class Activity
     {
+        /// <summary>
+        /// Private access fields
+        /// </summary>
+
+        private int _priority;
+
+        /// <summary>
+        /// Public access properties
+        /// </summary>
+
         [JsonProperty(PropertyName = "id")]
         public string Identifier
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "name")]
+        public string Name
         {
             get;
             set;
@@ -33,6 +50,46 @@ namespace FirstREST.Lib_Primavera.Model
         {
             get;
             set;
+        }
+
+        [JsonProperty(PropertyName = "entity")]
+        public UserReference Entity
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "priority")]
+        public int Priority
+        {
+            get
+            {
+                return _priority;
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    _priority = 0;
+                }
+                else if (value > 5)
+                {
+                    _priority = 5;
+                }
+                else
+                {
+                    _priority = value;
+                }
+            }
+        }
+
+        [JsonProperty(PropertyName = "duration")]
+        public int Duration
+        {
+            get
+            {
+                return (int)((End - Start).TotalMinutes);
+            }
         }
 
         [JsonProperty(PropertyName = "start")]

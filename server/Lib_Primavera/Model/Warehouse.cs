@@ -1,9 +1,7 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
-    [Serializable]
     public class Warehouse
     {
         /// <summary>

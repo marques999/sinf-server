@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Interop.StdBE900;
 using Interop.CrmBE900;
+using Interop.StdBE900;
 
-using FirstREST.Lib_Primavera.Enums;
-using FirstREST.Lib_Primavera.Model;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
     public class ContactIntegration
     {
@@ -49,15 +50,15 @@ namespace FirstREST.Lib_Primavera.Integration
             };
         }
 
-        public static List<Contact> GetContacts()
+        public static List<Contact> GetContacts(string sessionId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var queryResult = new List<Contact>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder().FromTable("CONTACTOS").Columns(sqlColumns));
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumns));
 
             while (!queryObject.NoFim())
             {
@@ -78,22 +79,53 @@ namespace FirstREST.Lib_Primavera.Integration
             return queryResult;
         }
 
-        public static Contact GetContact(string paramId)
+        public static Contact GetContact(string sessionId, string paramId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Engine.CRM.Contactos.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.CRM.Contactos.Existe(paramId) == false)
+            {
+                return null;
+            }
+
+            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CONTACTOS")
+                .Columns(sqlColumns)
+                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
+        }
+
+        private static SqlColumn[] sqlReference =
+        {
+            new SqlColumn("CONTACTOS.Contacto", null),
+            new SqlColumn("CONTACTOS.PrimeiroNome", null),
+            new SqlColumn("CONTACTOS.UltimoNome", null),
+        };
+
+        public static UserReference GetReference(string paramId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            if (PrimaveraEngine.Engine.CRM.Contactos.Existe(paramId) == false)
             {
                 throw new NotFoundException();
             }
 
-            return Generate(PriEngine.Consulta(new QueryBuilder()
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONTACTOS")
-                .Columns(sqlColumns)
-                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
+                .Columns(sqlReference)
+                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId));
+
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Contacto")),
+                Name = TypeParser.String(queryObject.Valor("PrimeiroNome")) + " " + queryObject.Valor("UltimoNome"),
+            };
         }
 
         private static void SetFields(CrmBEContacto selectedRow, Contact paramObject)
@@ -154,21 +186,22 @@ namespace FirstREST.Lib_Primavera.Integration
             }
         }
 
-        public static bool UpdateContact(string paramId, Contact paramObject)
+        public static bool Update(string sessionId, Contact paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedTable = PriEngine.Engine.CRM.Contactos;
+            var selectedId = paramObject.Identifier;
+            var selectedTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (selectedTable.Existe(paramId) == false)
+            if (selectedTable.Existe(selectedId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(paramId);
+            var selectedRow = selectedTable.Edita(selectedId);
 
             selectedRow.set_EmModoEdicao(true);
             SetFields(selectedRow, paramObject);
@@ -177,24 +210,37 @@ namespace FirstREST.Lib_Primavera.Integration
             return true;
         }
 
-        public static bool CreateContact(string paramId, Contact paramObject)
+        public static bool Insert(string sessionId, Contact paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var selectedRow = new CrmBEContacto();
-            var selectedTable = PriEngine.Engine.CRM.Contactos;
+            var selectedId = paramObject.Identifier;
+            var selectedTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (selectedTable.Existe(paramId))
+            if (selectedTable.Existe(selectedId))
             {
                 return false;
             }
 
-            selectedRow.set_Contacto(paramId);
+            selectedRow.set_Contacto(selectedId);
             SetFields(selectedRow, paramObject);
             selectedTable.Actualiza(selectedRow);
+
+            return true;
+        }
+
+        public static bool Delete(string p, string customerId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
 
             return true;
         }

@@ -1,13 +1,12 @@
-﻿using FirstREST.Lib_Primavera.Integration;
-using FirstREST.Lib_Primavera.Model;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Threading;
+
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
@@ -59,83 +58,180 @@ namespace FirstREST.Controllers
             return AgendaStatus.Any;
         }
 
+        [Authorize]
+        public HttpResponseMessage Get()
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(AgendaType.All, AgendaStatus.Any, Agenda.Today));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        [Authorize]
+        public HttpResponseMessage Get(string type)
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), AgendaStatus.Any, Agenda.Today));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        [Authorize]
+        public HttpResponseMessage Get(string type, string when)
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), AgendaStatus.Any, ParseWhen(when)));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
         // GET api/agenda/?type=calls&when=today&status=ongoing
         // Feature: Visualizar agenda
-        public ServerResponse Get([FromUri] string type = "all", [FromUri] string when = "today", [FromUri] string status = "any")
+        [Authorize]
+        public HttpResponseMessage Get(string type, string when, string status)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(AgendaIntegration.Get(ParseType(type), ParseStatus(status), ParseWhen(when)));
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), ParseStatus(status), ParseWhen(when)));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
         // POST api/agenda/
         // Feature: Agendar actividade
-        public HttpResponseMessage Post([FromBody] string jsonString)
+        [Authorize]
+        public HttpResponseMessage Post([FromBody] Activity jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Identifier = "activityId";
+                    jsonObject.DateCreated = DateTime.Now;
+                    jsonObject.Status = AgendaStatus.Ongoing;
+                    jsonObject.DateModified = jsonObject.DateCreated;
+
+                    if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Activity>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (AgendaIntegration.CreateActivity("activityId", myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
-        // POST /api/agenda/3
-        // Feature: Modificar actividade
-        public HttpResponseMessage Post(string paramId, [FromBody] string jsonString)
+        // POST api/agenda/{$activityId}/
+        // Feature: Modificar actividade existente
+        [Authorize]
+        public HttpResponseMessage Post(string id, [FromBody] Activity jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Identifier = id;
+                    jsonObject.DateModified = DateTime.Now;
+
+                    if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Activity>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (AgendaIntegration.UpdateActivity(paramId, myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        // DELETE api/agenda/{$activityId}/
+        // FEATURE: Remover actividade existente
+        [Authorize]
+        public HttpResponseMessage Delete(string id)
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    if (AgendaIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
     }

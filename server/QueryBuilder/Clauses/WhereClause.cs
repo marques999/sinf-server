@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder.Enums;
 
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.QueryBuilder
 {
     public class WhereClause
     {
@@ -67,6 +68,14 @@ namespace FirstREST.Lib_Primavera
         public WhereClause(string field, Comparison firstCompareOperator, object firstCompareValue)
         {
             m_FieldName = field;
+            m_Value = firstCompareValue;
+            m_ComparisonOperator = firstCompareOperator;
+            SubClauses = new List<SubClause>();
+        }
+
+        public WhereClause(Enum field, Comparison firstCompareOperator, object firstCompareValue)
+        {
+            m_FieldName = field.ToString();
             m_Value = firstCompareValue;
             m_ComparisonOperator = firstCompareOperator;
             SubClauses = new List<SubClause>();

@@ -3,9 +3,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
-    public class Account : Contact
+    public class Customer : Contact
     {
         [JsonProperty(PropertyName = "website")]
         public string Website

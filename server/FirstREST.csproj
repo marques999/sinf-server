@@ -221,18 +221,16 @@
     <Compile Include="Controllers\AgendaController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
-    <Compile Include="Controllers\JsonFormatter.cs" />
-    <Compile Include="App_Start\FormatterConfig.cs" />
     <Compile Include="Controllers\LeadsController.cs" />
     <Compile Include="Controllers\OpportunitiesController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
-    <Compile Include="Controllers\AccountsController.cs" />
+    <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\QuotesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Lib_Primavera\Integration\AccountIntegration.cs" />
+    <Compile Include="Lib_Primavera\Integration\CustomerIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\AgendaIntegration.cs" />
     <Compile Include="Lib_Primavera\Authentication.cs" />
     <Compile Include="Lib_Primavera\Integration\CategoryIntegration.cs" />
@@ -241,29 +239,30 @@
     <Compile Include="Lib_Primavera\Integration\OpportunityIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\ProductIntegration.cs" />
     <Compile Include="Lib_Primavera\Integration\QuoteIntegration.cs" />
+    <Compile Include="Lib_Primavera\Integration\RepresentativeIntegration.cs" />
+    <Compile Include="Lib_Primavera\Model\User.cs" />
     <Compile Include="Lib_Primavera\Integration\WarehouseIntegration.cs" />
     <Compile Include="Lib_Primavera\Model\Activity.cs" />
     <Compile Include="Lib_Primavera\Model\Agenda.cs" />
     <Compile Include="Lib_Primavera\Model\Category.cs" />
     <Compile Include="Lib_Primavera\Model\CategoryReference.cs" />
     <Compile Include="Lib_Primavera\Model\Contact.cs" />
-    <Compile Include="Lib_Primavera\SqlColumn.cs" />
+    <Compile Include="QueryBuilder\SqlColumn.cs" />
     <Compile Include="Lib_Primavera\TypeParser.cs" />
+    <Compile Include="Lib_Primavera\TypeValidator.cs" />
+    <Compile Include="Models\AuthenticationException.cs" />
     <Compile Include="Models\DatabaseException.cs" />
     <Compile Include="Models\EntityExistsException.cs" />
-    <Compile Include="Models\ErrorResponse.cs" />
     <Compile Include="Lib_Primavera\Model\Lead.cs" />
     <Compile Include="Models\NotFoundException.cs" />
     <Compile Include="Lib_Primavera\Model\Opportunity.cs" />
     <Compile Include="Lib_Primavera\Model\ProductOrder.cs" />
     <Compile Include="Lib_Primavera\Model\Quote.cs" />
-    <Compile Include="Models\SuccessResponse.cs" />
     <Compile Include="Lib_Primavera\Model\UserReference.cs" />
     <Compile Include="Lib_Primavera\Model\Warehouse.cs" />
     <Compile Include="Lib_Primavera\Model\Product.cs" />
     <Compile Include="Lib_Primavera\Model\Account.cs" />
     <Compile Include="Lib_Primavera\Model\Venda.cs" />
-    <Compile Include="Models\ServerResponse.cs" />
     <Compile Include="Lib_Primavera\PriEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -271,19 +270,19 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Lib_Primavera\Clauses\JoinClause.cs" />
-    <Compile Include="Lib_Primavera\Clauses\OrderByClause.cs" />
-    <Compile Include="Lib_Primavera\Clauses\TopClause.cs" />
-    <Compile Include="Lib_Primavera\Clauses\WhereClause.cs" />
-    <Compile Include="Lib_Primavera\Clauses\WhereStatement.cs" />
-    <Compile Include="Lib_Primavera\Enums\Comparison.cs" />
-    <Compile Include="Lib_Primavera\Enums\JoinType.cs" />
-    <Compile Include="Lib_Primavera\Enums\LogicOperator.cs" />
-    <Compile Include="Lib_Primavera\Enums\Sorting.cs" />
-    <Compile Include="Lib_Primavera\Enums\TopUnit.cs" />
-    <Compile Include="Lib_Primavera\IQueryBuilder.cs" />
-    <Compile Include="Lib_Primavera\QueryBuilder.cs" />
-    <Compile Include="Lib_Primavera\SqlLiteral.cs" />
+    <Compile Include="QueryBuilder\Clauses\JoinClause.cs" />
+    <Compile Include="QueryBuilder\Clauses\OrderByClause.cs" />
+    <Compile Include="QueryBuilder\Clauses\TopClause.cs" />
+    <Compile Include="QueryBuilder\Clauses\WhereClause.cs" />
+    <Compile Include="QueryBuilder\Clauses\WhereStatement.cs" />
+    <Compile Include="QueryBuilder\Enums\Comparison.cs" />
+    <Compile Include="QueryBuilder\Enums\JoinType.cs" />
+    <Compile Include="QueryBuilder\Enums\LogicOperator.cs" />
+    <Compile Include="QueryBuilder\Enums\Sorting.cs" />
+    <Compile Include="QueryBuilder\Enums\TopUnit.cs" />
+    <Compile Include="QueryBuilder\SqlBuilder.cs" />
+    <Compile Include="QueryBuilder\SqlLiteral.cs" />
+    <Compile Include="Services\AuthenticationModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
@@ -405,9 +404,7 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="QueryBuilder\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>

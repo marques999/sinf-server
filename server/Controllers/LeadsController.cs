@@ -2,11 +2,11 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Threading;
 
-using Newtonsoft.Json;
-
-using FirstREST.Lib_Primavera.Model;
-using FirstREST.Lib_Primavera.Integration;
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
@@ -14,95 +14,150 @@ namespace FirstREST.Controllers
     {
         // GET api/leads/
         // FEATURE: Listar leads
-        public ServerResponse Get()
+        [Authorize]
+        public HttpResponseMessage Get()
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(LeadIntegration.GetLeads());
+                try
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.GetLeads(Thread.CurrentPrincipal.Identity.Name));
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
-        // GET api/leads/{$leadId}/
+        // GET api/leads/{$prospectId}/
         // FEATURE: Visualizar lead
-        public ServerResponse Get(string id)
+        [Authorize]
+        public HttpResponseMessage Get(string id)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                return new SuccessResponse(LeadIntegration.GetLead(id));
+                try
+                {
+                    var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
+                    var queryResult = LeadIntegration.GetLead(sessionUsername, id);
+
+                    if (queryResult == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return new ErrorResponse(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
         // POST api/leads/
         // FEATURE: Adicionar lead
-        public HttpResponseMessage Post([FromBody] string jsonString)
+        [Authorize]
+        public HttpResponseMessage Post([FromBody] Lead jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Active = true;
+                    jsonObject.Identifier = "leadId";
+                    jsonObject.DateCreated = DateTime.Now;
+                    jsonObject.DateModified = jsonObject.DateCreated;
+
+                    if (LeadIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Lead>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (LeadIntegration.CreateLead("leadId", myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
 
-        // POST api/leads/{$paramId}/
+        // POST api/leads/{$prospectId}/
         // FEATURE: Modificar lead existente
-        public HttpResponseMessage Post(string paramId, [FromBody] string jsonString)
+        [Authorize]
+        public HttpResponseMessage Post(string id, [FromBody] Lead jsonObject)
         {
-            try
+            if (PrimaveraEngine.IsAuthenticated())
             {
-                if (JsonFormatter.ValidateJson(jsonString) == false)
+                try
+                {
+                    jsonObject.Identifier = id;
+                    jsonObject.DateModified = DateTime.Now;
+
+                    if (LeadIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                var myInstance = JsonConvert.DeserializeObject<Lead>(jsonString);
-
-                if (myInstance == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                if (LeadIntegration.UpdateLead(paramId, myInstance))
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
                 }
             }
-            catch
+            else
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        // DELETE api/leads/{$prospectId}/
+        // FEATURE: Remover lead existente
+        [Authorize]
+        public HttpResponseMessage Delete(string id)
+        {
+            if (PrimaveraEngine.IsAuthenticated())
+            {
+                try
+                {
+                    if (LeadIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                }
+                catch
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
     }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 
-using Newtonsoft.Json;
-
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
-    [Serializable]
     public class Category
     {
         [JsonProperty(PropertyName = "id")]

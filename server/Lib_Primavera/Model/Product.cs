@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
-    [Serializable]
     public class Product
     {
         /// <summary>
@@ -128,13 +127,6 @@ namespace FirstREST.Lib_Primavera.Model
                     _discount = value * 0.01;
                 }
             }
-        }
-
-        [JsonProperty(PropertyName = "discountEnabled")]
-        public bool DiscountEnabled
-        {
-            get;
-            set;
         }
 
         [JsonProperty(PropertyName = "warehouses")]

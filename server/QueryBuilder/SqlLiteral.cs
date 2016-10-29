@@ -1,4 +1,4 @@
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.QueryBuilder
 {
     public class SqlLiteral
     {

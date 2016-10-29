@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 
-using FirstREST.Lib_Primavera.Enums;
-using FirstREST.Lib_Primavera.Model;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
     public class WarehouseIntegration
     {
@@ -21,13 +22,13 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static List<Warehouse> GetWarehouses(string productId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var queryResult = new List<Warehouse>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder()
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGOARMAZEM")
                 .Columns(sqlColumns)
                 .Where("ARTIGOARMAZEM.Artigo", Comparison.Equals, productId)

@@ -5,43 +5,41 @@ using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration
 {
-    public class OpportunityIntegration
+    public class RepresentativeIntegration
     {
-        public static List<Opportunity> GetOpportunities(string sessionId)
+        public static List<User> GetRepresentatives()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            return new List<Opportunity>();
+            return new List<User>();
         }
 
-        public static Opportunity GetOpportunity(string sessionId, string paramId)
+        public static Opportunity GetRepresentative(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
             {
-                return null;
+                throw new NotFoundException();
             }
 
             return null;
         }
 
-        public static bool Update(string sessionId, Opportunity paramObject)
+        public static bool UpdateOpportunity(string paramId, Opportunity paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
-
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(selectedId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
             {
                 return false;
             }
@@ -49,31 +47,14 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool Insert(string sessionId, Opportunity paramObject)
+        public static bool CreateRepresentative(string paramId, User paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
-
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(selectedId))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static bool Delete(string sessionUsername, string paramId)
-        {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId))
             {
                 return false;
             }

@@ -2,10 +2,11 @@
 
 using Interop.StdBE900;
 
-using FirstREST.Lib_Primavera.Model;
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
     public class CategoryIntegration
     {
@@ -18,16 +19,17 @@ namespace FirstREST.Lib_Primavera.Integration
 
         public static List<Category> Get()
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var queryResult = new List<Category>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder().FromTable("FAMILIAS")
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("FAMILIAS")
+                .Columns(sqlColumns)
                 .InnerJoin("ARTIGO", "Familia", Comparison.Equals, "FAMILIAS", "Familia")
-                .GroupBy(new string[] { "FAMILIAS.Familia", "FAMILIAS.Descricao" })
-                .Columns(sqlColumns));
+                .GroupBy(new string[] { "FAMILIAS.Familia", "FAMILIAS.Descricao" }));
 
             while (!queryObject.NoFim())
             {

@@ -1,4 +1,4 @@
-﻿namespace FirstREST.Lib_Primavera.Model
+﻿namespace FirstREST.LibPrimavera.Model
 {
     public enum Agenda
     {

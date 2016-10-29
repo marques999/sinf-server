@@ -1,11 +1,45 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
-namespace FirstREST.Lib_Primavera.Model
+namespace FirstREST.LibPrimavera.Model
 {
-    [Serializable]
     public class Quote
     {
+        [JsonProperty(PropertyName = "id")]
+        public short Identifier
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "description")]
+        public string Description
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "opportunity")]
+        public string OpportunityId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "products")]
+        public List<ProductOrder> Products
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "notes")]
+        public string Notes
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "billingAddress")]
         public Address BillingAddress
         {

@@ -1,6 +1,6 @@
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder.Enums;
 
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.QueryBuilder
 {
     public struct JoinClause
     {

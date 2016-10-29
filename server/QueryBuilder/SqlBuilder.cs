@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Common;
 
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder.Enums;
 
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.QueryBuilder
 {
-    public class QueryBuilder : IQueryBuilder
+    public class SqlBuilder
     {
         protected bool _distinct = false;
         protected TopClause _topClause = new TopClause(100, TopUnit.Percent);
@@ -31,7 +31,7 @@ namespace FirstREST.Lib_Primavera
             }
         }
 
-        public QueryBuilder()
+        public SqlBuilder()
         {
         }
 
@@ -85,17 +85,17 @@ namespace FirstREST.Lib_Primavera
             _selectedColumns.Clear();
         }
 
-        public QueryBuilder SelectCount()
+        public SqlBuilder SelectCount()
         {
             return Column("count(*)", "Count");
         }
 
-        public QueryBuilder Column(string column)
+        public SqlBuilder Column(string column)
         {
             return Column(column, null);
         }
 
-        public QueryBuilder Column(string column, string columnAs)
+        public SqlBuilder Column(string column, string columnAs)
         {
             _selectedColumns.Add(new SqlColumn
             {
@@ -106,7 +106,7 @@ namespace FirstREST.Lib_Primavera
             return this;
         }
 
-        public QueryBuilder Columns(params string[] columns)
+        public SqlBuilder Columns(params string[] columns)
         {
             _selectedColumns.Clear();
 
@@ -122,7 +122,7 @@ namespace FirstREST.Lib_Primavera
             return this;
         }
 
-        public QueryBuilder Columns(params SqlColumn[] columns)
+        public SqlBuilder Columns(params SqlColumn[] columns)
         {
             _selectedColumns.Clear();
             _selectedColumns.AddRange(columns);
@@ -130,14 +130,14 @@ namespace FirstREST.Lib_Primavera
             return this;
         }
 
-        public QueryBuilder FromTable(string table)
+        public SqlBuilder FromTable(string table)
         {
             _selectedTables.Add(table);
 
             return this;
         }
 
-        public QueryBuilder SelectFromTables(params string[] tables)
+        public SqlBuilder SelectFromTables(params string[] tables)
         {
             _selectedTables.Clear();
             _selectedTables.AddRange(tables);
@@ -145,34 +145,34 @@ namespace FirstREST.Lib_Primavera
             return this;
         }
 
-        public QueryBuilder AddJoin(JoinClause newJoin)
+        public SqlBuilder AddJoin(JoinClause newJoin)
         {
             _joins.Add(newJoin);
 
             return this;
         }
 
-        public QueryBuilder LeftJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
+        public SqlBuilder LeftJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             return Join(JoinType.LeftJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
         }
 
-        public QueryBuilder RightJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
+        public SqlBuilder RightJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             return Join(JoinType.RightJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
         }
 
-        public QueryBuilder InnerJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
+        public SqlBuilder InnerJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             return Join(JoinType.InnerJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
         }
 
-        public QueryBuilder OuterJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
+        public SqlBuilder OuterJoin(string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             return Join(JoinType.OuterJoin, toTableName, toColumnName, @operator, fromTableName, fromColumnName);
         }
 
-        private QueryBuilder Join(JoinType join, string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
+        private SqlBuilder Join(JoinType join, string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             _joins.Add(new JoinClause(join, toTableName, toColumnName, @operator, fromTableName, fromColumnName));
 
@@ -191,19 +191,19 @@ namespace FirstREST.Lib_Primavera
             }
         }
 
-        public QueryBuilder Where(WhereClause clause)
+        public SqlBuilder Where(WhereClause clause)
         {
             return Where(clause, 1);
         }
 
-        public QueryBuilder Where(WhereClause clause, int level)
+        public SqlBuilder Where(WhereClause clause, int level)
         {
             _whereStatement.Add(clause, level);
 
             return this;
         }
 
-        public QueryBuilder Where(string field, Comparison @operator, object compareValue)
+        public SqlBuilder Where(string field, Comparison @operator, object compareValue)
         {
             Where(field, @operator, compareValue, 1);
 
@@ -237,7 +237,7 @@ namespace FirstREST.Lib_Primavera
             _orderByStatement.Add(new OrderByClause(field, order));
         }
 
-        public QueryBuilder GroupBy(params string[] columns)
+        public SqlBuilder GroupBy(params string[] columns)
         {
             foreach (string Column in columns)
             {

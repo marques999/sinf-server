@@ -10,10 +10,10 @@ using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
-    public class OpportunitiesController : ApiController
+    public class CustomersController : ApiController
     {
-        // GET api/opportunities/
-        // FEATURE: Listar oportunidades
+        // GET api/customers/
+        // FEATURE: Listar clientes
         [Authorize]
         public HttpResponseMessage Get()
         {
@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.GetOpportunities(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.GetCustomers(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -34,8 +34,8 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/opportunities/{$opportunityId}/
-        // FEATURE: Visualizar oportunidade
+        // GET api/customers/{$customerId}/
+        // FEATURE: Visualizar cliente
         [Authorize]
         public HttpResponseMessage Get(string id)
         {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = OpportunityIntegration.GetOpportunity(sessionUsername, id);
+                    var queryResult = CustomerIntegration.GetCustomer(sessionUsername, id);
 
                     if (queryResult == null)
                     {
@@ -66,20 +66,21 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/opportunities/
-        // FEATURE: Adicionar oportunidade
+        // POST api/customers/
+        // FEATURE: Adicionar cliente
         [Authorize]
-        public HttpResponseMessage Post([FromBody] Opportunity jsonObject)
+        public HttpResponseMessage Post([FromBody] Customer jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    jsonObject.Identifier = "opportunityId";
+                    jsonObject.Status = "ACTIVO";
+                    jsonObject.Identifier = "accountId";
                     jsonObject.DateCreated = DateTime.Now;
                     jsonObject.DateModified = jsonObject.DateCreated;
 
-                    if (OpportunityIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (CustomerIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -99,10 +100,10 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/opportunities/{$opportunityId}/
-        // FEATURE: Modificar oportunidade existente
+        // POST api/customers/{$customerId}/
+        // FEATURE: Modificar cliente existente
         [Authorize]
-        public HttpResponseMessage Post(string id, [FromBody] Opportunity jsonObject)
+        public HttpResponseMessage Post(string id, [FromBody] Customer jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
@@ -111,7 +112,7 @@ namespace FirstREST.Controllers
                     jsonObject.Identifier = id;
                     jsonObject.DateModified = DateTime.Now;
 
-                    if (OpportunityIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (CustomerIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -131,8 +132,8 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/opportunities/{$opportunityId}/
-        // FEATURE: Remover oportunidade
+        // DELETE api/customers/{$customerId}/
+        // FEATURE: Remover cliente existente
         [Authorize]
         public HttpResponseMessage Delete(string id)
         {
@@ -140,7 +141,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (CustomerIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

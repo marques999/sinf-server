@@ -1,4 +1,4 @@
-namespace FirstREST.Lib_Primavera.Enums
+namespace FirstREST.QueryBuilder.Enums
 {
     public enum Comparison
     {

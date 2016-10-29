@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
+using System.Collections.Generic;
 
-using FirstREST.Lib_Primavera.Enums;
+using FirstREST.QueryBuilder.Enums;
 
-namespace FirstREST.Lib_Primavera
+namespace FirstREST.QueryBuilder
 {
     public class WhereStatement : List<List<WhereClause>>
     {
@@ -12,7 +12,7 @@ namespace FirstREST.Lib_Primavera
         {
             get
             {
-                return this.Count; 
+                return this.Count;
             }
         }
 
@@ -32,22 +32,22 @@ namespace FirstREST.Lib_Primavera
         {
             this.Add(clause, 1);
         }
-        
+
         public void Add(WhereClause clause, int level)
         {
             this.AddWhereClauseToLevel(clause, level);
         }
-        
+
         public WhereClause Add(string field, Comparison @operator, object compareValue)
         {
-            return this.Add(field, @operator, compareValue, 1); 
+            return this.Add(field, @operator, compareValue, 1);
         }
-       
-        public WhereClause Add(Enum field, Comparison @operator, object compareValue) 
+
+        public WhereClause Add(Enum field, Comparison @operator, object compareValue)
         {
-            return this.Add(field.ToString(), @operator, compareValue, 1); 
+            return this.Add(field.ToString(), @operator, compareValue, 1);
         }
-       
+
         public WhereClause Add(string field, Comparison @operator, object compareValue, int level)
         {
             WhereClause NewWhereClause = new WhereClause(field, @operator, compareValue);
@@ -75,11 +75,11 @@ namespace FirstREST.Lib_Primavera
         public string BuildWhereStatement(bool useCommandObject, ref DbCommand usedDbCommand)
         {
             string Result = "";
-           
+
             foreach (List<WhereClause> WhereStatement in this)
             {
                 string LevelWhere = "";
-                
+
                 foreach (WhereClause Clause in WhereStatement)
                 {
                     string WhereClause = "";
@@ -93,7 +93,7 @@ namespace FirstREST.Lib_Primavera
                             );
 
                         DbParameter parameter = usedDbCommand.CreateParameter();
-                        
+
                         parameter.ParameterName = parameterName;
                         parameter.Value = Clause.Value;
                         usedDbCommand.Parameters.Add(parameter);
@@ -109,9 +109,11 @@ namespace FirstREST.Lib_Primavera
                         switch (SubWhereClause.LogicOperator)
                         {
                             case LogicOperator.And:
-                                WhereClause += " AND "; break;
+                                WhereClause += " AND ";
+                                break;
                             case LogicOperator.Or:
-                                WhereClause += " OR "; break;
+                                WhereClause += " OR ";
+                                break;
                         }
 
                         if (useCommandObject)
@@ -162,23 +164,32 @@ namespace FirstREST.Lib_Primavera
                 switch (comparisonOperator)
                 {
                     case Comparison.Equals:
-                        Output = fieldName + " = " + FormatSQLValue(value); break;
+                        Output = fieldName + " = " + FormatSQLValue(value);
+                        break;
                     case Comparison.NotEquals:
-                        Output = fieldName + " <> " + FormatSQLValue(value); break;
+                        Output = fieldName + " <> " + FormatSQLValue(value);
+                        break;
                     case Comparison.GreaterThan:
-                        Output = fieldName + " > " + FormatSQLValue(value); break;
+                        Output = fieldName + " > " + FormatSQLValue(value);
+                        break;
                     case Comparison.GreaterOrEquals:
-                        Output = fieldName + " >= " + FormatSQLValue(value); break;
+                        Output = fieldName + " >= " + FormatSQLValue(value);
+                        break;
                     case Comparison.LessThan:
-                        Output = fieldName + " < " + FormatSQLValue(value); break;
+                        Output = fieldName + " < " + FormatSQLValue(value);
+                        break;
                     case Comparison.LessOrEquals:
-                        Output = fieldName + " <= " + FormatSQLValue(value); break;
+                        Output = fieldName + " <= " + FormatSQLValue(value);
+                        break;
                     case Comparison.Like:
-                        Output = fieldName + " LIKE " + FormatSQLValue(value); break;
+                        Output = fieldName + " LIKE " + FormatSQLValue(value);
+                        break;
                     case Comparison.NotLike:
-                        Output = "NOT " + fieldName + " LIKE " + FormatSQLValue(value); break;
+                        Output = "NOT " + fieldName + " LIKE " + FormatSQLValue(value);
+                        break;
                     case Comparison.In:
-                        Output = fieldName + " IN (" + FormatSQLValue(value) + ")"; break;
+                        Output = fieldName + " IN (" + FormatSQLValue(value) + ")";
+                        break;
                 }
             }
             else // value==null	|| value==DBNull.Value
@@ -192,9 +203,11 @@ namespace FirstREST.Lib_Primavera
                     switch (comparisonOperator)
                     {
                         case Comparison.Equals:
-                            Output = fieldName + " IS NULL"; break;
+                            Output = fieldName + " IS NULL";
+                            break;
                         case Comparison.NotEquals:
-                            Output = "NOT " + fieldName + " IS NULL"; break;
+                            Output = "NOT " + fieldName + " IS NULL";
+                            break;
                     }
                 }
             }
@@ -215,12 +228,24 @@ namespace FirstREST.Lib_Primavera
             {
                 switch (someValue.GetType().Name)
                 {
-                    case "String": FormattedValue = "'" + ((string)someValue).Replace("'", "''") + "'"; break;
-                    case "DateTime": FormattedValue = "'" + ((DateTime)someValue).ToString("yyyy/MM/dd hh:mm:ss") + "'"; break;
-                    case "DBNull": FormattedValue = "NULL"; break;
-                    case "Boolean": FormattedValue = (bool)someValue ? "1" : "0"; break;
-                    case "SqlLiteral": FormattedValue = ((SqlLiteral)someValue).Value; break;
-                    default: FormattedValue = someValue.ToString(); break;
+                    case "String":
+                        FormattedValue = "'" + ((string)someValue).Replace("'", "''") + "'";
+                        break;
+                    case "DateTime":
+                        FormattedValue = "'" + ((DateTime)someValue).ToString("yyyy/MM/dd hh:mm:ss") + "'";
+                        break;
+                    case "DBNull":
+                        FormattedValue = "NULL";
+                        break;
+                    case "Boolean":
+                        FormattedValue = (bool)someValue ? "1" : "0";
+                        break;
+                    case "SqlLiteral":
+                        FormattedValue = ((SqlLiteral)someValue).Value;
+                        break;
+                    default:
+                        FormattedValue = someValue.ToString();
+                        break;
                 }
             }
             return FormattedValue;

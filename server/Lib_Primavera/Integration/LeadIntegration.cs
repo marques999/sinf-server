@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using Interop.CrmBE900;
 using Interop.StdBE900;
 
-using FirstREST.Lib_Primavera.Enums;
-using FirstREST.Lib_Primavera.Model;
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
+using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.Lib_Primavera.Integration
+namespace FirstREST.LibPrimavera.Integration
 {
     public class LeadIntegration
     {
@@ -52,15 +53,15 @@ namespace FirstREST.Lib_Primavera.Integration
             };
         }
 
-        public static List<Lead> GetLeads()
+        public static List<Lead> GetLeads(string sessionUsername)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
             var queryResult = new List<Lead>();
-            var queryObject = PriEngine.Consulta(new QueryBuilder()
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColummns)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE"));
@@ -84,23 +85,54 @@ namespace FirstREST.Lib_Primavera.Integration
             return queryResult;
         }
 
-        public static Lead GetLead(string paramId)
+        public static Lead GetLead(string sessionUsername, string paramId)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PriEngine.Engine.CRM.EntidadesExternas.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(paramId) == false)
             {
                 throw new NotFoundException();
             }
 
-            return Generate(PriEngine.Consulta(new QueryBuilder()
+            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColummns)
-                .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, paramId)
+                .Where("Entidade", Comparison.Equals, paramId)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")));
+        }
+
+        private static SqlColumn[] sqlReference =
+        {
+            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
+        };
+
+        public static UserReference GetReference(string paramId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(paramId) == false)
+            {
+                throw new NotFoundException();
+            }
+
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("ENTIDADESEXTERNAS")
+                .Columns(sqlReference)
+                .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, paramId)
+                .Where("PotencialCliente", Comparison.Equals, "TRUE"));
+
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
+                Name = TypeParser.String(queryObject.Valor("Nome"))
+            };
         }
 
         private static void SetFields(CrmBEEntidadeExterna selectedRow, Lead paramObject)
@@ -164,21 +196,22 @@ namespace FirstREST.Lib_Primavera.Integration
             }
         }
 
-        public static bool UpdateLead(string paramId, Lead paramObject)
+        public static bool Update(string sessionUsername, Lead paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedTable = PriEngine.Engine.CRM.EntidadesExternas;
+            var selectedId = paramObject.Identifier;
+            var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
 
-            if (selectedTable.Existe(paramId) == false)
+            if (selectedTable.Existe(selectedId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(paramId);
+            var selectedRow = selectedTable.Edita(selectedId);
 
             selectedRow.set_EmModoEdicao(true);
             SetFields(selectedRow, paramObject);
@@ -187,24 +220,37 @@ namespace FirstREST.Lib_Primavera.Integration
             return true;
         }
 
-        public static bool CreateLead(string paramId, Lead paramObject)
+        public static bool Insert(string sessionUsername, Lead paramObject)
         {
-            if (PriEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
+            var selectedId = paramObject.Identifier;
             var selectedRow = new CrmBEEntidadeExterna();
-            var selectedTable = PriEngine.Engine.CRM.EntidadesExternas;
+            var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
 
-            if (selectedTable.Existe(paramId))
+            if (selectedTable.Existe(selectedId))
             {
                 return false;
             }
 
-            selectedRow.set_Entidade(paramId);
+            selectedRow.set_Entidade(selectedId);
             SetFields(selectedRow, paramObject);
             selectedTable.Actualiza(selectedRow);
+
+            return true;
+        }
+
+        public static bool Delete(string sessionId, string paramId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
 
             return true;
         }
