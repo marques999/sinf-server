@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.GetContacts(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = ContactIntegration.GetContact(sessionUsername, id);
+                    var queryResult = ContactIntegration.View(sessionUsername, id);
 
                     if (queryResult == null)
                     {

@@ -12,9 +12,10 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ContactIntegration
     {
-        private static SqlColumn[] sqlColumns =
+        private static SqlColumn[] sqlColumnsFull =
         {
             new SqlColumn("CONTACTOS.Contacto", null),
+            new SqlColumn("CONTACTOS.Titulo", null),
             new SqlColumn("CONTACTOS.PrimeiroNome", null),
             new SqlColumn("CONTACTOS.UltimoNome", null),
             new SqlColumn("CONTACTOS.DataUltContacto", null),
@@ -28,12 +29,34 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CONTACTOS.Distrito", null)
         };
 
-        private static Contact Generate(StdBELista queryResult)
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("CONTACTOS.Contacto", null),
+            new SqlColumn("CONTACTOS.Titulo", null),
+            new SqlColumn("CONTACTOS.PrimeiroNome", null),
+            new SqlColumn("CONTACTOS.UltimoNome", null),
+            new SqlColumn("CONTACTOS.DataUltContacto", null),
+            new SqlColumn("CONTACTOS.Email", null),
+            new SqlColumn("CONTACTOS.Telemovel", null),
+            new SqlColumn("CONTACTOS.Pais", null),
+            new SqlColumn("CONTACTOS.Distrito", null),
+            new SqlColumn("CONTACTOS.Morada", null),
+        };
+
+        private static SqlColumn[] sqlColumnsReference =
+        {
+            new SqlColumn("CONTACTOS.Contacto", null),
+            new SqlColumn("CONTACTOS.PrimeiroNome", null),
+            new SqlColumn("CONTACTOS.UltimoNome", null),
+        };
+
+        private static Contact GenerateFull(StdBELista queryResult)
         {
             return new Contact()
             {
                 Identifier = TypeParser.String(queryResult.Valor("Contacto")),
                 Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
+                Title = TypeParser.String(queryResult.Valor("Titulo")),
                 Email = TypeParser.String(queryResult.Valor("Email")),
                 Phone = TypeParser.String(queryResult.Valor("Telefone")),
                 DateModified = TypeParser.Date(queryResult.Valor("DataUltContacto")),
@@ -46,27 +69,52 @@ namespace FirstREST.LibPrimavera.Integration
                     Country = TypeParser.String(queryResult.Valor("Pais")),
                     Parish = TypeParser.String(queryResult.Valor("Localidade")),
                     State = TypeParser.String(queryResult.Valor("Distrito")),
-                },
+                }
             };
         }
 
-        public static List<Contact> GetContacts(string sessionId)
+        private static ContactListing GenerateListing(StdBELista queryResult)
+        {
+            return new ContactListing()
+            {
+                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
+                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
+                Title = TypeParser.String(queryResult.Valor("Titulo")),
+                Email = TypeParser.String(queryResult.Valor("Email")),
+                DateModified = TypeParser.Date(queryResult.Valor("DataUltContacto")),
+                MobilePhone = TypeParser.String(queryResult.Valor("Telemovel")),
+                Address = TypeParser.String(queryResult.Valor("Morada")),
+                Country = TypeParser.String(queryResult.Valor("Pais")),
+                State = TypeParser.String(queryResult.Valor("Distrito"))
+            };
+        }
+
+        private static UserReference GenerateReference(StdBELista queryResult)
+        {
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
+                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
+            };
+        }
+
+        public static List<ContactListing> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Contact>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumns));
+            var queryResult = new List<ContactListing>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumnsListing));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(Generate(queryObject));
+                queryResult.Add(GenerateListing(queryObject));
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Contact lhs, Contact rhs)
+            queryResult.Sort(delegate(ContactListing lhs, ContactListing rhs)
             {
                 if (lhs.Identifier == null || rhs.Identifier == null)
                 {
@@ -79,7 +127,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Contact GetContact(string sessionId, string paramId)
+        public static Contact View(string sessionId, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -91,20 +139,13 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONTACTOS")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsFull)
                 .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
         }
 
-        private static SqlColumn[] sqlReference =
-        {
-            new SqlColumn("CONTACTOS.Contacto", null),
-            new SqlColumn("CONTACTOS.PrimeiroNome", null),
-            new SqlColumn("CONTACTOS.UltimoNome", null),
-        };
-
-        public static UserReference GetReference(string paramId)
+        public static UserReference Reference(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -116,16 +157,10 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException();
             }
 
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONTACTOS")
-                .Columns(sqlReference)
-                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId));
-
-            return new UserReference
-            {
-                Identifier = TypeParser.String(queryObject.Valor("Contacto")),
-                Name = TypeParser.String(queryObject.Valor("PrimeiroNome")) + " " + queryObject.Valor("UltimoNome"),
-            };
+                .Columns(sqlColumnsReference)
+                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
         }
 
         private static void SetFields(CrmBEContacto selectedRow, Contact paramObject)

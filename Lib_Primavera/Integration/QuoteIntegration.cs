@@ -9,17 +9,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class QuoteIntegration
     {
-        public static List<Quote> GetQuotes(string sessionId)
-        {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            return new List<Quote>();
-        }
-
-        private static List<Quote> GetByOpportunity(string paramId)
+        public static List<Quote> List(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -52,7 +42,8 @@ namespace FirstREST.LibPrimavera.Integration
 
             };
         }
-        public static Quote GetQuote(string sessionId, string paramId)
+
+        public static Quote View(string sessionId, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

@@ -22,4 +22,14 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
     }
+
+    public class LeadListing : ContactListing
+    {
+        [JsonProperty(PropertyName = "active")]
+        public bool Active
+        {
+            get;
+            set;
+        }
+    }
 }

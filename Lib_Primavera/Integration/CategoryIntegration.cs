@@ -17,7 +17,7 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("COUNT(*)", "Count"),
         };
 
-        public static List<Category> Get()
+        public static List<Category> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -56,7 +56,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static CategoryReference getReference(StdBELista queryResult)
+        public static CategoryReference GenerateReference(StdBELista queryResult)
         {
             return new CategoryReference
             {

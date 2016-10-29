@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.GetLeads(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = LeadIntegration.GetLead(sessionUsername, id);
+                    var queryResult = LeadIntegration.View(sessionUsername, id);
 
                     if (queryResult == null)
                     {

@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.GetQuotes(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = QuoteIntegration.GetQuote(sessionUsername, id);
+                    var queryResult = QuoteIntegration.View(sessionUsername, id);
 
                     if (queryResult == null)
                     {

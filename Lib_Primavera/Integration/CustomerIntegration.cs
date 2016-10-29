@@ -12,7 +12,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class CustomerIntegration
     {
-        private static SqlColumn[] sqlColumns =
+        private static SqlColumn[] sqlColumnsFull =
         {
             new SqlColumn("CLIENTES.Cliente", null),
             new SqlColumn("CLIENTES.Situacao", null),
@@ -22,6 +22,8 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CLIENTES.EnderecoWeb", null),
             new SqlColumn("CLIENTES.DataCriacao", null),
             new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
+            new SqlColumn("CLIENTES.EncomendasPendentes", null),
+            new SqlColumn("CLIENTES.TotalDeb", null),
             new SqlColumn("CLIENTES.Fac_Tel", null),
             new SqlColumn("CLIENTES.Fac_Cp", null),
             new SqlColumn("CLIENTES.Fac_Mor", null),
@@ -30,7 +32,26 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CLIENTES.Distrito", null)
         };
 
-        private static Customer Generate(StdBELista queryResult)
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("CLIENTES.Cliente", null),
+            new SqlColumn("CLIENTES.Situacao", null),
+            new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
+            new SqlColumn("CLIENTES.EncomendasPendentes", null),
+            new SqlColumn("CLIENTES.TotalDeb", null),     
+            new SqlColumn("CLIENTES.Nome", null),
+            new SqlColumn("CLIENTES.Fac_Tel", null),
+            new SqlColumn("CLIENTES.Fac_Local", null),
+            new SqlColumn("CLIENTES.Pais", null)
+        };
+
+        private static SqlColumn[] sqlColumnsReference =
+        {
+            new SqlColumn("CLIENTES.Cliente", null),
+            new SqlColumn("CLIENTES.Nome", null)
+        };
+
+        private static Customer GenerateFull(StdBELista queryResult)
         {
             return new Customer()
             {
@@ -38,7 +59,9 @@ namespace FirstREST.LibPrimavera.Integration
                 Name = TypeParser.String(queryResult.Valor("Nome")),
                 Currency = TypeParser.String(queryResult.Valor("Moeda")),
                 Status = TypeParser.String(queryResult.Valor("Situacao")),
+                Debito = TypeParser.Double(queryResult.Valor("TotalDeb")),
                 TaxNumber = TypeParser.String(queryResult.Valor("NumContrib")),
+                Pending = TypeParser.Double(queryResult.Valor("EncomendasPendentes")),
                 DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
                 DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
                 Website = TypeParser.String(queryResult.Valor("EnderecoWeb")),
@@ -50,28 +73,53 @@ namespace FirstREST.LibPrimavera.Integration
                     Street = TypeParser.String(queryResult.Valor("Fac_Mor")),
                     Country = TypeParser.String(queryResult.Valor("Pais")),
                     Parish = TypeParser.String(queryResult.Valor("Fac_Local")),
-                    State = TypeParser.String(queryResult.Valor("Distrito")),
-                },
+                    State = TypeParser.String(queryResult.Valor("Distrito"))
+                }
             };
         }
 
-        public static List<Customer> GetCustomers(string sessionId)
+        private static CustomerListing GenerateListing(StdBELista queryResult)
+        {
+            return new CustomerListing()
+            {
+                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
+                Name = TypeParser.String(queryResult.Valor("Nome")),
+                Status = TypeParser.String(queryResult.Valor("Situacao")),
+                Debito = TypeParser.Double(queryResult.Valor("TotalDeb")),
+                Pending = TypeParser.Double(queryResult.Valor("EncomendasPendentes")),
+                DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
+                Address = TypeParser.String(queryResult.Valor("Fac_Mor")),
+                Country = TypeParser.String(queryResult.Valor("Pais")),
+                State = TypeParser.String(queryResult.Valor("Distrito"))
+            };
+        }
+
+        private static UserReference GenerateReference(StdBELista queryResult)
+        {
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
+                Name = TypeParser.String(queryResult.Valor("Nome"))
+            };
+        }
+
+        public static List<CustomerListing> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Customer>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CLIENTES").Columns(sqlColumns));
+            var queryResult = new List<CustomerListing>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CLIENTES").Columns(sqlColumnsListing));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(Generate(queryObject));
+                queryResult.Add(GenerateListing(queryObject));
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Customer lhs, Customer rhs)
+            queryResult.Sort(delegate(CustomerListing lhs, CustomerListing rhs)
             {
                 if (lhs.Identifier == null || rhs.Identifier == null)
                 {
@@ -84,7 +132,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Customer GetCustomer(string sessionId, string paramId)
+        public static Customer View(string sessionId, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -96,19 +144,13 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CLIENTES")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsFull)
                 .Where("CLIENTES.Cliente", Comparison.Equals, paramId)));
         }
 
-        private static SqlColumn[] sqlReference =
-        {
-            new SqlColumn("CLIENTES.Cliente", null),
-            new SqlColumn("CLIENTES.Nome", null)
-        };
-
-        public static UserReference GetReference(string paramId)
+        public static UserReference Reference(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -120,16 +162,10 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException();
             }
 
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CLIENTES")
-                .Columns(sqlReference)
-                .Where("Cliente", Comparison.Equals, paramId));
-
-            return new UserReference
-            {
-                Identifier = TypeParser.String(queryObject.Valor("Cliente")),
-                Name = TypeParser.String(queryObject.Valor("Nome")),
-            };
+                .Columns(sqlColumnsReference)
+                .Where("Cliente", Comparison.Equals, paramId)));
         }
 
         private static void SetFields(GcpBECliente selectedRow, Customer paramObject)

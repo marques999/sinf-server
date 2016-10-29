@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.GetOpportunities(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = OpportunityIntegration.GetOpportunity(sessionUsername, id);
+                    var queryResult = OpportunityIntegration.View(sessionUsername, id);
 
                     if (queryResult == null)
                     {

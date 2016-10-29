@@ -29,6 +29,21 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
+        [JsonProperty(PropertyName = "debt")]
+        public double Debito
+        {
+            get;
+            set;
+        }
+
+
+        [JsonProperty(PropertyName = "pending")]
+        public double Pending
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "taxNumber")]
         public string TaxNumber
         {
@@ -38,6 +53,31 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "currency")]
         public string Currency
+        {
+            get;
+            set;
+        }
+    }
+
+    public class CustomerListing : ContactListing
+    {
+        [JsonProperty(PropertyName = "status")]
+        public string Status
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "debt")]
+        public double Debito
+        {
+            get;
+            set;
+        }
+
+
+        [JsonProperty(PropertyName = "pending")]
+        public double Pending
         {
             get;
             set;

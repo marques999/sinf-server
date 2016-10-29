@@ -7,7 +7,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class OpportunityIntegration
     {
-        public static List<Opportunity> GetOpportunities(string sessionId)
+        public static List<Opportunity> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -17,7 +17,7 @@ namespace FirstREST.LibPrimavera.Integration
             return new List<Opportunity>();
         }
 
-        public static Opportunity GetOpportunity(string sessionId, string paramId)
+        public static Opportunity View(string sessionId, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

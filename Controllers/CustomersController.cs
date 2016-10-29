@@ -21,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.GetCustomers(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -44,7 +44,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = CustomerIntegration.GetCustomer(sessionUsername, id);
+                    var queryResult = CustomerIntegration.View(sessionUsername, id);
 
                     if (queryResult == null)
                     {

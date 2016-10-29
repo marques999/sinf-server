@@ -72,15 +72,15 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 if (entityType == "X")
                 {
-                    newInstance.Entity = LeadIntegration.GetReference(entityId);
+                    newInstance.Entity = LeadIntegration.Reference(entityId);
                 }
                 else if (entityType == "C")
                 {
-                    newInstance.Entity = CustomerIntegration.GetReference(entityId);
+                    newInstance.Entity = CustomerIntegration.Reference(entityId);
                 }
                 else
                 {
-                    newInstance.Entity = ContactIntegration.GetReference(entityId);
+                    newInstance.Entity = ContactIntegration.Reference(entityId);
                 }
             }
 

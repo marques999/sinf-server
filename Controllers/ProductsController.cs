@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.Get());
+                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.List());
                 }
                 catch
                 {
@@ -42,7 +42,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ProductIntegration.GetByIdentifier(productId);
+                    var queryResult = ProductIntegration.View(productId);
 
                     if (queryResult == null)
                     {

@@ -11,7 +11,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ProductIntegration
     {
-        private static SqlColumn[] sqlColumns =
+        private static SqlColumn[] sqlColumnsFull =
         {
             new SqlColumn("ARTIGO.Artigo", null),
             new SqlColumn("ARTIGO.Descricao", null),
@@ -23,7 +23,18 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ARTIGO.STKActual", "Stock")
         };
 
-        private static Product Generate(StdBELista queryResult)
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("ARTIGO.Artigo", null),
+            new SqlColumn("ARTIGO.Descricao", null),
+            new SqlColumn("ARTIGO.PCMedio", null),
+            new SqlColumn("ARTIGO.Iva", null),
+            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),
+            new SqlColumn("FAMILIAS.Descricao", "Familia"),
+            new SqlColumn("ARTIGO.STKActual", "Stock")
+        };
+
+        private static Product GenerateFull(StdBELista queryResult)
         {
             string productId = queryResult.Valor("Artigo");
 
@@ -32,47 +43,62 @@ namespace FirstREST.LibPrimavera.Integration
                 Identifier = productId,
                 Name = TypeParser.String(queryResult.Valor("Descricao")),
                 Price = TypeParser.Double(queryResult.Valor("PCMedio")),
-                DiscountValue = TypeParser.Double(queryResult.Valor("Desconto")),
+                Discount = TypeParser.Double(queryResult.Valor("Desconto")),
                 Tax = TypeParser.Double(queryResult.Valor("Iva")),
                 Stock = TypeParser.Double(queryResult.Valor("Stock")),
-                Category = CategoryIntegration.getReference(queryResult),
+                Category = CategoryIntegration.GenerateReference(queryResult),
                 Warehouses = WarehouseIntegration.GetWarehouses(productId)
             };
         }
 
-        public static List<Product> Get()
+        private static ProductListing GenerateListing(StdBELista queryResult)
+        {
+            return new ProductListing()
+            {
+                Identifier = queryResult.Valor("Artigo"),
+                Name = TypeParser.String(queryResult.Valor("Descricao")),
+                Price = TypeParser.Double(queryResult.Valor("PCMedio")),
+                Tax = TypeParser.Double(queryResult.Valor("Iva")),
+                Stock = TypeParser.Double(queryResult.Valor("Stock")),
+                Category = CategoryIntegration.GenerateReference(queryResult)
+            };
+        }
+
+        private static int SortProduct(ProductListing lhs, ProductListing rhs)
+        {
+            if (lhs.Identifier == null || rhs.Identifier == null)
+            {
+                return -1;
+            }
+
+            return lhs.Identifier.CompareTo(rhs.Identifier);
+        }
+
+        public static List<ProductListing> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Product>();
+            var queryResult = new List<ProductListing>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsListing)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(Generate(queryObject));
+                queryResult.Add(GenerateListing(queryObject));
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Product lhs, Product rhs)
-            {
-                if (lhs.Identifier == null || rhs.Identifier == null)
-                {
-                    return -1;
-                }
-
-                return lhs.Identifier.CompareTo(rhs.Identifier);
-            });
+            queryResult.Sort(SortProduct);
 
             return queryResult;
         }
 
-        public static Product GetByIdentifier(string productId)
+        public static Product View(string productId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -84,14 +110,14 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsFull)
                 .Where("ARTIGO.Artigo", Comparison.Equals, productId)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")));
         }
 
-        public static List<Product> GetByCategory(string categoryId)
+        public static List<ProductListing> ByCategory(string categoryId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -103,28 +129,20 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            var queryResult = new List<Product>();
+            var queryResult = new List<ProductListing>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsListing)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")
                 .Where("ARTIGO.Familia", Comparison.Equals, categoryId));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(Generate(queryObject));
+                queryResult.Add(GenerateListing(queryObject));
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Product lhs, Product rhs)
-            {
-                if (lhs.Identifier == null || rhs.Identifier == null)
-                {
-                    return -1;
-                }
-
-                return lhs.Identifier.CompareTo(rhs.Identifier);
-            });
+            queryResult.Sort(SortProduct);
 
             return queryResult;
         }

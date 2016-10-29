@@ -245,7 +245,6 @@
     <Compile Include="Lib_Primavera\Model\Activity.cs" />
     <Compile Include="Lib_Primavera\Model\Agenda.cs" />
     <Compile Include="Lib_Primavera\Model\Category.cs" />
-    <Compile Include="Lib_Primavera\Model\CategoryReference.cs" />
     <Compile Include="Lib_Primavera\Model\Contact.cs" />
     <Compile Include="QueryBuilder\SqlColumn.cs" />
     <Compile Include="Lib_Primavera\TypeParser.cs" />
@@ -258,10 +257,9 @@
     <Compile Include="Lib_Primavera\Model\Opportunity.cs" />
     <Compile Include="Lib_Primavera\Model\ProductOrder.cs" />
     <Compile Include="Lib_Primavera\Model\Quote.cs" />
-    <Compile Include="Lib_Primavera\Model\UserReference.cs" />
     <Compile Include="Lib_Primavera\Model\Warehouse.cs" />
     <Compile Include="Lib_Primavera\Model\Product.cs" />
-    <Compile Include="Lib_Primavera\Model\Account.cs" />
+    <Compile Include="Lib_Primavera\Model\Customer.cs" />
     <Compile Include="Lib_Primavera\Model\Venda.cs" />
     <Compile Include="Lib_Primavera\PriEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

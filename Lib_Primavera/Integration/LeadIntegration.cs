@@ -12,7 +12,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class LeadIntegration
     {
-        private static SqlColumn[] sqlColummns =
+        private static SqlColumn[] sqlColumnsFull =
         {
             new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
             new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
@@ -29,50 +29,94 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ENTIDADESEXTERNAS.Pais", null)            
         };
 
-        private static Lead Generate(StdBELista queryResult)
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Email", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Activo", null),
+            new SqlColumn("ENTIDADESEXTERNAS.DataUltAct", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Telemovel", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Distrito", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Morada", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Pais", null)            
+        };
+
+        private static SqlColumn[] sqlColumnsReference =
+        {
+            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
+            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
+        };
+
+        private static Lead GenerateFull(StdBELista queryObject)
         {
             return new Lead()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Entidade")),
-                Active = TypeParser.Boolean(queryResult.Valor("Activo")),
-                Name = TypeParser.String(queryResult.Valor("Nome")),
-                Email = TypeParser.String(queryResult.Valor("Email")),
-                Phone = TypeParser.String(queryResult.Valor("Telefone")),
-                DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltAct")),
-                MobilePhone = TypeParser.String(queryResult.Valor("Telemovel")),
+                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
+                Active = TypeParser.Boolean(queryObject.Valor("Activo")),
+                Name = TypeParser.String(queryObject.Valor("Nome")),
+                Email = TypeParser.String(queryObject.Valor("Email")),
+                Phone = TypeParser.String(queryObject.Valor("Telefone")),
+                DateCreated = TypeParser.Date(queryObject.Valor("DataCriacao")),
+                DateModified = TypeParser.Date(queryObject.Valor("DataUltAct")),
+                MobilePhone = TypeParser.String(queryObject.Valor("Telemovel")),
 
                 Location = new Address
                 {
-                    PostalCode = TypeParser.String(queryResult.Valor("CodPostal")),
-                    State = TypeParser.String(queryResult.Valor("Distrito")),
-                    Parish = TypeParser.String(queryResult.Valor("Localidade")),
-                    Street = TypeParser.String(queryResult.Valor("Morada")),
-                    Country = TypeParser.String(queryResult.Valor("Pais"))
+                    PostalCode = TypeParser.String(queryObject.Valor("CodPostal")),
+                    State = TypeParser.String(queryObject.Valor("Distrito")),
+                    Parish = TypeParser.String(queryObject.Valor("Localidade")),
+                    Street = TypeParser.String(queryObject.Valor("Morada")),
+                    Country = TypeParser.String(queryObject.Valor("Pais"))
                 },
             };
         }
 
-        public static List<Lead> GetLeads(string sessionUsername)
+        private static LeadListing GenerateListing(StdBELista queryObject)
+        {
+            return new LeadListing()
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
+                Active = TypeParser.Boolean(queryObject.Valor("Activo")),
+                Name = TypeParser.String(queryObject.Valor("Nome")),
+                Email = TypeParser.String(queryObject.Valor("Email")),
+                DateModified = TypeParser.Date(queryObject.Valor("DataUltAct")),
+                MobilePhone = TypeParser.String(queryObject.Valor("Telemovel")),
+                State = TypeParser.String(queryObject.Valor("Distrito")),
+                Address = TypeParser.String(queryObject.Valor("Morada")),
+                Country = TypeParser.String(queryObject.Valor("Pais"))
+            };
+        }
+
+        private static UserReference GenerateReference(StdBELista queryObject)
+        {
+            return new UserReference
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
+                Name = TypeParser.String(queryObject.Valor("Nome"))
+            };
+        }
+
+        public static List<LeadListing> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Lead>();
+            var queryResult = new List<LeadListing>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
-                .Columns(sqlColummns)
+                .Columns(sqlColumnsListing)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE"));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(Generate(queryObject));
+                queryResult.Add(GenerateListing(queryObject));
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Lead lhs, Lead rhs)
+            queryResult.Sort(delegate(LeadListing lhs, LeadListing rhs)
             {
                 if (lhs.Identifier == null || rhs.Identifier == null)
                 {
@@ -85,7 +129,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Lead GetLead(string sessionUsername, string paramId)
+        public static Lead View(string sessionUsername, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -97,20 +141,14 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException();
             }
 
-            return Generate(PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
-                .Columns(sqlColummns)
+                .Columns(sqlColumnsFull)
                 .Where("Entidade", Comparison.Equals, paramId)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")));
         }
 
-        private static SqlColumn[] sqlReference =
-        {
-            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
-        };
-
-        public static UserReference GetReference(string paramId)
+        public static UserReference Reference(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -122,17 +160,11 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException();
             }
 
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
-                .Columns(sqlReference)
+                .Columns(sqlColumnsReference)
                 .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, paramId)
-                .Where("PotencialCliente", Comparison.Equals, "TRUE"));
-
-            return new UserReference
-            {
-                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
-                Name = TypeParser.String(queryObject.Valor("Nome"))
-            };
+                .Where("PotencialCliente", Comparison.Equals, "TRUE")));
         }
 
         private static void SetFields(CrmBEEntidadeExterna selectedRow, Lead paramObject)
