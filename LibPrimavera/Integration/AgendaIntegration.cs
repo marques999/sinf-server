@@ -17,17 +17,21 @@ namespace FirstREST.LibPrimavera.Integration
         {
             new SqlColumn("TAREFAS.Id", null),
             new SqlColumn("TAREFAS.Resumo", null),
+            new SqlColumn("TAREFAS.Estado", null),
             new SqlColumn("TAREFAS.Descricao", null),
             new SqlColumn("TAREFAS.Prioridade", null),
-            new SqlColumn("TAREFAS.EntidadePrincipal", null),
+            new SqlColumn("TAREFAS.CriadoPor", null),
             new SqlColumn("TAREFAS.TipoEntidadePrincipal", null),
+            new SqlColumn("TAREFAS.EntidadePrincipal", null),       
             new SqlColumn("TAREFAS.DataInicio", null),
             new SqlColumn("TAREFAS.DataFim", null),
             new SqlColumn("TAREFAS.DataCriacao", null),
             new SqlColumn("TAREFAS.DataUltAct", null),
+            new SqlColumn("TIPOSTAREFA.TipoActividade", null),
+            new SqlColumn("TIPOSTAREFA.Descricao", "DescricaoActividade"),
         };
 
-        public static List<Activity> Get(AgendaType agendaType, AgendaStatus agendaStatus, Agenda agendaWhen)
+        public static List<Activity> List(string sessionId, ActivityType agendaType, ActivityStatus agendaStatus, ActivityInterval agendaWhen)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -38,7 +42,8 @@ namespace FirstREST.LibPrimavera.Integration
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("TAREFAS")
                 .Columns(sqlColumns)
-                .Where(FilterDate(agendaWhen)));
+                .Where(FilterDate(agendaWhen))
+                .LeftJoin("TIPOSTAREFA", "Id", Comparison.Equals, "TAREFAS", "IdTipoActividade"));
             /*  .Where(FilterStatus(agendaStatus))
               .Where(FilterType(agendaType)));
               */
@@ -51,34 +56,47 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
+        private static Reference TypeReference(StdBELista queryResult)
+        {
+            return new Reference
+            {
+                Identifier = TypeParser.String(queryResult.Valor("TipoActividade")),
+                Name = TypeParser.String(queryResult.Valor("DescricaoActividade"))
+            };
+        }
+
         private static Activity Generate(StdBELista queryResult)
         {
+            var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
+            var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
+            
             var newInstance = new Activity
             {
+                Type = TypeReference(queryResult),
                 Identifier = TypeParser.String(queryResult.Valor("Id")),
                 Name = TypeParser.String(queryResult.Valor("Resumo")),
+                Owner = TypeParser.String(queryResult.Valor("CriadoPor")),
                 Start = TypeParser.Date(queryResult.Valor("DataInicio")),
                 End = TypeParser.Date(queryResult.Valor("DataFim")),
+                Status = (ActivityStatus)TypeParser.Integer(queryResult.Valor("Estado")),
                 Priority = TypeParser.Integer(queryResult.Valor("Prioridade")),
                 Description = TypeParser.String(queryResult.Valor("Descricao")),
                 DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltAct"))
+                DateModified = TypeParser.Date(queryResult.Valor("DataUltAct")),
+                EntityType = (int) TypeParser.Entity_Type(entityType)
             };
-
-            var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
-            var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
-
-            if (entityType != null && string.IsNullOrEmpty(entityType) == false)
+            
+            if (string.IsNullOrEmpty(entityType) == false)
             {
                 if (entityType == "X")
                 {
-                    newInstance.Entity = LeadIntegration.Reference(entityId);
+                    newInstance.Entity = LeadIntegration.LeadReference(entityId);
                 }
                 else if (entityType == "C")
                 {
                     newInstance.Entity = CustomerIntegration.Reference(entityId);
                 }
-                else
+                else if (entityType == "O")
                 {
                     newInstance.Entity = ContactIntegration.Reference(entityId);
                 }
@@ -95,42 +113,42 @@ namespace FirstREST.LibPrimavera.Integration
             return DateTime.Now.AddDays(-(today - fdow)).Date;
         }
 
-        private static WhereClause FilterDate(Agenda agendaWhen)
+        private static WhereClause FilterDate(ActivityInterval agendaWhen)
         {
             var startInterval = DateTime.Today;
             var endInterval = startInterval.AddHours(24);
 
-            if (agendaWhen == Agenda.Yesterday)
+            if (agendaWhen == ActivityInterval.Yesterday)
             {
                 startInterval = startInterval.AddDays(-1);
                 endInterval = startInterval.AddHours(24);
             }
-            else if (agendaWhen == Agenda.Tomorrow)
+            else if (agendaWhen == ActivityInterval.Tomorrow)
             {
                 startInterval = startInterval.AddDays(1);
                 endInterval = startInterval.AddHours(24);
             }
-            else if (agendaWhen == Agenda.Week)
+            else if (agendaWhen == ActivityInterval.Week)
             {
                 startInterval = GetWeek();
                 endInterval = startInterval.AddDays(7);
             }
-            else if (agendaWhen == Agenda.Month)
+            else if (agendaWhen == ActivityInterval.Month)
             {
                 startInterval = new DateTime(startInterval.Year, startInterval.Month, 1);
                 endInterval = startInterval.AddMonths(1);
             }
-            else if (agendaWhen == Agenda.Year)
+            else if (agendaWhen == ActivityInterval.Year)
             {
                 startInterval = new DateTime(startInterval.Year, 1, 1);
                 endInterval = startInterval.AddYears(1);
             }
-            else if (agendaWhen == Agenda.Past)
+            else if (agendaWhen == ActivityInterval.Past)
             {
                 startInterval = MinimumValue;
                 endInterval = DateTime.Now;
             }
-            else if (agendaWhen == Agenda.Future)
+            else if (agendaWhen == ActivityInterval.Future)
             {
                 startInterval = DateTime.Now;
                 endInterval = MaximumValue;
@@ -157,15 +175,15 @@ namespace FirstREST.LibPrimavera.Integration
         private static DateTime MinimumValue = DateTime.MinValue;
         private static DateTime MaximumValue = DateTime.MaxValue;
 
-        private static WhereClause FilterStatus(AgendaStatus agendaStatus)
+        private static WhereClause FilterStatus(ActivityStatus agendaStatus)
         {
             return new WhereClause("Estado", Comparison.Equals, agendaStatus);
         }
 
-        private static WhereClause FilterStatus(AgendaStatus[] agendaStatus)
+        private static WhereClause FilterStatus(ActivityStatus[] agendaStatus)
         {
             WhereClause wc = null;
-            Dictionary<AgendaStatus, bool> duplicateCheck = new Dictionary<AgendaStatus, bool>();
+            Dictionary<ActivityStatus, bool> duplicateCheck = new Dictionary<ActivityStatus, bool>();
 
             foreach (var activityStatus in agendaStatus)
             {
@@ -189,15 +207,15 @@ namespace FirstREST.LibPrimavera.Integration
             return wc;
         }
 
-        public static WhereClause FilterType(AgendaType agendaType)
+        public static WhereClause FilterType(ActivityType agendaType)
         {
             return new WhereClause("IdTipoActividade", Comparison.Equals, agendaType);
         }
 
-        public static WhereClause FilterType(AgendaType[] agendaType)
+        public static WhereClause FilterType(ActivityType[] agendaType)
         {
             WhereClause wc = null;
-            Dictionary<AgendaType, bool> duplicateCheck = new Dictionary<AgendaType, bool>();
+            Dictionary<ActivityType, bool> duplicateCheck = new Dictionary<ActivityType, bool>();
 
             foreach (var activityType in agendaType)
             {
@@ -235,7 +253,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             selectedRow.set_Prioridade(paramObject.Priority.ToString());
 
-            if (paramObject.Status != AgendaStatus.Any)
+            if (paramObject.Status != ActivityStatus.Any)
             {
                 selectedRow.set_Estado(paramObject.Status.ToString());
             }

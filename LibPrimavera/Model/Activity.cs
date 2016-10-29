@@ -39,21 +39,21 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "status")]
-        public AgendaStatus Status
+        public ActivityStatus Status
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "type")]
-        public AgendaType Type
+        public Reference Type
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "entity")]
-        public UserReference Entity
+        public Reference Entity
         {
             get;
             set;
@@ -92,6 +92,13 @@ namespace FirstREST.LibPrimavera.Model
             }
         }
 
+        [JsonProperty(PropertyName = "duration")]
+        public string Owner
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "start")]
         [JsonConverter(typeof(JavaScriptDateTimeConverter))]
         public DateTime Start
@@ -119,6 +126,13 @@ namespace FirstREST.LibPrimavera.Model
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(JavaScriptDateTimeConverter))]
         public DateTime DateModified
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "entityType")]
+        public int EntityType
         {
             get;
             set;

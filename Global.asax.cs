@@ -24,6 +24,7 @@ namespace FirstREST
             var settings = jsonFormatter.SerializerSettings;
 
             settings.Formatting = Formatting.Indented;
+            settings.DefaultValueHandling = DefaultValueHandling.Populate;
             settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }
     }

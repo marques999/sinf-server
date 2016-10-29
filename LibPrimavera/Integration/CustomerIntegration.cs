@@ -94,9 +94,9 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        private static UserReference GenerateReference(StdBELista queryResult)
+        private static Reference GenerateReference(StdBELista queryResult)
         {
-            return new UserReference
+            return new Reference
             {
                 Identifier = TypeParser.String(queryResult.Valor("Cliente")),
                 Name = TypeParser.String(queryResult.Valor("Nome"))
@@ -150,7 +150,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where("CLIENTES.Cliente", Comparison.Equals, paramId)));
         }
 
-        public static UserReference Reference(string paramId)
+        public static Reference Reference(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

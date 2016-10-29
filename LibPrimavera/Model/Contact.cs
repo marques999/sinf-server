@@ -65,7 +65,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "owner")]
-        public UserReference Owner
+        public Reference Owner
         {
             get;
             set;

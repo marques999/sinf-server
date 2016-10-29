@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+
+using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
@@ -32,6 +34,7 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
+        [DefaultValue("PT")]
         [JsonProperty(PropertyName = "country")]
         public string Country
         {

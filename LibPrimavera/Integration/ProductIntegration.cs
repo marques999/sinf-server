@@ -36,7 +36,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static Product GenerateFull(StdBELista queryResult)
         {
-            string productId = queryResult.Valor("Artigo");
+            string productId = TypeParser.String(queryResult.Valor("Artigo"));
 
             return new Product()
             {
@@ -55,7 +55,7 @@ namespace FirstREST.LibPrimavera.Integration
         {
             return new ProductListing()
             {
-                Identifier = queryResult.Valor("Artigo"),
+                Identifier = TypeParser.String(queryResult.Valor("Artigo")),
                 Name = TypeParser.String(queryResult.Valor("Descricao")),
                 Price = TypeParser.Double(queryResult.Valor("PCMedio")),
                 Tax = TypeParser.Double(queryResult.Valor("Iva")),

@@ -7,7 +7,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class RepresentativeIntegration
     {
-        public static List<User> GetRepresentatives()
+        public static List<User> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -17,7 +17,7 @@ namespace FirstREST.LibPrimavera.Integration
             return new List<User>();
         }
 
-        public static Opportunity GetRepresentative(string paramId)
+        public static User View(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -26,13 +26,13 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
             return null;
         }
 
-        public static bool UpdateOpportunity(string paramId, Opportunity paramObject)
+        public static bool Update(string paramId, User paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -47,7 +47,7 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool CreateRepresentative(string paramId, User paramObject)
+        public static bool Insert(string paramId, User paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

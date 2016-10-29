@@ -37,7 +37,7 @@ namespace FirstREST.LibPrimavera.Integration
                 {
                     Identifier = TypeParser.String(queryObject.Valor("Familia")),
                     Name = TypeParser.String(queryObject.Valor("Descricao")),
-                    NumberProducts = queryObject.Valor("Count")
+                    NumberProducts = TypeParser.Integer(queryObject.Valor("Count"))
                 });
 
                 queryObject.Seguinte();

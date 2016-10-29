@@ -43,8 +43,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = ContactIntegration.View(sessionUsername, id);
+                    var queryResult = ContactIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
 
                     if (queryResult == null)
                     {

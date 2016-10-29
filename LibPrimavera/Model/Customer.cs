@@ -75,7 +75,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-
         [JsonProperty(PropertyName = "pending")]
         public double Pending
         {

@@ -43,8 +43,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = CustomerIntegration.View(sessionUsername, id);
+                    var queryResult = CustomerIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
 
                     if (queryResult == null)
                     {
@@ -77,8 +76,10 @@ namespace FirstREST.Controllers
                 {
                     jsonObject.Status = "ACTIVO";
                     jsonObject.Identifier = "accountId";
-                    jsonObject.DateCreated = DateTime.Now;
+                    //jsonObject.DateCreated = DateTime.Now;
                     jsonObject.DateModified = jsonObject.DateCreated;
+
+                    System.Diagnostics.Debug.Print(jsonObject.DateModified.ToString());
 
                     if (CustomerIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {

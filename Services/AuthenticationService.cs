@@ -2,11 +2,13 @@
 
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
+
+using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
 
-namespace FirstREST.LibPrimavera.Integration
+namespace FirstREST.Services
 {
-    public class Authentication
+    public class AuthenticationService
     {
         public static string LoginUtilizador(string email, string password)
         {

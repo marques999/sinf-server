@@ -12,52 +12,8 @@ namespace FirstREST.Controllers
 {
     public class AgendaController : ApiController
     {
-        public static Agenda ParseWhen(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return Agenda.Today;
-            }
-
-            Agenda parseResult;
-
-            return Enum.TryParse(value, true, out parseResult) ? parseResult : Agenda.Today;
-        }
-
-        public static AgendaType ParseType(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return AgendaType.All;
-            }
-
-            AgendaType parseResult;
-
-            if (Enum.TryParse(value, true, out parseResult))
-            {
-                return parseResult;
-            }
-
-            return AgendaType.All;
-        }
-
-        public static AgendaStatus ParseStatus(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return AgendaStatus.Any;
-            }
-
-            AgendaStatus parseResult;
-
-            if (Enum.TryParse(value, true, out parseResult))
-            {
-                return parseResult;
-            }
-
-            return AgendaStatus.Any;
-        }
-
+        // GET api/agenda/
+        // Feature: Visualizar agenda
         [Authorize]
         public HttpResponseMessage Get()
         {
@@ -65,7 +21,13 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(AgendaType.All, AgendaStatus.Any, Agenda.Today));
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
+                    (
+                        Thread.CurrentPrincipal.Identity.Name,
+                        ActivityType.ANY,
+                        ActivityStatus.Any,
+                        ActivityInterval.Today
+                    ));
                 }
                 catch
                 {
@@ -78,6 +40,8 @@ namespace FirstREST.Controllers
             }
         }
 
+        // GET api/agenda/?type=calls
+        // Feature: Visualizar agenda
         [Authorize]
         public HttpResponseMessage Get(string type)
         {
@@ -85,7 +49,13 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), AgendaStatus.Any, Agenda.Today));
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
+                    (
+                        Thread.CurrentPrincipal.Identity.Name,
+                        TypeParser.Activity_Type(type),
+                        ActivityStatus.Any,
+                        ActivityInterval.Today
+                    ));
                 }
                 catch
                 {
@@ -98,6 +68,8 @@ namespace FirstREST.Controllers
             }
         }
 
+        // GET api/agenda/?type=calls&when=today
+        // Feature: Visualizar agenda
         [Authorize]
         public HttpResponseMessage Get(string type, string when)
         {
@@ -105,7 +77,13 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), AgendaStatus.Any, ParseWhen(when)));
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
+                    (
+                        Thread.CurrentPrincipal.Identity.Name,
+                        TypeParser.Activity_Type(type),
+                        ActivityStatus.Any,
+                        TypeParser.Activity_Interval(when)
+                    ));
                 }
                 catch
                 {
@@ -121,13 +99,19 @@ namespace FirstREST.Controllers
         // GET api/agenda/?type=calls&when=today&status=ongoing
         // Feature: Visualizar agenda
         [Authorize]
-        public HttpResponseMessage Get(string type, string when, string status)
+        public HttpResponseMessage Get([FromUri] string type, [FromUri] string when, [FromUri] string status)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.Get(ParseType(type), ParseStatus(status), ParseWhen(when)));
+                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
+                    (
+                        Thread.CurrentPrincipal.Identity.Name,
+                        TypeParser.Activity_Type(type),
+                        TypeParser.Activity_Status(status),
+                        TypeParser.Activity_Interval(when)
+                    ));
                 }
                 catch
                 {
@@ -151,7 +135,7 @@ namespace FirstREST.Controllers
                 {
                     jsonObject.Identifier = "activityId";
                     jsonObject.DateCreated = DateTime.Now;
-                    jsonObject.Status = AgendaStatus.Ongoing;
+                    jsonObject.Status = ActivityStatus.Pendente;
                     jsonObject.DateModified = jsonObject.DateCreated;
 
                     if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))

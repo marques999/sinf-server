@@ -43,8 +43,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var sessionUsername = Thread.CurrentPrincipal.Identity.Name;
-                    var queryResult = LeadIntegration.View(sessionUsername, id);
+                    var queryResult = LeadIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
 
                     if (queryResult == null)
                     {

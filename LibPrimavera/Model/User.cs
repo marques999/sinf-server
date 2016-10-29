@@ -45,21 +45,4 @@ namespace FirstREST.LibPrimavera.Model
             Picture = Convert.ToBase64String(pictureData);
         }
     }
-
-    public class UserReference
-    {
-        [JsonProperty(PropertyName = "userId")]
-        public string Identifier
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "userName")]
-        public string Name
-        {
-            get;
-            set;
-        }
-    }
 }

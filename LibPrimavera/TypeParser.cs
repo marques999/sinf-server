@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirstREST.LibPrimavera.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,12 +12,24 @@ namespace FirstREST.LibPrimavera
 
         internal static string String(dynamic paramObject)
         {
-            if (paramObject is string)
+            if (object.Equals(paramObject, null))
             {
-                return paramObject.Trim();
+                return "";
             }
 
-            return "";
+            if (paramObject is string)
+            {
+                return paramObject;
+            }
+
+            try
+            {
+                return Convert.ToString(paramObject);
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         internal static string ToString(DateTime dateTime)
@@ -32,11 +45,6 @@ namespace FirstREST.LibPrimavera
 
         internal static double Double(dynamic paramObject)
         {
-            if (object.Equals(paramObject, null))
-            {
-                return 0.0;
-            }
-
             if (paramObject is double)
             {
                 return paramObject;
@@ -44,7 +52,7 @@ namespace FirstREST.LibPrimavera
 
             try
             {
-                return Convert.ToBoolean(paramObject);
+                return Convert.ToDouble(paramObject);
             }
             catch
             {
@@ -124,11 +132,6 @@ namespace FirstREST.LibPrimavera
 
         internal static bool Boolean(dynamic paramObject)
         {
-            if (object.Equals(paramObject, null))
-            {
-                return false;
-            }
-
             if (paramObject is bool)
             {
                 return paramObject;
@@ -152,11 +155,6 @@ namespace FirstREST.LibPrimavera
 
         internal static int Integer(dynamic paramObject)
         {
-            if (object.Equals(paramObject, null))
-            {
-                return 0;
-            }
-
             if (paramObject is int)
             {
                 return paramObject;
@@ -170,6 +168,99 @@ namespace FirstREST.LibPrimavera
             {
                 return 0;
             }
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region ActivityInterval Parser
+
+        public static ActivityInterval Activity_Interval(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return ActivityInterval.Today;
+            }
+
+            ActivityInterval parseResult;
+
+            return Enum.TryParse(value, true, out parseResult) ? parseResult : ActivityInterval.Today;
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region ActivityType Parser
+
+        public static ActivityType Activity_Type(dynamic value)
+        {
+            if (object.Equals(value, null))
+            {
+                return ActivityType.ANY;
+            }
+
+            ActivityType parseResult = ActivityType.ANY;
+
+            if (value is string)
+            {
+                if (Enum.TryParse(value as string, true, out parseResult))
+                {
+                    return parseResult;
+                }
+            }
+
+            return parseResult;
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region ActivityStatus Parser
+
+        public static ActivityStatus Activity_Status(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return ActivityStatus.Any;
+            }
+
+            ActivityStatus parseResult;
+
+            if (Enum.TryParse(value, true, out parseResult))
+            {
+                return parseResult;
+            }
+
+            return ActivityStatus.Any;
+        }
+
+        #endregion
+
+        ///////////////////////////////////////////////////////////////////////
+
+        #region EntityType Parser
+
+        public static EntityType Entity_Type(string value)
+        {
+            if (object.Equals(value, null))
+            {
+                return EntityType.N;
+            }
+
+            if (value is string)
+            {
+                EntityType parseResult;
+
+                if (Enum.TryParse(value as string, true, out parseResult))
+                {
+                    return parseResult;
+                }
+            }
+
+            return EntityType.N;
         }
 
         #endregion
