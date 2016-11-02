@@ -5,7 +5,6 @@
 *.pdb
 *.dll.config
 *.cache
-*.suo
 !/packages/*/lib/*.dll
 !/packages/*/lib/*/*.dll
 !*CommonReferences/*.dll
@@ -34,8 +33,6 @@ Thumbs.db
 [Bb]in
 [Oo]bj
 [Tt]est[Rr]esults
-*.suo
-*.user
 *.[Cc]ache
 *[Rr]esharper*
 packages
