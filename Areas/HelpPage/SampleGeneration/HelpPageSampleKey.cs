@@ -51,9 +51,6 @@ namespace FirstREST.Areas.HelpPage
             private set;
         }
 
-        /// <summary>
-        /// Gets the parameter names.
-        /// </summary>
         public HashSet<string> ParameterNames
         {
             get;
@@ -74,7 +71,8 @@ namespace FirstREST.Areas.HelpPage
 
         public override bool Equals(object obj)
         {
-            HelpPageSampleKey otherKey = obj as HelpPageSampleKey;
+            var otherKey = obj as HelpPageSampleKey;
+
             if (otherKey == null)
             {
                 return false;

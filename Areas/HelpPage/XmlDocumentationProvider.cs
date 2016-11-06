@@ -101,8 +101,6 @@ namespace FirstREST.Areas.HelpPage
                 var genericType = type.GetGenericTypeDefinition();
                 var genericArguments = type.GetGenericArguments();
                 string typeName = genericType.FullName;
-
-                // Trim the generic parameter counts from the name
                 typeName = typeName.Substring(0, typeName.IndexOf('`'));
                 string[] argumentTypeNames = genericArguments.Select(t => GetTypeName(t)).ToArray();
                 return String.Format(CultureInfo.InvariantCulture, "{0}{{{1}}}", typeName, String.Join(",", argumentTypeNames));

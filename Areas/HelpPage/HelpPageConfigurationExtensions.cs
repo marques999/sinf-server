@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
+
 using FirstREST.Areas.HelpPage.Models;
 
 namespace FirstREST.Areas.HelpPage
@@ -121,9 +122,9 @@ namespace FirstREST.Areas.HelpPage
                     LogInvalidSampleAsError(apiModel, item.Value);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                apiModel.ErrorMessages.Add(String.Format(CultureInfo.CurrentCulture, "An exception has occurred while generating the sample. Exception Message: {0}", e.Message));
+                apiModel.ErrorMessages.Add(String.Format(CultureInfo.CurrentCulture, "An exception has occurred while generating the sample. Exception Message: {0}", exMessage));
             }
 
             return apiModel;
