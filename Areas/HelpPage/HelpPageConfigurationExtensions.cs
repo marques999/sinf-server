@@ -124,7 +124,7 @@ namespace FirstREST.Areas.HelpPage
             }
             catch (Exception ex)
             {
-                apiModel.ErrorMessages.Add(String.Format(CultureInfo.CurrentCulture, "An exception has occurred while generating the sample. Exception Message: {0}", exMessage));
+                apiModel.ErrorMessages.Add(String.Format(CultureInfo.CurrentCulture, "An exception has occurred while generating the sample. Exception Message: {0}", ex.Message));
             }
 
             return apiModel;
