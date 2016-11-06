@@ -11,14 +11,15 @@ namespace FirstREST.Areas.HelpPage
     public class ObjectGenerator
     {
         private const int DefaultCollectionSize = 3;
-        private readonly SimpleTypeObjectGenerator SimpleObjectGenerator = new SimpleTypeObjectGenerator();
 
         public object GenerateObject(Type type)
         {
             return GenerateObject(type, new Dictionary<Type, object>());
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Here we just want to return null if anything goes wrong.")]
+        private readonly SimpleTypeObjectGenerator SimpleObjectGenerator = new SimpleTypeObjectGenerator();
+
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private object GenerateObject(Type type, Dictionary<Type, object> createdObjectReferences)
         {
             try
@@ -104,12 +105,9 @@ namespace FirstREST.Areas.HelpPage
 
             if (genericArguments.Length == 1)
             {
-                if (genericTypeDefinition == typeof(IList<>) ||
-                    genericTypeDefinition == typeof(IEnumerable<>) ||
-                    genericTypeDefinition == typeof(ICollection<>))
+                if (genericTypeDefinition == typeof(IList<>) || genericTypeDefinition == typeof(IEnumerable<>) || genericTypeDefinition == typeof(ICollection<>))
                 {
-                    Type collectionType = typeof(List<>).MakeGenericType(genericArguments);
-                    return GenerateCollection(collectionType, collectionSize, createdObjectReferences);
+                    return GenerateCollection(typeof(List<>).MakeGenericType(genericArguments), collectionSize, createdObjectReferences);
                 }
 
                 if (genericTypeDefinition == typeof(IQueryable<>))
@@ -151,9 +149,9 @@ namespace FirstREST.Areas.HelpPage
 
         private static object GenerateTuple(Type type, Dictionary<Type, object> createdObjectReferences)
         {
-            bool failedToCreateTuple = true;
             var genericArgs = type.GetGenericArguments();
-            var parameterValues = new object[genericArgs.Length];
+            object[] parameterValues = new object[genericArgs.Length];
+            bool failedToCreateTuple = true;
             var objectGenerator = new ObjectGenerator();
 
             for (int i = 0; i < genericArgs.Length; i++)
@@ -184,28 +182,27 @@ namespace FirstREST.Areas.HelpPage
 
         private static object GenerateKeyValuePair(Type keyValuePairType, Dictionary<Type, object> createdObjectReferences)
         {
-            Type[] genericArgs = keyValuePairType.GetGenericArguments();
-            Type typeK = genericArgs[0];
-            Type typeV = genericArgs[1];
-            ObjectGenerator objectGenerator = new ObjectGenerator();
-            object keyObject = objectGenerator.GenerateObject(typeK, createdObjectReferences);
-            object valueObject = objectGenerator.GenerateObject(typeV, createdObjectReferences);
+            var genericArgs = keyValuePairType.GetGenericArguments();
+            var typeK = genericArgs[0];
+            var typeV = genericArgs[1];
+            var objectGenerator = new ObjectGenerator();
+            var keyObject = objectGenerator.GenerateObject(typeK, createdObjectReferences);
+            var valueObject = objectGenerator.GenerateObject(typeV, createdObjectReferences);
 
             if (keyObject == null && valueObject == null)
             {
                 return null;
             }
-
-            return Activator.CreateInstance(keyValuePairType, keyObject, valueObject);
+            object result = Activator.CreateInstance(keyValuePairType, keyObject, valueObject);
+            return result;
         }
 
         private static object GenerateArray(Type arrayType, int size, Dictionary<Type, object> createdObjectReferences)
         {
-            bool areAllElementsNull = true;
             var type = arrayType.GetElementType();
-            var objectGenerator = new ObjectGenerator();
-            var result = Array.CreateInstance(type, size);
-
+            Array result = Array.CreateInstance(type, size);
+            bool areAllElementsNull = true;
+            ObjectGenerator objectGenerator = new ObjectGenerator();
             for (int i = 0; i < size; i++)
             {
                 object element = objectGenerator.GenerateObject(type, createdObjectReferences);
@@ -234,21 +231,19 @@ namespace FirstREST.Areas.HelpPage
             }
 
             object result = Activator.CreateInstance(dictionaryType);
-            var addMethod = dictionaryType.GetMethod("Add") ?? dictionaryType.GetMethod("TryAdd");
-            var containsMethod = dictionaryType.GetMethod("Contains") ?? dictionaryType.GetMethod("ContainsKey");
-            var objectGenerator = new ObjectGenerator();
-
+            MethodInfo addMethod = dictionaryType.GetMethod("Add") ?? dictionaryType.GetMethod("TryAdd");
+            MethodInfo containsMethod = dictionaryType.GetMethod("Contains") ?? dictionaryType.GetMethod("ContainsKey");
+            ObjectGenerator objectGenerator = new ObjectGenerator();
             for (int i = 0; i < size; i++)
             {
                 object newKey = objectGenerator.GenerateObject(typeK, createdObjectReferences);
-
                 if (newKey == null)
                 {
+                    // Cannot generate a valid key
                     return null;
                 }
 
                 bool containsKey = (bool)containsMethod.Invoke(result, new object[] { newKey });
-
                 if (!containsKey)
                 {
                     object newValue = objectGenerator.GenerateObject(typeV, createdObjectReferences);
@@ -278,13 +273,13 @@ namespace FirstREST.Areas.HelpPage
 
             if (isGeneric)
             {
-                var listType = typeof(List<>).MakeGenericType(queryableType.GetGenericArguments());
-                list = GenerateCollection(listType, size, createdObjectReferences);
+                list = GenerateCollection(typeof(List<>).MakeGenericType(queryableType.GetGenericArguments()), size, createdObjectReferences);
             }
             else
             {
                 list = GenerateArray(typeof(object[]), size, createdObjectReferences);
             }
+
             if (list == null)
             {
                 return null;
@@ -337,6 +332,7 @@ namespace FirstREST.Areas.HelpPage
 
             if (createdObjectReferences.TryGetValue(type, out result))
             {
+                // The object has been created already, just return it. This will handle the circular reference case.
                 return result;
             }
 
@@ -347,9 +343,9 @@ namespace FirstREST.Areas.HelpPage
             else
             {
                 ConstructorInfo defaultCtor = type.GetConstructor(Type.EmptyTypes);
-
                 if (defaultCtor == null)
                 {
+                    // Cannot instantiate the type because it doesn't have a default constructor
                     return null;
                 }
 

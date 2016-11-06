@@ -268,7 +268,7 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool Delete(string p, string customerId)
+        public static bool Delete(string sessionId, string customerId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

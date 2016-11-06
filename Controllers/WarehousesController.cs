@@ -9,17 +9,17 @@ using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
-    public class CategoriesController : ApiController
+    public class WarehousesController : ApiController
     {
-        // GET api/categories/
-        // FEATURE: Listar categorias
+        // GET api/warehouses/
+        // FEATURE: Listar armazéns
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, CategoryIntegration.List());
+                    return Request.CreateResponse(HttpStatusCode.OK, WarehouseIntegration.List());
                 }
                 catch
                 {
@@ -32,15 +32,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/categories/{$categoryId}/
-        // FEATURE: Visualizar categoria
+        // GET api/warehouses/{$warehouseId}/
+        // FEATURE: Visualizar armazém
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    var queryResult = CategoryIntegration.Get(id);
+                    var queryResult = WarehouseIntegration.Get(id);
 
                     if (queryResult == null)
                     {

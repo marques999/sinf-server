@@ -37,7 +37,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new Location()
                 {
-                    Identifier = TypeParser.Integer(queryObject.Valor("Distrito")),
+                    Identifier = TypeParser.String(queryObject.Valor("Distrito")),
                     Name = TypeParser.String(queryObject.Valor("Descricao"))
                 });
 
@@ -65,7 +65,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new Location()
                 {
-                    Identifier = TypeParser.Integer(queryObject.Valor("Concelho")),
+                    Identifier = TypeParser.String(queryObject.Valor("Concelho")),
                     Name = TypeParser.String(queryObject.Valor("Descricao"))
                 });
 

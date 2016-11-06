@@ -13,6 +13,7 @@ namespace FirstREST.LibPrimavera.Model
 
         private int _priority;
 
+
         /// <summary>
         /// Public access properties
         /// </summary>

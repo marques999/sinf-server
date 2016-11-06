@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/opportunities/
         // FEATURE: Listar oportunidades
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -36,7 +35,6 @@ namespace FirstREST.Controllers
 
         // GET api/opportunities/{$opportunityId}/
         // FEATURE: Visualizar oportunidade
-        [Authorize]
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -67,7 +65,6 @@ namespace FirstREST.Controllers
 
         // POST api/opportunities/
         // FEATURE: Adicionar oportunidade
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Opportunity jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -100,7 +97,6 @@ namespace FirstREST.Controllers
 
         // POST api/opportunities/{$opportunityId}/
         // FEATURE: Modificar oportunidade existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Opportunity jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -132,7 +128,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/opportunities/{$opportunityId}/
         // FEATURE: Remover oportunidade
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())

@@ -6,11 +6,6 @@ namespace FirstREST.Areas.HelpPage
     {
         public InvalidSample(string errorMessage)
         {
-            if (errorMessage == null)
-            {
-                throw new ArgumentNullException("errorMessage");
-            }
-
             ErrorMessage = errorMessage;
         }
 
@@ -22,8 +17,7 @@ namespace FirstREST.Areas.HelpPage
 
         public override bool Equals(object obj)
         {
-            var other = obj as InvalidSample;
-            return other != null && ErrorMessage == other.ErrorMessage;
+            return (obj as InvalidSample) != null && ErrorMessage == (obj as InvalidSample).ErrorMessage;
         }
 
         public override int GetHashCode()

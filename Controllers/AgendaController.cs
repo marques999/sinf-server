@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/agenda/
         // Feature: Visualizar agenda
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -42,7 +41,6 @@ namespace FirstREST.Controllers
 
         // GET api/agenda/?type=calls
         // Feature: Visualizar agenda
-        [Authorize]
         public HttpResponseMessage Get(string type)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -70,7 +68,6 @@ namespace FirstREST.Controllers
 
         // GET api/agenda/?type=calls&when=today
         // Feature: Visualizar agenda
-        [Authorize]
         public HttpResponseMessage Get(string type, string when)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -98,7 +95,6 @@ namespace FirstREST.Controllers
 
         // GET api/agenda/?type=calls&when=today&status=ongoing
         // Feature: Visualizar agenda
-        [Authorize]
         public HttpResponseMessage Get([FromUri] string type, [FromUri] string when, [FromUri] string status)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -126,7 +122,6 @@ namespace FirstREST.Controllers
 
         // POST api/agenda/
         // Feature: Agendar actividade
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Activity jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -160,7 +155,6 @@ namespace FirstREST.Controllers
 
         // POST api/agenda/{$activityId}/
         // Feature: Modificar actividade existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Activity jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -192,7 +186,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/agenda/{$activityId}/
         // FEATURE: Remover actividade existente
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())

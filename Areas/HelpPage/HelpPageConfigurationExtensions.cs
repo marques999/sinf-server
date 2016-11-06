@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
-
 using FirstREST.Areas.HelpPage.Models;
 
 namespace FirstREST.Areas.HelpPage
@@ -73,17 +72,12 @@ namespace FirstREST.Areas.HelpPage
 
         public static HelpPageSampleGenerator GetHelpPageSampleGenerator(this HttpConfiguration config)
         {
-            return (HelpPageSampleGenerator)config.Properties.GetOrAdd(
-                typeof(HelpPageSampleGenerator),
-                k => new HelpPageSampleGenerator());
+            return (HelpPageSampleGenerator)config.Properties.GetOrAdd(typeof(HelpPageSampleGenerator), k => new HelpPageSampleGenerator());
         }
 
         public static void SetHelpPageSampleGenerator(this HttpConfiguration config, HelpPageSampleGenerator sampleGenerator)
         {
-            config.Properties.AddOrUpdate(
-                typeof(HelpPageSampleGenerator),
-                k => sampleGenerator,
-                (k, o) => sampleGenerator);
+            config.Properties.AddOrUpdate(typeof(HelpPageSampleGenerator), k => sampleGenerator, (k, o) => sampleGenerator);
         }
 
         public static HelpPageApiModel GetHelpPageApiModel(this HttpConfiguration config, string apiDescriptionId)
@@ -93,13 +87,11 @@ namespace FirstREST.Areas.HelpPage
 
             if (!config.Properties.TryGetValue(modelId, out model))
             {
-                var apiDescriptions = config.Services.GetApiExplorer().ApiDescriptions;
-                var apiDescription = apiDescriptions.FirstOrDefault(api => String.Equals(api.GetFriendlyId(), apiDescriptionId, StringComparison.OrdinalIgnoreCase));
+                var apiDescription = config.Services.GetApiExplorer().ApiDescriptions.FirstOrDefault(api => String.Equals(api.GetFriendlyId(), apiDescriptionId, StringComparison.OrdinalIgnoreCase));
 
                 if (apiDescription != null)
                 {
-                    HelpPageSampleGenerator sampleGenerator = config.GetHelpPageSampleGenerator();
-                    model = GenerateApiModel(apiDescription, sampleGenerator);
+                    model = GenerateApiModel(apiDescription, config.GetHelpPageSampleGenerator());
                     config.Properties.TryAdd(modelId, model);
                 }
             }
@@ -110,9 +102,10 @@ namespace FirstREST.Areas.HelpPage
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is recorded as ErrorMessages.")]
         private static HelpPageApiModel GenerateApiModel(ApiDescription apiDescription, HelpPageSampleGenerator sampleGenerator)
         {
-            var apiModel = new HelpPageApiModel();
-
-            apiModel.ApiDescription = apiDescription;
+            var apiModel = new HelpPageApiModel()
+            {
+                ApiDescription = apiDescription
+            };
 
             try
             {

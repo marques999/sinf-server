@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/contacts/
         // FEATURE: Listar contactos
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -36,7 +35,6 @@ namespace FirstREST.Controllers
 
         // GET api/contacts/{$contactId}/
         // FEATURE: Visualizar cliente
-        [Authorize]
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -67,7 +65,6 @@ namespace FirstREST.Controllers
 
         // POST api/contacts/
         // FEATURE: Adicionar contacto
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Contact jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -99,7 +96,6 @@ namespace FirstREST.Controllers
 
         // POST api/contacts/{$contactId}/
         // FEATURE: Modificar contacto existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Contact jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())

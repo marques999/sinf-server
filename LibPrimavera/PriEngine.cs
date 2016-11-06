@@ -102,7 +102,8 @@ namespace FirstREST.LibPrimavera
 
         public static bool IsAuthenticated()
         {
-            try
+            return true;
+            /*try
             {
                 var sessionUsername = HttpContext.Current.User.Identity.Name;
                 return sessionUsername != null && string.IsNullOrWhiteSpace(sessionUsername) == false;
@@ -110,7 +111,7 @@ namespace FirstREST.LibPrimavera
             catch
             {
                 return false;
-            }
+            }*/
         }
 
         internal static bool ApiLogin(string username, string password)

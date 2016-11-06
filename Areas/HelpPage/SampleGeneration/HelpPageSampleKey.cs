@@ -9,16 +9,6 @@ namespace FirstREST.Areas.HelpPage
     {
         public HelpPageSampleKey(MediaTypeHeaderValue mediaType, Type type)
         {
-            if (mediaType == null)
-            {
-                throw new ArgumentNullException("mediaType");
-            }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
             ControllerName = String.Empty;
             ActionName = String.Empty;
             ParameterNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -28,26 +18,6 @@ namespace FirstREST.Areas.HelpPage
 
         public HelpPageSampleKey(SampleDirection sampleDirection, string controllerName, string actionName, IEnumerable<string> parameterNames)
         {
-            if (!Enum.IsDefined(typeof(SampleDirection), sampleDirection))
-            {
-                throw new InvalidEnumArgumentException("sampleDirection", (int)sampleDirection, typeof(SampleDirection));
-            }
-
-            if (controllerName == null)
-            {
-                throw new ArgumentNullException("controllerName");
-            }
-
-            if (actionName == null)
-            {
-                throw new ArgumentNullException("actionName");
-            }
-
-            if (parameterNames == null)
-            {
-                throw new ArgumentNullException("parameterNames");
-            }
-
             ControllerName = controllerName;
             ActionName = actionName;
             ParameterNames = new HashSet<string>(parameterNames, StringComparer.OrdinalIgnoreCase);
@@ -56,31 +26,6 @@ namespace FirstREST.Areas.HelpPage
 
         public HelpPageSampleKey(MediaTypeHeaderValue mediaType, SampleDirection sampleDirection, string controllerName, string actionName, IEnumerable<string> parameterNames)
         {
-            if (mediaType == null)
-            {
-                throw new ArgumentNullException("mediaType");
-            }
-
-            if (!Enum.IsDefined(typeof(SampleDirection), sampleDirection))
-            {
-                throw new InvalidEnumArgumentException("sampleDirection", (int)sampleDirection, typeof(SampleDirection));
-            }
-
-            if (controllerName == null)
-            {
-                throw new ArgumentNullException("controllerName");
-            }
-
-            if (actionName == null)
-            {
-                throw new ArgumentNullException("actionName");
-            }
-
-            if (parameterNames == null)
-            {
-                throw new ArgumentNullException("parameterNames");
-            }
-
             ControllerName = controllerName;
             ActionName = actionName;
             MediaType = mediaType;
@@ -106,6 +51,9 @@ namespace FirstREST.Areas.HelpPage
             private set;
         }
 
+        /// <summary>
+        /// Gets the parameter names.
+        /// </summary>
         public HashSet<string> ParameterNames
         {
             get;
@@ -126,8 +74,7 @@ namespace FirstREST.Areas.HelpPage
 
         public override bool Equals(object obj)
         {
-            var otherKey = obj as HelpPageSampleKey;
-
+            HelpPageSampleKey otherKey = obj as HelpPageSampleKey;
             if (otherKey == null)
             {
                 return false;

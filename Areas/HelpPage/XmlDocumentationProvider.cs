@@ -11,16 +11,12 @@ namespace FirstREST.Areas.HelpPage
     public class XmlDocumentationProvider : IDocumentationProvider
     {
         private XPathNavigator _documentNavigator;
+
         private const string MethodExpression = "/doc/members/member[@name='M:{0}']";
         private const string ParameterExpression = "param[@name='{0}']";
 
         public XmlDocumentationProvider(string documentPath)
         {
-            if (documentPath == null)
-            {
-                throw new ArgumentNullException("documentPath");
-            }
-
             _documentNavigator = new XPathDocument(documentPath).CreateNavigator();
         }
 
@@ -41,6 +37,16 @@ namespace FirstREST.Areas.HelpPage
             return null;
         }
 
+        public virtual string GetDocumentation(HttpControllerDescriptor actionDescriptor)
+        {
+            return null;
+        }
+
+        public virtual string GetResponseDocumentation(HttpActionDescriptor actionDescriptor)
+        {
+            return null;
+        }
+
         public virtual string GetDocumentation(HttpParameterDescriptor parameterDescriptor)
         {
             var reflectedParameterDescriptor = parameterDescriptor as ReflectedHttpParameterDescriptor;
@@ -51,8 +57,7 @@ namespace FirstREST.Areas.HelpPage
 
                 if (methodNode != null)
                 {
-                    var parameterName = reflectedParameterDescriptor.ParameterInfo.Name;
-                    var parameterNode = methodNode.SelectSingleNode(String.Format(CultureInfo.InvariantCulture, ParameterExpression, parameterName));
+                    var parameterNode = methodNode.SelectSingleNode(String.Format(CultureInfo.InvariantCulture, ParameterExpression, reflectedParameterDescriptor.ParameterInfo.Name));
 
                     if (parameterNode != null)
                     {
@@ -70,8 +75,7 @@ namespace FirstREST.Areas.HelpPage
 
             if (reflectedActionDescriptor != null)
             {
-                string selectExpression = String.Format(CultureInfo.InvariantCulture, MethodExpression, GetMemberName(reflectedActionDescriptor.MethodInfo));
-                return _documentNavigator.SelectSingleNode(selectExpression);
+                return _documentNavigator.SelectSingleNode(string.Format(CultureInfo.InvariantCulture, MethodExpression, GetMemberName(reflectedActionDescriptor.MethodInfo)));
             }
 
             return null;
@@ -79,13 +83,12 @@ namespace FirstREST.Areas.HelpPage
 
         private static string GetMemberName(MethodInfo method)
         {
-            var name = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", method.DeclaringType.FullName, method.Name);
+            var name = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", method.DeclaringType.FullName, method.Name);
             var parameters = method.GetParameters();
 
             if (parameters.Length != 0)
             {
-                string[] parameterTypeNames = parameters.Select(param => GetTypeName(param.ParameterType)).ToArray();
-                name += String.Format(CultureInfo.InvariantCulture, "({0})", String.Join(",", parameterTypeNames));
+                name += string.Format(CultureInfo.InvariantCulture, "({0})", String.Join(",", parameters.Select(param => GetTypeName(param.ParameterType)).ToArray()));
             }
 
             return name;
@@ -95,10 +98,11 @@ namespace FirstREST.Areas.HelpPage
         {
             if (type.IsGenericType)
             {
-                // Format the generic type name to something like: Generic{System.Int32,System.String}
                 var genericType = type.GetGenericTypeDefinition();
                 var genericArguments = type.GetGenericArguments();
                 string typeName = genericType.FullName;
+
+                // Trim the generic parameter counts from the name
                 typeName = typeName.Substring(0, typeName.IndexOf('`'));
                 string[] argumentTypeNames = genericArguments.Select(t => GetTypeName(t)).ToArray();
                 return String.Format(CultureInfo.InvariantCulture, "{0}{{{1}}}", typeName, String.Join(",", argumentTypeNames));

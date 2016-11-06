@@ -12,8 +12,7 @@ namespace FirstREST.Controllers
     public class ProductsController : ApiController
     {
         // GET api/products/
-        // FEATURE: Listar produtos
-        [Authorize]
+        // FEATURE: Listar produto
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -35,14 +34,13 @@ namespace FirstREST.Controllers
 
         // GET api/products/{$productId}/
         // FEATURE: Visualizar produto
-        [Authorize]
-        public HttpResponseMessage Get(string productId)
+        public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    var queryResult = ProductIntegration.View(productId);
+                    var queryResult = ProductIntegration.View(id);
 
                     if (queryResult == null)
                     {
@@ -53,9 +51,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

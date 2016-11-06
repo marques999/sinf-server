@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/quotes/
         // FEATURE: Listar encomendas
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -36,7 +35,6 @@ namespace FirstREST.Controllers
 
         // GET api/quotes/{$quoteId}/
         // FEATURE: Visualizar encomenda
-        [Authorize]
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -67,7 +65,6 @@ namespace FirstREST.Controllers
 
         // POST api/quotes/
         // FEATURE: Adicionar encomenda
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Quote jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -98,7 +95,6 @@ namespace FirstREST.Controllers
 
         // POST api/quotes/{$quoteId}/
         // FEATURE: Modificar encomenda existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Quote jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -129,7 +125,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/quotes/{$quoteId}/
         // FEATURE: Remover encomenda existente
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())

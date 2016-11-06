@@ -15,6 +15,8 @@ namespace FirstREST.LibPrimavera.Integration
         {
             new SqlColumn("ARTIGO.Artigo", null),
             new SqlColumn("ARTIGO.Descricao", null),
+            new SqlColumn("ARTIGO.CodBarras", null),
+            new SqlColumn("ARTIGO.UnidadeVenda", null),
             new SqlColumn("ARTIGO.PCMedio", null),
             new SqlColumn("ARTIGO.Desconto", null),
             new SqlColumn("ARTIGO.Iva", null),
@@ -42,6 +44,8 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 Identifier = productId,
                 Name = TypeParser.String(queryResult.Valor("Descricao")),
+                Barcode = TypeParser.String(queryResult.Valor("CodBarras")),
+                Unit = TypeParser.String(queryResult.Valor("UnidadeVenda")),
                 Price = TypeParser.Double(queryResult.Valor("PCMedio")),
                 Discount = TypeParser.Double(queryResult.Valor("Desconto")),
                 Tax = TypeParser.Double(queryResult.Valor("Iva")),
@@ -122,11 +126,6 @@ namespace FirstREST.LibPrimavera.Integration
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
-            }
-
-            if (PrimaveraEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
-            {
-                return null;
             }
 
             var queryResult = new List<ProductListing>();

@@ -6,11 +6,6 @@ namespace FirstREST.Areas.HelpPage
     {
         public TextSample(string text)
         {
-            if (text == null)
-            {
-                throw new ArgumentNullException("text");
-            }
-
             Text = text;
         }
 
@@ -22,8 +17,7 @@ namespace FirstREST.Areas.HelpPage
 
         public override bool Equals(object obj)
         {
-            var other = obj as TextSample;
-            return other != null && Text == other.Text;
+            return (obj as TextSample) != null && Text == (obj as TextSample).Text;
         }
 
         public override int GetHashCode()

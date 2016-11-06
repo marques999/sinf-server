@@ -8,8 +8,7 @@ namespace FirstREST.Areas.HelpPage.Controllers
 {
     public class HelpController : Controller
     {
-        public HelpController()
-            : this(GlobalConfiguration.Configuration)
+        public HelpController() : this(GlobalConfiguration.Configuration)
         {
         }
 
@@ -31,7 +30,7 @@ namespace FirstREST.Areas.HelpPage.Controllers
 
         public ActionResult Api(string apiId)
         {
-            if (!String.IsNullOrEmpty(apiId))
+            if (!string.IsNullOrEmpty(apiId))
             {
                 var apiModel = Configuration.GetHelpPageApiModel(apiId);
 

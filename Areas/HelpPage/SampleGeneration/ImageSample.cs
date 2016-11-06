@@ -6,11 +6,6 @@ namespace FirstREST.Areas.HelpPage
     {
         public ImageSample(string src)
         {
-            if (src == null)
-            {
-                throw new ArgumentNullException("src");
-            }
-
             Src = src;
         }
 
@@ -22,8 +17,7 @@ namespace FirstREST.Areas.HelpPage
 
         public override bool Equals(object obj)
         {
-            var other = obj as ImageSample;
-            return other != null && Src == other.Src;
+            return (obj as ImageSample) != null && Src == (obj as ImageSample).Src;
         }
 
         public override int GetHashCode()

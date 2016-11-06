@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/leads/
         // FEATURE: Listar leads
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -36,7 +35,6 @@ namespace FirstREST.Controllers
 
         // GET api/leads/{$prospectId}/
         // FEATURE: Visualizar lead
-        [Authorize]
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -67,7 +65,6 @@ namespace FirstREST.Controllers
 
         // POST api/leads/
         // FEATURE: Adicionar lead
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Lead jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -101,7 +98,6 @@ namespace FirstREST.Controllers
 
         // POST api/leads/{$prospectId}/
         // FEATURE: Modificar lead existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Lead jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -133,7 +129,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/leads/{$prospectId}/
         // FEATURE: Remover lead existente
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())

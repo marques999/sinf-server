@@ -34,8 +34,29 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "cost")]
-        public DateTime LastUpdate
+        [JsonProperty(PropertyName = "barcode")]
+        public string Barcode
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "units")]
+        public string Unit
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "dateCreated")]
+        public DateTime DateCreated
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "dateModified")]
+        public DateTime DateModified
         {
             get;
             set;
@@ -105,7 +126,7 @@ namespace FirstREST.LibPrimavera.Model
             }
         }
 
-        [JsonProperty(PropertyName = "discountValue")]
+        [JsonProperty(PropertyName = "discount")]
         public double Discount
         {
             get

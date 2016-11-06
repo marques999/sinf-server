@@ -5,7 +5,7 @@ namespace FirstREST.LibPrimavera.Model
     public class Location
     {
         [JsonProperty(PropertyName = "id")]
-        public int Identifier
+        public string Identifier
         {
             get;
             set;

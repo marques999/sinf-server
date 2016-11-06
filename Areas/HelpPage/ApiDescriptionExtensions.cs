@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using System.Web;
 using System.Web.Http.Description;
@@ -16,12 +15,10 @@ namespace FirstREST.Areas.HelpPage
 
             if (urlParts.Length > 1)
             {
-                queryKeyString = String.Join("_", HttpUtility.ParseQueryString(urlParts[1]).AllKeys);
+                queryKeyString = string.Join("_", HttpUtility.ParseQueryString(urlParts[1]).AllKeys);
             }
 
-            var friendlyPath = new StringBuilder();
-
-            friendlyPath.AppendFormat("{0}-{1}", description.HttpMethod.Method, localPath.Replace("/", "-").Replace("{", String.Empty).Replace("}", String.Empty));
+            var friendlyPath = new StringBuilder().AppendFormat("{0}-{1}", description.HttpMethod.Method, localPath.Replace("/", "-").Replace("{", string.Empty).Replace("}", string.Empty));
 
             if (queryKeyString != null)
             {

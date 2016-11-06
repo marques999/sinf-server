@@ -10,11 +10,17 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class CategoryIntegration
     {
-        private static SqlColumn[] sqlColumns =
+        private static SqlColumn[] sqlColumnsFull =
         {
             new SqlColumn("FAMILIAS.Familia", null),
             new SqlColumn("FAMILIAS.Descricao", null),
-            new SqlColumn("COUNT(*)", "Count"),
+            new SqlColumn("COUNT(*)", "Count")
+        };
+
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("FAMILIAS.Familia", null),
+            new SqlColumn("FAMILIAS.Descricao", null)
         };
 
         public static List<Category> List()
@@ -27,7 +33,7 @@ namespace FirstREST.LibPrimavera.Integration
             var queryResult = new List<Category>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("FAMILIAS")
-                .Columns(sqlColumns)
+                .Columns(sqlColumnsFull)
                 .InnerJoin("ARTIGO", "Familia", Comparison.Equals, "FAMILIAS", "Familia")
                 .GroupBy(new string[] { "FAMILIAS.Familia", "FAMILIAS.Descricao" }));
 
@@ -50,10 +56,35 @@ namespace FirstREST.LibPrimavera.Integration
                     return -1;
                 }
 
-                return lhs.Identifier.CompareTo(rhs.Identifier);
+                return lhs.Name.CompareTo(rhs.Name);
             });
 
             return queryResult;
+        }
+
+        public static CategoryProducts Get(string categoryId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            if (PrimaveraEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
+            {
+                return null;
+            }
+
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("FAMILIAS")
+                .Columns(sqlColumnsListing)
+                .Where("Familia", Comparison.Equals, categoryId));
+
+            return new CategoryProducts
+            {
+                Identifier = TypeParser.String(queryObject.Valor("Familia")),
+                Name = TypeParser.String(queryObject.Valor("Descricao")),
+                Products = ProductIntegration.ByCategory(categoryId)
+            };
         }
 
         public static CategoryReference GenerateReference(StdBELista queryResult)

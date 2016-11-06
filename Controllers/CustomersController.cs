@@ -14,7 +14,6 @@ namespace FirstREST.Controllers
     {
         // GET api/customers/
         // FEATURE: Listar clientes
-        [Authorize]
         public HttpResponseMessage Get()
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -36,7 +35,6 @@ namespace FirstREST.Controllers
 
         // GET api/customers/{$customerId}/
         // FEATURE: Visualizar cliente
-        [Authorize]
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -67,7 +65,6 @@ namespace FirstREST.Controllers
 
         // POST api/customers/
         // FEATURE: Adicionar cliente
-        [Authorize]
         public HttpResponseMessage Post([FromBody] Customer jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -103,7 +100,6 @@ namespace FirstREST.Controllers
 
         // POST api/customers/{$customerId}/
         // FEATURE: Modificar cliente existente
-        [Authorize]
         public HttpResponseMessage Post(string id, [FromBody] Customer jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -135,7 +131,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/customers/{$customerId}/
         // FEATURE: Remover cliente existente
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
