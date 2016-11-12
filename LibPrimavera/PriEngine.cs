@@ -34,7 +34,9 @@ namespace FirstREST.LibPrimavera
 
         public static StdBELista Consulta(SqlBuilder queryString)
         {
-            return Engine.Consulta(queryString.BuildQuery());
+            string query = queryString.BuildQuery(); 
+            System.Diagnostics.Debug.Print(query);
+            return Engine.Consulta(query);
         }
 
         private static Dictionary<string, string> loggedIn = new Dictionary<string, string>();

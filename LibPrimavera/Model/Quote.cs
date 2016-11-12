@@ -6,7 +6,7 @@ namespace FirstREST.LibPrimavera.Model
     public class Quote
     {
         [JsonProperty(PropertyName = "id")]
-        public short Identifier
+        public string Identifier
         {
             get;
             set;

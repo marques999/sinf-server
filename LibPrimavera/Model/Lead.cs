@@ -15,7 +15,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(JavaScriptDateTimeConverter))]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
         public DateTime DateCreated
         {
             get;

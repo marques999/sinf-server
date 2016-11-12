@@ -14,13 +14,13 @@ namespace FirstREST.Controllers
     {
         // GET api/leads/
         // FEATURE: Listar leads
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri]string token)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(token));
                 }
                 catch
                 {
@@ -35,13 +35,13 @@ namespace FirstREST.Controllers
 
         // GET api/leads/{$prospectId}/
         // FEATURE: Visualizar lead
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri]string token)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    var queryResult = LeadIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = LeadIntegration.View(token, id);
 
                     if (queryResult == null)
                     {

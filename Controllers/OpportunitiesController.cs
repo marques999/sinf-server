@@ -103,10 +103,9 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = id;
                     jsonObject.DateModified = DateTime.Now;
 
-                    if (OpportunityIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (OpportunityIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

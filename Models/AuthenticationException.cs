@@ -2,9 +2,9 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class AuthenticationException : Exception
+    public class UnauthorizedException : Exception
     {
-        public AuthenticationException() : base("authenticationFailed")
+        public UnauthorizedException() : base("authenticationFailed")
         {
         }
     }

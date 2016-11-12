@@ -36,13 +36,20 @@ namespace FirstREST.LibPrimavera.Integration
         {
             new SqlColumn("CLIENTES.Cliente", null),
             new SqlColumn("CLIENTES.Situacao", null),
+            new SqlColumn("CLIENTES.Nome", null),
+            new SqlColumn("CLIENTES.Moeda", null),
+            new SqlColumn("CLIENTES.NumContrib", null),
+            new SqlColumn("CLIENTES.EnderecoWeb", null),
+            new SqlColumn("CLIENTES.DataCriacao", null),
             new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
             new SqlColumn("CLIENTES.EncomendasPendentes", null),
-            new SqlColumn("CLIENTES.TotalDeb", null),     
-            new SqlColumn("CLIENTES.Nome", null),
+            new SqlColumn("CLIENTES.TotalDeb", null),
             new SqlColumn("CLIENTES.Fac_Tel", null),
+            new SqlColumn("CLIENTES.Fac_Cp", null),
+            new SqlColumn("CLIENTES.Fac_Mor", null),
+            new SqlColumn("CLIENTES.Pais", null),
             new SqlColumn("CLIENTES.Fac_Local", null),
-            new SqlColumn("CLIENTES.Pais", null)
+            new SqlColumn("CLIENTES.Distrito", null)
         };
 
         private static SqlColumn[] sqlColumnsReference =
@@ -236,26 +243,30 @@ namespace FirstREST.LibPrimavera.Integration
             }
         }
 
-        public static bool Update(string sessionId, Customer paramObject)
+        public static bool Update(string sessionId, string customerId, Customer paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
-            var selectedTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customerTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (selectedTable.Existe(selectedId) == false)
+            if (customerTable.Existe(customerId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(selectedId);
+            var linhaTabela = customerTable.Edita(customerId);
 
-            selectedRow.set_EmModoEdicao(true);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            if (linhaTabela.get_Vendedor() != customerId)
+            {
+                return false;
+            }
+
+            linhaTabela.set_EmModoEdicao(true);
+            SetFields(linhaTabela, paramObject);
+            customerTable.Actualiza(linhaTabela);
 
             return true;
         }
@@ -267,7 +278,6 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var selectedRow = new GcpBECliente();
             var selectedId = paramObject.Identifier;
             var selectedTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
@@ -276,6 +286,8 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
+            var selectedRow = new GcpBECliente();
+            
             selectedRow.set_Cliente(selectedId);
             SetFields(selectedRow, paramObject);
             selectedTable.Actualiza(selectedRow);
@@ -283,14 +295,26 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool Delete(string sessionId, string paramId)
+        public static bool Delete(string sessionId, string customerId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
+            var customerTable = PrimaveraEngine.Engine.Comercial.Clientes;
+
+            if (customerTable.Existe(customerId) == false)
+            {
+                return false;
+            }
+
+            if (customerTable.Consulta(customerId).get_Vendedor() != customerId)
+            {
+                return false;
+            }
+
+            customerTable.Remove(customerId);
 
             return true;
         }

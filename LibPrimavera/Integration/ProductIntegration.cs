@@ -90,7 +90,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("ARTIGO")
                 .Columns(sqlColumnsListing)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
-
+            
             while (!queryObject.NoFim())
             {
                 queryResult.Add(GenerateListing(queryObject));

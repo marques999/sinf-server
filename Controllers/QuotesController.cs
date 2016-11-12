@@ -71,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = 1;
+                    jsonObject.Identifier = "quoteId";
 
                     if (QuoteIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
@@ -101,9 +101,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = 1;
-
-                    if (QuoteIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (QuoteIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -131,7 +129,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (QuoteIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, 1))
+                    if (QuoteIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

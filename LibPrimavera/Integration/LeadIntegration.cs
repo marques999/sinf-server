@@ -108,7 +108,8 @@ namespace FirstREST.LibPrimavera.Integration
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsListing)
-                .Where("PotencialCliente", Comparison.Equals, "TRUE"));
+                .Where("PotencialCliente", Comparison.Equals, "TRUE")
+                .Where(new WhereClause("Vendedor", Comparison.Equals, sessionId).AddClause(LogicOperator.Or, Comparison.Equals, null)));
 
             while (!queryObject.NoFim())
             {
@@ -129,7 +130,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Lead View(string sessionUsername, string paramId)
+        public static Lead View(string sessionId, string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -145,7 +146,8 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsFull)
                 .Where("Entidade", Comparison.Equals, paramId)
-                .Where("PotencialCliente", Comparison.Equals, "TRUE")));
+                .Where("PotencialCliente", Comparison.Equals, "TRUE")
+                .Where(new WhereClause("Vendedor", Comparison.Equals, sessionId).AddClause(LogicOperator.Or, Comparison.Equals, null))));
         }
 
         public static Reference LeadReference(string paramId)

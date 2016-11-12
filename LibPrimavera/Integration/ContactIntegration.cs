@@ -221,26 +221,30 @@ namespace FirstREST.LibPrimavera.Integration
             }
         }
 
-        public static bool Update(string sessionId, Contact paramObject)
+        public static bool Update(string sessionId, string contactId, Contact paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
-            var selectedTable = PrimaveraEngine.Engine.CRM.Contactos;
+            var contactTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (selectedTable.Existe(selectedId) == false)
+            if (contactTable.Existe(contactId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(selectedId);
+            var contactRow = contactTable.Edita(contactId);
 
-            selectedRow.set_EmModoEdicao(true);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            if (contactRow.get_CriadoPor() != sessionId)
+            {
+               return false;
+            }
+
+            contactRow.set_EmModoEdicao(true);
+            SetFields(contactRow, paramObject);
+            contactTable.Actualiza(contactRow);
 
             return true;
         }
@@ -268,14 +272,26 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool Delete(string sessionId, string customerId)
+        public static bool Delete(string sessionId, string contactId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
+            var contactTable = PrimaveraEngine.Engine.CRM.Contactos;
+
+            if (contactTable.Existe(contactId) == false)
+            {
+                return false;
+            }
+
+            if (contactTable.Edita(contactId).get_CriadoPor() != sessionId)
+            {
+                return false;
+            }
+
+            contactTable.Remove(contactId);
 
             return true;
         }

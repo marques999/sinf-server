@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Interop.CrmBE900;
+using Interop.GcpBE900;
+using Interop.StdBE900;
 
 using FirstREST.LibPrimavera.Model;
 
@@ -35,7 +36,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        private static Quote GenerateQuote(Interop.StdBE900.StdBELista queryObject)
+        private static Quote GenerateQuote(StdBELista queryObject)
         {
             return new Quote
             {
@@ -60,7 +61,7 @@ namespace FirstREST.LibPrimavera.Integration
             return null;
         }
 
-        private static void SetFields(CrmBEPropostaOPV selectedRow, Quote paramObject)
+        private static void SetFields(GcpBEDocumentoVenda selectedRow, Quote paramObject)
         {
             if (paramObject.Notes != null)
             {
@@ -69,33 +70,36 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (paramObject.Description != null)
             {
-                selectedRow.set_Descricao(paramObject.Description.Trim());
+                selectedRow.set_Nome(paramObject.Description.Trim());
             }
         }
 
-        public static bool Update(string sessionId, Quote paramObject)
+        public static bool Update(string sessionId, string quoteId, Quote paramObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.OpportunityId;
+            var quoteTable = PrimaveraEngine.Engine.Comercial.Vendas;
 
-            if (PrimaveraEngine.Engine.Comercial.Vendas.ExisteID(selectedId) == false)
+            if (quoteTable.ExisteID(quoteId) == false)
             {
                 return false;
             }
 
-            CrmBEPropostaOPV proposta = new CrmBEPropostaOPV();
+            var errorMessages = "";
+            var quoteRow = quoteTable.EditaID(quoteId);
 
-            var selectedOpportunity = PrimaveraEngine.Engine.CRM.OportunidadesVenda.EditaPropostasOPV(paramObject.OpportunityId);
-            var selectedRow = selectedOpportunity.get_Edita(paramObject.Identifier);
+            if (quoteRow.get_Responsavel() != sessionId)
+            {
+                return false;
+            }
 
-            selectedRow.set_EmModoEdicao(true);
-            SetFields(selectedRow, paramObject);
-            selectedRow.set_EmModoEdicao(false);
-            selectedOpportunity.set_Edita(paramObject.Identifier, selectedRow);
+            quoteRow.set_EmModoEdicao(true);
+            SetFields(quoteRow, paramObject);
+            quoteTable.Actualiza(quoteRow, ref errorMessages);
+            System.Diagnostics.Debug.Print(errorMessages);
 
             return true;
         }
@@ -107,35 +111,38 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(paramObject.OpportunityId) == false)
+            var quoteTable = PrimaveraEngine.Engine.Comercial.Vendas;
+
+            if (quoteTable.ExisteID(paramObject.Identifier))
             {
                 return false;
             }
 
-            var selectedOpportunity = PrimaveraEngine.Engine.CRM.OportunidadesVenda.EditaPropostasOPV(paramObject.OpportunityId);
+            var errorMessages = "";
+            var quoteRow = new GcpBEDocumentoVenda();
 
-            if (selectedOpportunity.NumItens < paramObject.Identifier)
-            {
-                return false;
-            }
-
-            var selectedRow = new CrmBEPropostaOPV();
-
-            SetFields(selectedRow, paramObject);
-            selectedOpportunity.Insere(selectedRow);
-            //PriEngine.Engine.CRM.OportunidadesVenda.Actualiza(selectedOpportunity);
+            SetFields(quoteRow, paramObject);
+            quoteTable.Actualiza(quoteRow, errorMessages);
+            System.Diagnostics.Debug.Print(errorMessages);
 
             return true;
         }
 
-        public static bool Delete(string sessionId, short paramId)
+        public static bool Delete(string sessionId, string quoteId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
+            var quoteTable = PrimaveraEngine.Engine.Comercial.Vendas;
+
+            if (quoteTable.ExisteID(quoteId) == false)
+            {
+                return false;
+            }
+
+            //quoteTable.Remove(quoteId);
 
             return true;
         }

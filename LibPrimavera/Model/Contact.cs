@@ -57,7 +57,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "dateModified")]
-        [JsonConverter(typeof(JavaScriptDateTimeConverter))]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
         public DateTime DateModified
         {
             get;
@@ -131,7 +131,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "dateModified")]
-        [JsonConverter(typeof(JavaScriptDateTimeConverter))]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
         public DateTime DateModified
         {
             get;

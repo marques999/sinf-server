@@ -69,7 +69,7 @@ namespace FirstREST.LibPrimavera.Integration
         {
             var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
             var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
-            
+
             var newInstance = new Activity
             {
                 Type = TypeReference(queryResult),
@@ -83,9 +83,9 @@ namespace FirstREST.LibPrimavera.Integration
                 Description = TypeParser.String(queryResult.Valor("Descricao")),
                 DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
                 DateModified = TypeParser.Date(queryResult.Valor("DataUltAct")),
-                EntityType = (int) TypeParser.Entity_Type(entityType)
+                EntityType = (int)TypeParser.Entity_Type(entityType)
             };
-            
+
             if (string.IsNullOrEmpty(entityType) == false)
             {
                 if (entityType == "X")
@@ -281,26 +281,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING UPDATE METHOD!");
+            var tabelaActividades = PrimaveraEngine.Engine.CRM.Actividades;
 
-            return true;
-
-            /*
-            var selectedTable = PrimaveraEngine.Engine.CRM.Actividades;
-
-            if (selectedTable.Existe(paramId) == false)
+            if (tabelaActividades.Existe(paramId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(paramId);
+            var mensagemErro = "";
+            var linhaTabela = tabelaActividades.Edita(paramId);
 
-            selectedRow.set_EmModoEdicao(true);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
-
+            linhaTabela.set_EmModoEdicao(true);
+            SetFields(linhaTabela, paramObject);
+            linhaTabela = tabelaActividades.PreencheDadosRelacionados(linhaTabela);
+            tabelaActividades.Actualiza(linhaTabela, ref mensagemErro);
+            System.Diagnostics.Debug.Print(mensagemErro);
+            
             return true;
-            */
         }
 
         public static bool Insert(string paramId, Activity paramObject)
@@ -310,25 +307,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING INSERT METHOD!");
+            var tabelaActividades = PrimaveraEngine.Engine.CRM.Actividades;
 
-            return true;
-
-            /*
-            var selectedRow = new CrmBEActividade();
-            var selectedTable = PrimaveraEngine.Engine.CRM.Actividades;
-
-            if (selectedTable.Existe(paramId))
+            if (tabelaActividades.Existe(paramId))
             {
                 return false;
             }
 
-            selectedRow.set_ID(paramId);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            var mensagemErro = "";
+            var linhaTabela = new CrmBEActividade();
 
+            linhaTabela.set_ID(paramId);
+            SetFields(linhaTabela, paramObject);
+            linhaTabela = tabelaActividades.PreencheDadosRelacionados(linhaTabela);
+            tabelaActividades.Actualiza(linhaTabela, ref mensagemErro);
+            System.Diagnostics.Debug.Print(mensagemErro);
+  
             return true;
-            */
         }
 
         public static bool Delete(string sessionId, string paramId)
@@ -338,7 +333,14 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            System.Diagnostics.Debug.Print("TESTING DELETE METHOD!");
+            if (PrimaveraEngine.Engine.CRM.Actividades.Existe(paramId))
+            {
+                PrimaveraEngine.Engine.CRM.Actividades.Remove(new Guid(paramId).ToString("D"));
+            }
+            else
+            {
+                return false;
+            }
 
             return true;
         }

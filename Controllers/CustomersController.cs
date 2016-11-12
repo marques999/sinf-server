@@ -22,9 +22,9 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -73,7 +73,7 @@ namespace FirstREST.Controllers
                 {
                     jsonObject.Status = "ACTIVO";
                     jsonObject.Identifier = "accountId";
-                    //jsonObject.DateCreated = DateTime.Now;
+                    jsonObject.DateCreated = DateTime.Now;
                     jsonObject.DateModified = jsonObject.DateCreated;
 
                     System.Diagnostics.Debug.Print(jsonObject.DateModified.ToString());
@@ -106,10 +106,9 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = id;
                     jsonObject.DateModified = DateTime.Now;
 
-                    if (CustomerIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (CustomerIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
