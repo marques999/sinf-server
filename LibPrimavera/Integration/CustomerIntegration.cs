@@ -128,12 +128,12 @@ namespace FirstREST.LibPrimavera.Integration
 
             queryResult.Sort(delegate(CustomerListing lhs, CustomerListing rhs)
             {
-                if (lhs.Identifier == null || rhs.Identifier == null)
+                if (lhs.Name == null || rhs.Name == null)
                 {
                     return -1;
                 }
 
-                return lhs.Identifier.CompareTo(rhs.Identifier);
+                return lhs.Name.CompareTo(rhs.Name);
             });
 
             return queryResult;

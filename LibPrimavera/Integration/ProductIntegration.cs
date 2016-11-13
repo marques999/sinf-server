@@ -78,7 +78,7 @@ namespace FirstREST.LibPrimavera.Integration
             return lhs.Identifier.CompareTo(rhs.Identifier);
         }
 
-        public static List<ProductListing> List()
+        public static List<ProductListing> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -102,7 +102,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Product View(string productId)
+        public static Product View(string sessionId, string productId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

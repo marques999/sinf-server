@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Text;
 using System.Threading;
 
 using FirstREST.LibPrimavera;
@@ -41,7 +42,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = CustomerIntegration.View(Thread.CurrentPrincipal.Identity.Name, Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
                     if (queryResult == null)
                     {

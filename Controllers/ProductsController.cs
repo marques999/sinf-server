@@ -2,6 +2,8 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Text;
+using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -19,7 +21,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.List());
+                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
                 catch
                 {
@@ -40,7 +42,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ProductIntegration.View(id);
+                    var queryResult = ProductIntegration.View(Thread.CurrentPrincipal.Identity.Name, Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
                     if (queryResult == null)
                     {
