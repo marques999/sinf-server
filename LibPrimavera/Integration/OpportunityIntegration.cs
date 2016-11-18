@@ -19,71 +19,84 @@ namespace FirstREST.LibPrimavera.Integration
             return new List<Opportunity>();
         }
 
-        public static Opportunity View(string sessionId, string paramId)
+        public static Opportunity View(string sessionId, string opportunityId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.OportunidadesVenda.Existe(paramId) == false)
+            var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
+
+            if (opportunitiesTable.Existe(opportunityId) == false)
             {
                 return null;
             }
 
-            return null;
+            var opportunityInfo = opportunitiesTable.Edita(opportunityId);
+
+            if (opportunityInfo.get_Vendedor() != sessionId)
+            {
+                return null;
+            }
+
+            return new Opportunity();
         }
 
-        public static bool Update(string sessionId, string opportunityId, Opportunity paramObject)
+        private static void SetFields(CrmBEOportunidadeVenda opportunityInfo, Opportunity jsonObject)
+        {
+        }
+
+        public static bool Update(string sessionId, string opportunityId, Opportunity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var opportunityTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
+            var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
 
-            if (opportunityTable.Existe(opportunityId) == false)
+            if (opportunitiesTable.Existe(opportunityId) == false)
             {
                 return false;
             }
 
-            var errorMessages = "";
-            var opportunityRow = opportunityTable.Edita(opportunityId);
+            var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
-            if (opportunityRow.get_Vendedor() != sessionId)
+            if (opportunityInfo.get_Vendedor() != sessionId)
             {
                 return false;
             }
 
-            opportunityRow.set_EmModoEdicao(true);
-            opportunityTable.Actualiza(opportunityRow, errorMessages);
-            System.Diagnostics.Debug.Print(errorMessages);
+            jsonObject.DateModified = DateTime.Now;
+            opportunityInfo.set_EmModoEdicao(true);
+            SetFields(opportunityInfo, jsonObject);
+            opportunitiesTable.Actualiza(opportunityInfo);
 
             return true;
         }
 
-        public static bool Insert(string sessionId, Opportunity paramObject)
+        public static bool Insert(string sessionId, Opportunity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var errorMessages = "";
-            var opportunityId = paramObject.Identifier;
-            var opportunityTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
+            var opportunityId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
+            var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
 
-            if (opportunityTable.Existe(opportunityId))
+            if (opportunitiesTable.Existe(opportunityId))
             {
                 return false;
             }
 
-            var opportunityRow = new CrmBEOportunidadeVenda();
+            var opportunityInfo = new CrmBEOportunidadeVenda();
 
-            opportunityRow.set_ID(opportunityId);
-            opportunityTable.Actualiza(opportunityRow, ref errorMessages);
-            System.Diagnostics.Debug.Print(errorMessages);
+            jsonObject.DateCreated = DateTime.Now;
+            jsonObject.DateModified = jsonObject.DateCreated;
+            opportunityInfo.set_ID(opportunityId);
+            opportunitiesTable.Actualiza(opportunityInfo);
 
             return true;
         }
@@ -95,19 +108,19 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var opportunityTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
+            var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
 
-            if (opportunityTable.Existe(opportunityId) == false)
+            if (opportunitiesTable.Existe(opportunityId) == false)
             {
                 return false;
             }
 
-            if (opportunityTable.Edita(opportunityId).get_Vendedor() != sessionId)
+            if (opportunitiesTable.Edita(opportunityId).get_Vendedor() != sessionId)
             {
                 return false;
             }
 
-            opportunityTable.Remove(opportunityId);
+            opportunitiesTable.Remove(opportunityId);
 
             return true;
         }

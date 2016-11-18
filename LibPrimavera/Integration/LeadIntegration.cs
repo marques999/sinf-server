@@ -52,22 +52,22 @@ namespace FirstREST.LibPrimavera.Integration
         {
             return new Lead()
             {
-                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
+                Identficador = TypeParser.String(queryObject.Valor("Entidade")),
                 Active = TypeParser.Boolean(queryObject.Valor("Activo")),
-                Name = TypeParser.String(queryObject.Valor("Nome")),
+                NomeFiscal = TypeParser.String(queryObject.Valor("Nome")),
                 Email = TypeParser.String(queryObject.Valor("Email")),
-                Phone = TypeParser.String(queryObject.Valor("Telefone")),
+                Telefone = TypeParser.String(queryObject.Valor("Telefone")),
                 DateCreated = TypeParser.Date(queryObject.Valor("DataCriacao")),
-                DateModified = TypeParser.Date(queryObject.Valor("DataUltAct")),
-                MobilePhone = TypeParser.String(queryObject.Valor("Telemovel")),
+                ModificadoEm = TypeParser.Date(queryObject.Valor("DataUltAct")),
+                Telemovel = TypeParser.String(queryObject.Valor("Telemovel")),
 
-                Location = new Address
+                Localizacao = new Address
                 {
-                    PostalCode = TypeParser.String(queryObject.Valor("CodPostal")),
-                    State = TypeParser.String(queryObject.Valor("Distrito")),
-                    Parish = TypeParser.String(queryObject.Valor("Localidade")),
-                    Street = TypeParser.String(queryObject.Valor("Morada")),
-                    Country = TypeParser.String(queryObject.Valor("Pais"))
+                    CodigoPostal = TypeParser.String(queryObject.Valor("CodPostal")),
+                    Distrito = TypeParser.String(queryObject.Valor("Distrito")),
+                    Localidade = TypeParser.String(queryObject.Valor("Localidade")),
+                    Morada = TypeParser.String(queryObject.Valor("Morada")),
+                    Pais = TypeParser.String(queryObject.Valor("Pais"))
                 },
             };
         }
@@ -174,9 +174,9 @@ namespace FirstREST.LibPrimavera.Integration
             selectedRow.set_Activo(paramObject.Active);
             selectedRow.set_PotencialCliente(true);
 
-            if (paramObject.Name != null)
+            if (paramObject.NomeFiscal != null)
             {
-                selectedRow.set_Nome(paramObject.Name.Trim());
+                selectedRow.set_Nome(paramObject.NomeFiscal.Trim());
             }
 
             if (paramObject.Email != null)
@@ -184,48 +184,48 @@ namespace FirstREST.LibPrimavera.Integration
                 selectedRow.set_Email(paramObject.Email.Trim());
             }
 
-            if (paramObject.Phone != null)
+            if (paramObject.Telefone != null)
             {
-                selectedRow.set_Telefone(paramObject.Phone.Trim());
+                selectedRow.set_Telefone(paramObject.Telefone.Trim());
             }
 
-            if (paramObject.MobilePhone != null)
+            if (paramObject.Telemovel != null)
             {
-                selectedRow.set_Telemovel(paramObject.MobilePhone.Trim());
+                selectedRow.set_Telemovel(paramObject.Telemovel.Trim());
             }
 
-            if (paramObject.DateModified != null)
+            if (paramObject.ModificadoEm != null)
             {
-                selectedRow.set_DataUltAct(paramObject.DateModified);
+                selectedRow.set_DataUltAct(paramObject.ModificadoEm);
             }
 
-            if (paramObject.Location != null)
+            if (paramObject.Localizacao != null)
             {
-                var objectLocation = paramObject.Location;
+                var objectLocation = paramObject.Localizacao;
 
-                if (objectLocation.Street != null)
+                if (objectLocation.Morada != null)
                 {
-                    selectedRow.set_Morada(paramObject.Location.Street.Trim());
+                    selectedRow.set_Morada(paramObject.Localizacao.Morada.Trim());
                 }
 
-                if (objectLocation.State != null)
+                if (objectLocation.Distrito != null)
                 {
-                    selectedRow.set_Distrito(paramObject.Location.State.Trim());
+                    selectedRow.set_Distrito(paramObject.Localizacao.Distrito.Trim());
                 }
 
-                if (objectLocation.Parish != null)
+                if (objectLocation.Localidade != null)
                 {
-                    selectedRow.set_Localidade(paramObject.Location.Parish.Trim());
+                    selectedRow.set_Localidade(paramObject.Localizacao.Localidade.Trim());
                 }
 
-                if (objectLocation.PostalCode != null)
+                if (objectLocation.CodigoPostal != null)
                 {
-                    selectedRow.set_CodPostal(paramObject.Location.PostalCode.Trim());
+                    selectedRow.set_CodPostal(paramObject.Localizacao.CodigoPostal.Trim());
                 }
 
-                if (objectLocation.Country != null)
+                if (objectLocation.Pais != null)
                 {
-                    selectedRow.set_Pais(paramObject.Location.Country.Trim());
+                    selectedRow.set_Pais(paramObject.Localizacao.Pais.Trim());
                 }
             }
         }
@@ -237,7 +237,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
+            var selectedId = paramObject.Identficador;
             var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
 
             if (selectedTable.Existe(selectedId) == false)
@@ -261,7 +261,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
+            var selectedId = paramObject.Identficador;
             var selectedRow = new CrmBEEntidadeExterna();
             var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
 

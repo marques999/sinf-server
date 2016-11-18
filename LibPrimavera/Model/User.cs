@@ -1,48 +1,81 @@
 ﻿using System;
+
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class User
+    public class UserLogin
     {
         [JsonProperty(PropertyName = "username")]
-        private string Username
+        public string Username
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "name")]
-        private string Name
+        [JsonProperty(PropertyName = "password")]
+        public string Password
+        {
+            get;
+            set;
+        }
+    }
+
+    public class UserPassword
+    {
+        [JsonProperty(PropertyName = "old")]
+        public string oldPassword
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "email")]
-        private string Email
+        [JsonProperty(PropertyName = "new")]
+        public string newPassword
+        {
+            get;
+            set;
+        }
+    }
+
+    public class UserData
+    {
+        [JsonProperty(PropertyName = "username")]
+        public string Username
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "location")]
-        private Address Location
+        public Representative Representative
+        {
+            get;
+            set;
+        }
+    }
+    
+    public class UserForm
+    {
+        [JsonProperty(PropertyName = "username")]
+        public string Username
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "picture")]
-        public string Picture
+        [JsonProperty(PropertyName = "password")]
+        public string Password
         {
             get;
             set;
         }
 
-        public void setPicture(byte[] pictureData)
+        [JsonProperty(PropertyName = "representative")]
+        public string Representative
         {
-            Picture = Convert.ToBase64String(pictureData);
+            get;
+            set;
         }
     }
 }

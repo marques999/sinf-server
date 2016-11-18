@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Text;
 using System.Threading;
 
 using FirstREST.LibPrimavera;
@@ -10,38 +11,31 @@ using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
-    public class OpportunitiesController : ApiController
+    public class UsersController : ApiController
     {
-        // GET api/opportunities/
-        // FEATURE: Listar oportunidades
+        // GET api/users/
+        // FEATURE: Listar vendedores
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            try
             {
-                try
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.List(Thread.CurrentPrincipal.Identity.Name));
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
+                return Request.CreateResponse(HttpStatusCode.OK, UserIntegration.List());
             }
-            else
+            catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
 
-        // GET api/opportunities/{$opportunityId}/
-        // FEATURE: Visualizar oportunidade
+        // GET api/users/{$userId}/
+        // FEATURE: Visualizar perfil
         public HttpResponseMessage Get(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    var queryResult = OpportunityIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = UserIntegration.View(Thread.CurrentPrincipal.Identity.Name);
 
                     if (queryResult == null)
                     {
@@ -63,15 +57,36 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/opportunities/
-        // FEATURE: Adicionar oportunidade
-        public HttpResponseMessage Post([FromBody] Opportunity jsonObject)
+        // POST api/users/
+        // FEATURE: Registar vendedor
+        public HttpResponseMessage Post([FromBody]UserForm jsonObject)
+        {
+            try
+            {
+                if (UserIntegration.Insert(jsonObject))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+        // PUT api/users/{$userId}/
+        // FEATURE: Alterar password
+        public HttpResponseMessage Put(string id, [FromBody]UserPassword jsonObject)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    if (OpportunityIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (UserIntegration.Update(id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -91,43 +106,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/opportunities/{$opportunityId}/
-        // FEATURE: Modificar oportunidade existente
-        public HttpResponseMessage Post(string id, [FromBody] Opportunity jsonObject)
-        {
-            if (PrimaveraEngine.IsAuthenticated())
-            {
-                try
-                {
-                    if (OpportunityIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
-            }
-        }
-
-        // DELETE api/opportunities/{$opportunityId}/
-        // FEATURE: Remover oportunidade
+        // DELETE api/users/{$userId}/
+        // FEATURE: Apagar vendedor
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
             {
                 try
                 {
-                    if (OpportunityIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (UserIntegration.Delete(Thread.CurrentPrincipal.Identity.Name))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

@@ -60,7 +60,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlConcelho)
                 .Where("Distrito", Comparison.Equals, paramId)
                 .Where("Concelho", Comparison.GreaterThan, 0));
-
+            
             while (!queryObject.NoFim())
             {
                 queryResult.Add(new Location()

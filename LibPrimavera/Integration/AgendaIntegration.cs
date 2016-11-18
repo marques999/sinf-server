@@ -73,17 +73,17 @@ namespace FirstREST.LibPrimavera.Integration
             var newInstance = new Activity
             {
                 Type = TypeReference(queryResult),
-                Identifier = TypeParser.String(queryResult.Valor("Id")),
+                Identificador = TypeParser.String(queryResult.Valor("Id")),
                 Name = TypeParser.String(queryResult.Valor("Resumo")),
-                Owner = TypeParser.String(queryResult.Valor("CriadoPor")),
-                Start = TypeParser.Date(queryResult.Valor("DataInicio")),
-                End = TypeParser.Date(queryResult.Valor("DataFim")),
+                Responsavel = TypeParser.String(queryResult.Valor("CriadoPor")),
+                DataInicio = TypeParser.Date(queryResult.Valor("DataInicio")),
+                DataFim = TypeParser.Date(queryResult.Valor("DataFim")),
                 Status = (ActivityStatus)TypeParser.Integer(queryResult.Valor("Estado")),
-                Priority = TypeParser.Integer(queryResult.Valor("Prioridade")),
-                Description = TypeParser.String(queryResult.Valor("Descricao")),
-                DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltAct")),
-                EntityType = (int)TypeParser.Entity_Type(entityType)
+                Prioridade = TypeParser.Integer(queryResult.Valor("Prioridade")),
+                Descricao = TypeParser.String(queryResult.Valor("Descricao")),
+                CriadoEm = TypeParser.Date(queryResult.Valor("DataCriacao")),
+                ModificadoEm = TypeParser.Date(queryResult.Valor("DataUltAct")),
+                TipoEntidade = TypeParser.Entity_Type(entityType)
             };
 
             if (string.IsNullOrEmpty(entityType) == false)
@@ -239,105 +239,150 @@ namespace FirstREST.LibPrimavera.Integration
             return wc;
         }
 
-        private static void SetFields(CrmBEActividade selectedRow, Activity paramObject)
+        private static void SetFields(CrmBEActividade activityInfo, Activity jsonObject)
         {
-            if (paramObject.Name != null)
+            if (jsonObject.Name != null)
             {
-                selectedRow.set_Resumo(paramObject.Name.Trim());
+                activityInfo.set_Resumo(jsonObject.Name.Trim());
             }
 
-            if (paramObject.Description != null)
+            if (jsonObject.Descricao != null)
             {
-                selectedRow.set_Descricao(paramObject.Description.Trim());
+                activityInfo.set_Descricao(jsonObject.Descricao.Trim());
             }
 
-            selectedRow.set_Prioridade(paramObject.Priority.ToString());
+            activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
 
-            if (paramObject.Status != ActivityStatus.Any)
+            if (jsonObject.Status != ActivityStatus.Any)
             {
-                selectedRow.set_Estado(paramObject.Status.ToString());
+                activityInfo.set_Estado(jsonObject.Status.ToString());
             }
 
-            if (paramObject.DateModified != null)
+            if (jsonObject.ModificadoEm != null)
             {
-                selectedRow.set_DataUltAct(paramObject.DateModified);
+                activityInfo.set_DataUltAct(jsonObject.ModificadoEm);
             }
 
-            if (paramObject.Start != null)
+            if (jsonObject.DataInicio != null)
             {
-                selectedRow.set_DataInicio(paramObject.Start);
+                activityInfo.set_DataInicio(jsonObject.DataInicio);
             }
 
-            if (paramObject.End != null)
+            if (jsonObject.DataFim != null)
             {
-                selectedRow.set_DataFim(paramObject.End);
+                activityInfo.set_DataFim(jsonObject.DataFim);
             }
         }
 
-        public static bool Update(string paramId, Activity paramObject)
+        public static Activity View(string sessionId, string activityId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var tabelaActividades = PrimaveraEngine.Engine.CRM.Actividades;
+            var activitiesTable = PrimaveraEngine.Engine.CRM.Actividades;
 
-            if (tabelaActividades.Existe(paramId) == false)
+            if (activitiesTable.Existe(activityId) == false)
+            {
+                return null;
+            }
+
+            var activityInfo = activitiesTable.Edita(activityId);
+
+            if (activityInfo.get_CriadoPor() != activityId)
+            {
+                return null;
+            }
+
+            return new Activity
+            {
+                CriadoEm = activityInfo.get_DataCriacao(),
+                ModificadoEm = activityInfo.get_DataUltAct(),
+                Descricao = activityInfo.get_Descricao(),
+                DataFim = activityInfo.get_DataFim(),
+                //   Entity = activityInfo.get_EntidadePrincipal(), 
+                TipoEntidade = activityInfo.get_TipoEntidadePrincipal(),
+                Identificador = activityInfo.get_ID(),
+                Responsavel = activityInfo.get_Utilizador(),
+                Prioridade = activityInfo.get_Prioridade(),
+                DataInicio = activityInfo.get_DataInicio(),
+                Duracao = activityInfo.get_Duracao()
+                //Status = activityInfo.get_Estado(),
+                //Type = activityInfo.get_IDTipoActividade()
+            };
+        }
+
+        public static bool Update(string sessionId, string activityId, Activity paramObject)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var activitiesTable = PrimaveraEngine.Engine.CRM.Actividades;
+
+            if (activitiesTable.Existe(activityId) == false)
             {
                 return false;
             }
 
-            var mensagemErro = "";
-            var linhaTabela = tabelaActividades.Edita(paramId);
+            var activityInfo = activitiesTable.Edita(activityId);
 
-            linhaTabela.set_EmModoEdicao(true);
-            SetFields(linhaTabela, paramObject);
-            linhaTabela = tabelaActividades.PreencheDadosRelacionados(linhaTabela);
-            tabelaActividades.Actualiza(linhaTabela, ref mensagemErro);
-            System.Diagnostics.Debug.Print(mensagemErro);
-            
-            return true;
-        }
-
-        public static bool Insert(string paramId, Activity paramObject)
-        {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var tabelaActividades = PrimaveraEngine.Engine.CRM.Actividades;
-
-            if (tabelaActividades.Existe(paramId))
+            if (activityInfo.get_CriadoPor() != activityId)
             {
                 return false;
             }
 
-            var mensagemErro = "";
-            var linhaTabela = new CrmBEActividade();
+            activityInfo.set_EmModoEdicao(true);
+            SetFields(activityInfo, paramObject);
+            activityInfo = activitiesTable.PreencheDadosRelacionados(activityInfo);
+            activitiesTable.Actualiza(activityInfo);
 
-            linhaTabela.set_ID(paramId);
-            SetFields(linhaTabela, paramObject);
-            linhaTabela = tabelaActividades.PreencheDadosRelacionados(linhaTabela);
-            tabelaActividades.Actualiza(linhaTabela, ref mensagemErro);
-            System.Diagnostics.Debug.Print(mensagemErro);
-  
             return true;
         }
 
-        public static bool Delete(string sessionId, string paramId)
+        public static bool Insert(string activityId, Activity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.Actividades.Existe(paramId))
+            var activitiesTable = PrimaveraEngine.Engine.CRM.Actividades;
+
+            if (activitiesTable.Existe(activityId))
             {
-                PrimaveraEngine.Engine.CRM.Actividades.Remove(new Guid(paramId).ToString("D"));
+                return false;
             }
-            else
+
+            var activityInfo = new CrmBEActividade();
+
+            activityInfo.set_ID(activityId);
+            SetFields(activityInfo, jsonObject);
+            activityInfo = activitiesTable.PreencheDadosRelacionados(activityInfo);
+            activitiesTable.Actualiza(activityInfo);
+
+            return true;
+        }
+
+        public static bool Delete(string sessionId, string activityId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var activitiesTable = PrimaveraEngine.Engine.CRM.Actividades;
+
+            if (activitiesTable.Existe(activityId) == false)
+            {
+                return false;
+            }
+
+            var activityInfo = activitiesTable.Edita(activityId);
+
+            if (activityInfo.get_CriadoPor() != activityId)
             {
                 return false;
             }

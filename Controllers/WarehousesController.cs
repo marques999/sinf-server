@@ -21,9 +21,9 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, WarehouseIntegration.List());
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -51,9 +51,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

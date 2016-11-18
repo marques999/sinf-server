@@ -12,23 +12,6 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ContactIntegration
     {
-        private static SqlColumn[] sqlColumnsFull =
-        {
-            new SqlColumn("CONTACTOS.Contacto", null),
-            new SqlColumn("CONTACTOS.Titulo", null),
-            new SqlColumn("CONTACTOS.PrimeiroNome", null),
-            new SqlColumn("CONTACTOS.UltimoNome", null),
-            new SqlColumn("CONTACTOS.DataUltContacto", null),
-            new SqlColumn("CONTACTOS.Email", null),
-            new SqlColumn("CONTACTOS.Telefone", null),
-            new SqlColumn("CONTACTOS.Telemovel", null),
-            new SqlColumn("CONTACTOS.CodPostal", null),
-            new SqlColumn("CONTACTOS.Morada", null),
-            new SqlColumn("CONTACTOS.Pais", null),
-            new SqlColumn("CONTACTOS.Localidade", null),
-            new SqlColumn("CONTACTOS.Distrito", null)
-        };
-
         private static SqlColumn[] sqlColumnsListing =
         {
             new SqlColumn("CONTACTOS.Contacto", null),
@@ -43,58 +26,42 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CONTACTOS.Morada", null),
         };
 
-        private static SqlColumn[] sqlColumnsReference =
-        {
-            new SqlColumn("CONTACTOS.Contacto", null),
-            new SqlColumn("CONTACTOS.PrimeiroNome", null),
-            new SqlColumn("CONTACTOS.UltimoNome", null),
-        };
-
-        private static Contact GenerateFull(StdBELista queryResult)
+        private static Contact GenerateFull(CrmBEContacto contactInfo)
         {
             return new Contact()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
-                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
-                Title = TypeParser.String(queryResult.Valor("Titulo")),
-                Email = TypeParser.String(queryResult.Valor("Email")),
-                Phone = TypeParser.String(queryResult.Valor("Telefone")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltContacto")),
-                MobilePhone = TypeParser.String(queryResult.Valor("Telemovel")),
-
-                Location = new Address
+                Identficador = contactInfo.get_Contacto(),
+                NomeFiscal = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
+                Titulo = contactInfo.get_Titulo(),
+                Email = contactInfo.get_Email(),
+                Telefone = contactInfo.get_Telefone(),
+                Telefone2 = contactInfo.get_Telefone2(),
+                Telemovel = contactInfo.get_Telemovel(),
+                ModificadoEm = contactInfo.get_DataUltContacto(),
+                Localizacao = new Address
                 {
-                    PostalCode = TypeParser.String(queryResult.Valor("CodPostal")),
-                    Street = TypeParser.String(queryResult.Valor("Morada")),
-                    Country = TypeParser.String(queryResult.Valor("Pais")),
-                    Parish = TypeParser.String(queryResult.Valor("Localidade")),
-                    State = TypeParser.String(queryResult.Valor("Distrito")),
+                    CodigoPostal = contactInfo.get_CodPostal(),
+                    Morada = contactInfo.get_Morada(),
+                    Pais = contactInfo.get_Pais(),
+                    Localidade = contactInfo.get_Localidade(),
+                    Distrito = contactInfo.get_Distrito()
                 }
             };
         }
 
-        private static ContactListing GenerateListing(StdBELista queryResult)
+        private static ContactListing GenerateListing(StdBELista contactInfo)
         {
             return new ContactListing()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
-                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
-                Title = TypeParser.String(queryResult.Valor("Titulo")),
-                Email = TypeParser.String(queryResult.Valor("Email")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltContacto")),
-                MobilePhone = TypeParser.String(queryResult.Valor("Telemovel")),
-                Address = TypeParser.String(queryResult.Valor("Morada")),
-                Country = TypeParser.String(queryResult.Valor("Pais")),
-                State = TypeParser.String(queryResult.Valor("Distrito"))
-            };
-        }
-
-        private static Reference GenerateReference(StdBELista queryResult)
-        {
-            return new Reference
-            {
-                Identifier = TypeParser.String(queryResult.Valor("Contacto")),
-                Name = TypeParser.String(queryResult.Valor("PrimeiroNome")) + " " + queryResult.Valor("UltimoNome"),
+                Identifier = TypeParser.String(contactInfo.Valor("Contacto")),
+                Name = TypeParser.String(contactInfo.Valor("PrimeiroNome")) + " " + contactInfo.Valor("UltimoNome"),
+                Title = TypeParser.String(contactInfo.Valor("Titulo")),
+                Email = TypeParser.String(contactInfo.Valor("Email")),
+                DateModified = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
+                MobilePhone = TypeParser.String(contactInfo.Valor("Telemovel")),
+                Address = TypeParser.String(contactInfo.Valor("Morada")),
+                Country = TypeParser.String(contactInfo.Valor("Pais")),
+                State = TypeParser.String(contactInfo.Valor("Distrito"))
             };
         }
 
@@ -127,147 +94,147 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Contact View(string sessionId, string paramId)
+        public static Contact View(string sessionId, string contactId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.Contactos.Existe(paramId) == false)
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
+
+            if (contactsTable.Existe(contactId) == false)
             {
                 return null;
             }
 
-            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("CONTACTOS")
-                .Columns(sqlColumnsFull)
-                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
+            return GenerateFull(contactsTable.Edita(contactId));
         }
 
-        public static Reference Reference(string paramId)
+        public static Reference Reference(string contactId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.Contactos.Existe(paramId) == false)
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
+
+            if (contactsTable.Existe(contactId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
-            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("CONTACTOS")
-                .Columns(sqlColumnsReference)
-                .Where("CONTACTOS.Contacto", Comparison.Equals, paramId)));
+            return new Reference(contactId, contactsTable.DaNomeContacto(contactId));
         }
 
-        private static void SetFields(CrmBEContacto selectedRow, Contact paramObject)
+        private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
-            if (paramObject.Name != null)
+            if (jsonObject.NomeFiscal != null)
             {
-                selectedRow.set_Nome(paramObject.Name.Trim());
+                contactInfo.set_Nome(jsonObject.NomeFiscal.Trim());
             }
 
-            if (paramObject.Email != null)
+            if (jsonObject.Email != null)
             {
-                selectedRow.set_Email(paramObject.Email.Trim());
+                contactInfo.set_Email(jsonObject.Email.Trim());
             }
 
-            if (paramObject.Phone != null)
+            if (jsonObject.Telefone != null)
             {
-                selectedRow.set_Telefone(paramObject.Phone.Trim());
+                contactInfo.set_Telefone(jsonObject.Telefone.Trim());
             }
 
-            if (paramObject.MobilePhone != null)
+            if (jsonObject.Telemovel != null)
             {
-                selectedRow.set_Telemovel(paramObject.MobilePhone.Trim());
+                contactInfo.set_Telemovel(jsonObject.Telemovel.Trim());
             }
 
-            if (paramObject.DateModified != null)
+            if (jsonObject.ModificadoEm != null)
             {
-                selectedRow.set_DataUltContacto(paramObject.DateModified);
+                contactInfo.set_DataUltContacto(jsonObject.ModificadoEm);
             }
 
-            if (paramObject.Location != null)
+            if (jsonObject.Localizacao != null)
             {
-                var objectLocation = paramObject.Location;
+                var objectLocation = jsonObject.Localizacao;
 
-                if (objectLocation.Street != null)
+                if (objectLocation.Morada != null)
                 {
-                    selectedRow.set_Morada(paramObject.Location.Street.Trim());
+                    contactInfo.set_Morada(jsonObject.Localizacao.Morada.Trim());
                 }
 
-                if (objectLocation.State != null)
+                if (objectLocation.Distrito != null)
                 {
-                    selectedRow.set_Distrito(paramObject.Location.State.Trim());
+                    contactInfo.set_Distrito(jsonObject.Localizacao.Distrito.Trim());
                 }
 
-                if (objectLocation.Parish != null)
+                if (objectLocation.Localidade != null)
                 {
-                    selectedRow.set_Localidade(paramObject.Location.Parish.Trim());
+                    contactInfo.set_Localidade(jsonObject.Localizacao.Localidade.Trim());
                 }
 
-                if (objectLocation.PostalCode != null)
+                if (objectLocation.CodigoPostal != null)
                 {
-                    selectedRow.set_CodPostal(paramObject.Location.PostalCode.Trim());
+                    contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal.Trim());
                 }
 
-                if (objectLocation.Country != null)
+                if (objectLocation.Pais != null)
                 {
-                    selectedRow.set_Pais(paramObject.Location.Country.Trim());
+                    contactInfo.set_Pais(jsonObject.Localizacao.Pais.Trim());
                 }
             }
         }
 
-        public static bool Update(string sessionId, string contactId, Contact paramObject)
+        public static bool Update(string sessionId, string contactId, Contact jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var contactTable = PrimaveraEngine.Engine.CRM.Contactos;
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (contactTable.Existe(contactId) == false)
+            if (contactsTable.Existe(contactId) == false)
             {
                 return false;
             }
 
-            var contactRow = contactTable.Edita(contactId);
+            var contactInfo = contactsTable.Edita(contactId);
 
-            if (contactRow.get_CriadoPor() != sessionId)
+            if (contactInfo.get_CriadoPor() != sessionId)
             {
-               return false;
+                return false;
             }
 
-            contactRow.set_EmModoEdicao(true);
-            SetFields(contactRow, paramObject);
-            contactTable.Actualiza(contactRow);
+            jsonObject.ModificadoEm = DateTime.Now;
+            contactInfo.set_EmModoEdicao(true);
+            SetFields(contactInfo, jsonObject);
+            contactsTable.Actualiza(contactInfo);
 
             return true;
         }
 
-        public static bool Insert(string sessionId, Contact paramObject)
+        public static bool Insert(string sessionId, Contact jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedRow = new CrmBEContacto();
-            var selectedId = paramObject.Identifier;
-            var selectedTable = PrimaveraEngine.Engine.CRM.Contactos;
+            var contactInfo = new CrmBEContacto();
+            var contactId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (selectedTable.Existe(selectedId))
+            if (contactsTable.Existe(contactId))
             {
                 return false;
             }
 
-            selectedRow.set_Contacto(selectedId);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            jsonObject.ModificadoEm = DateTime.Now;
+            contactInfo.set_Contacto(contactId);
+            SetFields(contactInfo, jsonObject);
+            contactsTable.Actualiza(contactInfo);
 
             return true;
         }
@@ -279,19 +246,19 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var contactTable = PrimaveraEngine.Engine.CRM.Contactos;
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
 
-            if (contactTable.Existe(contactId) == false)
+            if (contactsTable.Existe(contactId) == false)
             {
                 return false;
             }
 
-            if (contactTable.Edita(contactId).get_CriadoPor() != sessionId)
+            if (contactsTable.Edita(contactId).get_CriadoPor() != sessionId)
             {
                 return false;
             }
 
-            contactTable.Remove(contactId);
+            contactsTable.Remove(contactId);
 
             return true;
         }

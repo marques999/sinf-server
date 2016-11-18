@@ -17,12 +17,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("COUNT(*)", "Count")
         };
 
-        private static SqlColumn[] sqlColumnsListing =
-        {
-            new SqlColumn("FAMILIAS.Familia", null),
-            new SqlColumn("FAMILIAS.Descricao", null)
-        };
-
         public static List<Category> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
@@ -41,9 +35,9 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new Category()
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Familia")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao")),
-                    NumberProducts = TypeParser.Integer(queryObject.Valor("Count"))
+                    Identificador = TypeParser.String(queryObject.Valor("Familia")),
+                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
+                    NumeroProdutos = TypeParser.Integer(queryObject.Valor("Count"))
                 });
 
                 queryObject.Seguinte();
@@ -51,12 +45,12 @@ namespace FirstREST.LibPrimavera.Integration
 
             queryResult.Sort(delegate(Category lhs, Category rhs)
             {
-                if (lhs.Identifier == null || rhs.Identifier == null)
+                if (lhs.Identificador == null || rhs.Identificador == null)
                 {
                     return -1;
                 }
 
-                return lhs.Name.CompareTo(rhs.Name);
+                return lhs.Descricao.CompareTo(rhs.Descricao);
             });
 
             return queryResult;
@@ -69,31 +63,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.Comercial.Familias.Existe(categoryId) == false)
+            var categoriesTable = PrimaveraEngine.Engine.Comercial.Familias;
+
+            if (categoriesTable.Existe(categoryId) == false)
             {
                 return null;
             }
 
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("FAMILIAS")
-                .Columns(sqlColumnsListing)
-                .Where("Familia", Comparison.Equals, categoryId));
-
             return new CategoryProducts
             {
-                Identifier = TypeParser.String(queryObject.Valor("Familia")),
-                Name = TypeParser.String(queryObject.Valor("Descricao")),
-                Products = ProductIntegration.ByCategory(categoryId)
+                Identificador = categoryId,
+                Descricao = categoriesTable.DaDescricao(categoryId),
+                Produtos = ProductIntegration.ByCategory(categoryId)
             };
         }
 
-        public static CategoryReference GenerateReference(StdBELista queryResult)
+        public static Reference GenerateReference(string categoryId)
         {
-            return new CategoryReference
-            {
-                Identifier = TypeParser.String(queryResult.Valor("IdFamilia")),
-                Name = TypeParser.String(queryResult.Valor("Familia"))
-            };
+            return new Reference(categoryId, PrimaveraEngine.Engine.Comercial.Familias.DaDescricao(categoryId));
         }
     }
 }

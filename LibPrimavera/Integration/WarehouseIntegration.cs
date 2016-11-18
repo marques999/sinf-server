@@ -8,17 +8,6 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class WarehouseIntegration
     {
-        private static SqlColumn[] sqlColumnsFull =
-        {
-            new SqlColumn("ARMAZENS.Armazem", null),
-            new SqlColumn("ARMAZENS.Descricao", null),
-            new SqlColumn("ARMAZENS.Morada", null),
-            new SqlColumn("ARMAZENS.Localidade", null),
-            new SqlColumn("ARMAZENS.Cp", null),
-            new SqlColumn("ARMAZENS.Distrito", null),
-            new SqlColumn("ARMAZENS.Pais", null)
-        };
-
         private static SqlColumn[] sqlColumnsAggregate =
         {
             new SqlColumn("ARMAZENS.Armazem", null),
@@ -50,24 +39,21 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var queryResult = new List<Warehouse>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("ARMAZENS")
-                .Columns(sqlColumnsListing));
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARMAZENS").Columns(sqlColumnsListing));
 
             while (!queryObject.NoFim())
             {
                 queryResult.Add(new Warehouse
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Armazem")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao")),
-
+                    Identificador = TypeParser.String(queryObject.Valor("Armazem")),
+                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
                     Location = new Address
                     {
-                        PostalCode = TypeParser.String(queryObject.Valor("Cp")),
-                        Street = TypeParser.String(queryObject.Valor("Morada")),
-                        Country = TypeParser.String(queryObject.Valor("Pais")),
-                        Parish = TypeParser.String(queryObject.Valor("Localidade")),
-                        State = TypeParser.String(queryObject.Valor("Distrito")),
+                        CodigoPostal = TypeParser.String(queryObject.Valor("Cp")),
+                        Morada = TypeParser.String(queryObject.Valor("Morada")),
+                        Pais = TypeParser.String(queryObject.Valor("Pais")),
+                        Localidade = TypeParser.String(queryObject.Valor("Localidade")),
+                        Distrito = TypeParser.String(queryObject.Valor("Distrito")),
                     }
                 });
 
@@ -84,26 +70,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Warehouse>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("ARMAZENS")
-                .Columns(sqlColumnsListing)
-                .Where("Armazem", Comparison.Equals, warehouseId));
+            var warehousesTable = PrimaveraEngine.Engine.Comercial.Armazens;
+            var warehouseInfo = warehousesTable.Edita(warehouseId);
 
             return new Warehouse
+            {
+                Identificador = warehouseInfo.get_Armazem(),
+                Descricao = warehouseInfo.get_Descricao(),
+                Telefone = warehouseInfo.get_Telefone(),
+                ModificadoEm = warehouseInfo.get_DataUltimaActualizacao(),
+                Location = new Address
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Armazem")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao")),
-
-                    Location = new Address
-                    {
-                        PostalCode = TypeParser.String(queryObject.Valor("Cp")),
-                        Street = TypeParser.String(queryObject.Valor("Morada")),
-                        Country = TypeParser.String(queryObject.Valor("Pais")),
-                        Parish = TypeParser.String(queryObject.Valor("Localidade")),
-                        State = TypeParser.String(queryObject.Valor("Distrito")),
-                    }
-                };
+                    Pais = warehouseInfo.get_Pais(),
+                    Morada = warehouseInfo.get_Morada(),
+                    Distrito = warehouseInfo.get_Distrito(),
+                    Localidade = warehouseInfo.get_Localidade(),
+                    CodigoPostal = warehouseInfo.get_CodigoPostal()
+                }
+            };
         }
 
         public static List<Warehouse> GetWarehouses(string productId)
@@ -125,17 +109,17 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new Warehouse
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Armazem")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao")),
+                    Identificador = TypeParser.String(queryObject.Valor("Armazem")),
+                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
                     Stock = TypeParser.Double(queryObject.Valor("Stock")),
 
                     Location = new Address
                     {
-                        PostalCode = TypeParser.String(queryObject.Valor("Cp")),
-                        Street = TypeParser.String(queryObject.Valor("Morada")),
-                        Country = TypeParser.String(queryObject.Valor("Pais")),
-                        Parish = TypeParser.String(queryObject.Valor("Localidade")),
-                        State = TypeParser.String(queryObject.Valor("Distrito")),
+                        CodigoPostal = TypeParser.String(queryObject.Valor("Cp")),
+                        Morada = TypeParser.String(queryObject.Valor("Morada")),
+                        Pais = TypeParser.String(queryObject.Valor("Pais")),
+                        Localidade = TypeParser.String(queryObject.Valor("Localidade")),
+                        Distrito = TypeParser.String(queryObject.Valor("Distrito")),
                     }
                 });
 

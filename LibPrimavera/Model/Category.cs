@@ -6,21 +6,21 @@ namespace FirstREST.LibPrimavera.Model
     public class Category
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identificador
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string Descricao
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "length")]
-        public int NumberProducts
+        public int NumeroProdutos
         {
             get;
             set;
@@ -30,21 +30,21 @@ namespace FirstREST.LibPrimavera.Model
     public class CategoryProducts
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identificador
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string Descricao
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "products")]
-        public List<ProductListing> Products
+        public List<ProductListing> Produtos
         {
             get;
             set;

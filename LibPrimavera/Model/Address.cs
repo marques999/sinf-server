@@ -7,28 +7,28 @@ namespace FirstREST.LibPrimavera.Model
     public class Address
     {
         [JsonProperty(PropertyName = "address")]
-        public string Street
+        public string Morada
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "postal")]
-        public string PostalCode
+        public string CodigoPostal
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "parish")]
-        public string Parish
+        public string Localidade
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "state")]
-        public string State
+        public string Distrito
         {
             get;
             set;
@@ -36,7 +36,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [DefaultValue("PT")]
         [JsonProperty(PropertyName = "country")]
-        public string Country
+        public string Pais
         {
             get;
             set;

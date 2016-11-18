@@ -53,9 +53,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -72,13 +72,6 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Status = "ACTIVO";
-                    jsonObject.Identifier = "accountId";
-                    jsonObject.DateCreated = DateTime.Now;
-                    jsonObject.DateModified = jsonObject.DateCreated;
-
-                    System.Diagnostics.Debug.Print(jsonObject.DateModified.ToString());
-
                     if (CustomerIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -88,9 +81,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -107,8 +100,6 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.DateModified = DateTime.Now;
-
                     if (CustomerIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -118,9 +109,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -146,9 +137,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

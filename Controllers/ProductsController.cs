@@ -21,11 +21,11 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.List());
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -42,7 +42,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ProductIntegration.View(Thread.CurrentPrincipal.Identity.Name, Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    var queryResult = ProductIntegration.View(Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
                     if (queryResult == null)
                     {

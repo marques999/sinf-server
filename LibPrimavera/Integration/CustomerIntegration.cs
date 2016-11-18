@@ -12,26 +12,6 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class CustomerIntegration
     {
-        private static SqlColumn[] sqlColumnsFull =
-        {
-            new SqlColumn("CLIENTES.Cliente", null),
-            new SqlColumn("CLIENTES.Situacao", null),
-            new SqlColumn("CLIENTES.Nome", null),
-            new SqlColumn("CLIENTES.Moeda", null),
-            new SqlColumn("CLIENTES.NumContrib", null),
-            new SqlColumn("CLIENTES.EnderecoWeb", null),
-            new SqlColumn("CLIENTES.DataCriacao", null),
-            new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
-            new SqlColumn("CLIENTES.EncomendasPendentes", null),
-            new SqlColumn("CLIENTES.TotalDeb", null),
-            new SqlColumn("CLIENTES.Fac_Tel", null),
-            new SqlColumn("CLIENTES.Fac_Cp", null),
-            new SqlColumn("CLIENTES.Fac_Mor", null),
-            new SqlColumn("CLIENTES.Pais", null),
-            new SqlColumn("CLIENTES.Fac_Local", null),
-            new SqlColumn("CLIENTES.Distrito", null)
-        };
-
         private static SqlColumn[] sqlColumnsListing =
         {
             new SqlColumn("CLIENTES.Cliente", null),
@@ -52,61 +32,47 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CLIENTES.Distrito", null)
         };
 
-        private static SqlColumn[] sqlColumnsReference =
-        {
-            new SqlColumn("CLIENTES.Cliente", null),
-            new SqlColumn("CLIENTES.Nome", null)
-        };
-
-        private static Customer GenerateFull(StdBELista queryResult)
+        private static Customer GenerateFull(GcpBECliente customerInfo)
         {
             return new Customer()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
-                Name = TypeParser.String(queryResult.Valor("Nome")),
-                Currency = TypeParser.String(queryResult.Valor("Moeda")),
-                Status = TypeParser.String(queryResult.Valor("Situacao")),
-                Debito = TypeParser.Double(queryResult.Valor("TotalDeb")),
-                TaxNumber = TypeParser.String(queryResult.Valor("NumContrib")),
-                Pending = TypeParser.Double(queryResult.Valor("EncomendasPendentes")),
-                DateCreated = TypeParser.Date(queryResult.Valor("DataCriacao")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
-                Website = TypeParser.String(queryResult.Valor("EnderecoWeb")),
-                Phone = TypeParser.String(queryResult.Valor("Fac_Tel")),
-
-                Location = new Address
+                Identficador = customerInfo.get_Cliente(),
+                NomeFiscal = customerInfo.get_Nome(),
+                Moeda = customerInfo.get_Moeda(),
+                Estado = customerInfo.get_Situacao(),
+                Debito = customerInfo.get_DebitoContaCorrente(),
+                NumContribuinte = customerInfo.get_NumContribuinte(),
+                Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
+                CriadoEm = customerInfo.get_DataCriacao(),
+                ModificadoEm = customerInfo.get_DataUltimaActualizacao(),
+                EnderecoWeb = customerInfo.get_EnderecoWeb(),
+                Particular = customerInfo.get_PessoaSingular(),
+                Telefone = customerInfo.get_Telefone(),
+                Telefone2 = customerInfo.get_Telefone2(),
+                Localizacao = new Address
                 {
-                    PostalCode = TypeParser.String(queryResult.Valor("Fac_Cp")),
-                    Street = TypeParser.String(queryResult.Valor("Fac_Mor")),
-                    Country = TypeParser.String(queryResult.Valor("Pais")),
-                    Parish = TypeParser.String(queryResult.Valor("Fac_Local")),
-                    State = TypeParser.String(queryResult.Valor("Distrito"))
+                    CodigoPostal = customerInfo.get_CodigoPostal(),
+                    Morada = customerInfo.get_Morada(),
+                    Pais = customerInfo.get_Pais(),
+                    Localidade = customerInfo.get_Localidade(),
+                    Distrito = customerInfo.get_Distrito()
                 }
             };
         }
 
-        private static CustomerListing GenerateListing(StdBELista queryResult)
+        private static CustomerListing GenerateListing(StdBELista customerInfo)
         {
             return new CustomerListing()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
-                Name = TypeParser.String(queryResult.Valor("Nome")),
-                Status = TypeParser.String(queryResult.Valor("Situacao")),
-                Debito = TypeParser.Double(queryResult.Valor("TotalDeb")),
-                Pending = TypeParser.Double(queryResult.Valor("EncomendasPendentes")),
-                DateModified = TypeParser.Date(queryResult.Valor("DataUltimaActualizacao")),
-                Address = TypeParser.String(queryResult.Valor("Fac_Mor")),
-                Country = TypeParser.String(queryResult.Valor("Pais")),
-                State = TypeParser.String(queryResult.Valor("Distrito"))
-            };
-        }
-
-        private static Reference GenerateReference(StdBELista queryResult)
-        {
-            return new Reference
-            {
-                Identifier = TypeParser.String(queryResult.Valor("Cliente")),
-                Name = TypeParser.String(queryResult.Valor("Nome"))
+                Identifier = TypeParser.String(customerInfo.Valor("Cliente")),
+                Name = TypeParser.String(customerInfo.Valor("Nome")),
+                Status = TypeParser.String(customerInfo.Valor("Situacao")),
+                Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
+                Pending = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
+                DateModified = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
+                Address = TypeParser.String(customerInfo.Valor("Fac_Mor")),
+                Country = TypeParser.String(customerInfo.Valor("Pais")),
+                State = TypeParser.String(customerInfo.Valor("Distrito"))
             };
         }
 
@@ -139,158 +105,159 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Customer View(string sessionId, string paramId)
+        public static Customer View(string sessionId, string customerId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
+
+            if (customersTable.Existe(customerId) == false)
             {
                 return null;
             }
 
-            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("CLIENTES")
-                .Columns(sqlColumnsFull)
-                .Where("CLIENTES.Cliente", Comparison.Equals, paramId)));
+            return GenerateFull(customersTable.Edita(customerId));
         }
 
-        public static Reference Reference(string paramId)
+        public static Reference Reference(string customerId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.Comercial.Clientes.Existe(paramId) == false)
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
+
+            if (customersTable.Existe(customerId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
-            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("CLIENTES")
-                .Columns(sqlColumnsReference)
-                .Where("Cliente", Comparison.Equals, paramId)));
+            return new Reference(customerId, customersTable.DaNome(customerId));
         }
 
-        private static void SetFields(GcpBECliente selectedRow, Customer paramObject)
+        private static void SetFields(GcpBECliente customerInfo, Customer jsonObject)
         {
-            if (paramObject.Name != null)
+            if (jsonObject.NomeFiscal != null)
             {
-                selectedRow.set_Nome(paramObject.Name.Trim());
+                customerInfo.set_Nome(jsonObject.NomeFiscal.Trim());
             }
 
-            if (paramObject.Status != null)
+            if (jsonObject.Estado != null)
             {
-                selectedRow.set_Situacao(paramObject.Status.Trim());
+                customerInfo.set_Situacao(jsonObject.Estado.Trim());
             }
 
-            if (paramObject.Currency != null)
+            if (jsonObject.Moeda != null)
             {
-                selectedRow.set_Moeda(paramObject.Currency.Trim());
+                customerInfo.set_Moeda(jsonObject.Moeda.Trim());
             }
 
-            if (paramObject.TaxNumber != null)
+            if (jsonObject.NumContribuinte != null)
             {
-                selectedRow.set_NumContribuinte(paramObject.TaxNumber.Trim());
+                customerInfo.set_NumContribuinte(jsonObject.NumContribuinte.Trim());
             }
 
-            if (paramObject.DateModified != null)
+            if (jsonObject.ModificadoEm != null)
             {
-                selectedRow.set_DataUltimaActualizacao(paramObject.DateModified);
+                customerInfo.set_DataUltimaActualizacao(jsonObject.ModificadoEm);
             }
 
-            if (paramObject.Phone != null)
+            if (jsonObject.Telefone != null)
             {
-                selectedRow.set_Telefone(paramObject.Phone.Trim());
+                customerInfo.set_Telefone(jsonObject.Telefone.Trim());
             }
 
-            if (paramObject.Website != null)
+            if (jsonObject.EnderecoWeb != null)
             {
-                selectedRow.set_EnderecoWeb(paramObject.Website.Trim());
+                customerInfo.set_EnderecoWeb(jsonObject.EnderecoWeb.Trim());
             }
 
-            if (paramObject.Location != null)
+            if (jsonObject.Localizacao != null)
             {
-                var objectLocation = paramObject.Location;
+                var objectLocation = jsonObject.Localizacao;
 
-                if (objectLocation.Street != null)
+                if (objectLocation.Morada != null)
                 {
-                    selectedRow.set_Morada(paramObject.Location.Street.Trim());
+                    customerInfo.set_Morada(jsonObject.Localizacao.Morada.Trim());
                 }
 
-                if (objectLocation.State != null)
+                if (objectLocation.Distrito != null)
                 {
-                    selectedRow.set_Distrito(paramObject.Location.State.Trim());
+                    customerInfo.set_Distrito(jsonObject.Localizacao.Distrito.Trim());
                 }
 
-                if (objectLocation.Parish != null)
+                if (objectLocation.Localidade != null)
                 {
-                    selectedRow.set_Localidade(paramObject.Location.Parish.Trim());
+                    customerInfo.set_Localidade(jsonObject.Localizacao.Localidade.Trim());
                 }
 
-                if (objectLocation.PostalCode != null)
+                if (objectLocation.CodigoPostal != null)
                 {
-                    selectedRow.set_CodigoPostal(paramObject.Location.PostalCode.Trim());
+                    customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal.Trim());
                 }
 
-                if (objectLocation.Country != null)
+                if (objectLocation.Pais != null)
                 {
-                    selectedRow.set_Pais(paramObject.Location.Country.Trim());
+                    customerInfo.set_Pais(jsonObject.Localizacao.Pais.Trim());
                 }
             }
         }
 
-        public static bool Update(string sessionId, string customerId, Customer paramObject)
+        public static bool Update(string sessionId, string customerId, Customer jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var customerTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (customerTable.Existe(customerId) == false)
+            if (customersTable.Existe(customerId) == false)
             {
                 return false;
             }
 
-            var linhaTabela = customerTable.Edita(customerId);
+            var customerInfo = customersTable.Edita(customerId);
 
-            if (linhaTabela.get_Vendedor() != customerId)
+            if (customerInfo.get_Vendedor() != sessionId)
             {
                 return false;
             }
 
-            linhaTabela.set_EmModoEdicao(true);
-            SetFields(linhaTabela, paramObject);
-            customerTable.Actualiza(linhaTabela);
+            jsonObject.ModificadoEm = DateTime.Now;
+            customerInfo.set_EmModoEdicao(true);
+            SetFields(customerInfo, jsonObject);
+            customersTable.Actualiza(customerInfo);
 
             return true;
         }
 
-        public static bool Insert(string sessionId, Customer paramObject)
+        public static bool Insert(string sessionId, Customer jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identifier;
-            var selectedTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customerInfo = new GcpBECliente();
+            var customerId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (selectedTable.Existe(selectedId))
+            if (customersTable.Existe(customerId))
             {
                 return false;
             }
-
-            var selectedRow = new GcpBECliente();
             
-            selectedRow.set_Cliente(selectedId);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            jsonObject.Estado = "ACTIVO";
+            jsonObject.CriadoEm = DateTime.Now;
+            jsonObject.ModificadoEm = jsonObject.CriadoEm;
+            customerInfo.set_Cliente(customerId);
+            SetFields(customerInfo, jsonObject);
+            customersTable.Actualiza(customerInfo);
 
             return true;
         }
@@ -302,19 +269,19 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var customerTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
-            if (customerTable.Existe(customerId) == false)
+            if (customersTable.Existe(customerId) == false)
             {
                 return false;
             }
 
-            if (customerTable.Consulta(customerId).get_Vendedor() != customerId)
+            if (customersTable.Consulta(customerId).get_Vendedor() != sessionId)
             {
                 return false;
             }
 
-            customerTable.Remove(customerId);
+            customersTable.Remove(customerId);
 
             return true;
         }

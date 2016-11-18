@@ -22,9 +22,9 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Thread.CurrentPrincipal.Identity.Name));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -52,9 +52,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -71,9 +71,6 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = "contactId";
-                    jsonObject.DateModified = DateTime.Now;
-
                     if (ContactIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -83,9 +80,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -102,8 +99,6 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.DateModified = DateTime.Now;
-
                     if (ContactIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -113,9 +108,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -126,7 +121,6 @@ namespace FirstREST.Controllers
 
         // DELETE api/contacts/{$contactId}/
         // FEATURE: Remover contacto existente
-        [Authorize]
         public HttpResponseMessage Delete(string id)
         {
             if (PrimaveraEngine.IsAuthenticated())
@@ -142,9 +136,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

@@ -6,25 +6,12 @@ using Interop.StdBE900;
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
 using FirstREST.LibPrimavera.Model;
+using Interop.GcpBE900;
 
 namespace FirstREST.LibPrimavera.Integration
 {
     public class ProductIntegration
     {
-        private static SqlColumn[] sqlColumnsFull =
-        {
-            new SqlColumn("ARTIGO.Artigo", null),
-            new SqlColumn("ARTIGO.Descricao", null),
-            new SqlColumn("ARTIGO.CodBarras", null),
-            new SqlColumn("ARTIGO.UnidadeVenda", null),
-            new SqlColumn("ARTIGO.PCMedio", null),
-            new SqlColumn("ARTIGO.Desconto", null),
-            new SqlColumn("ARTIGO.Iva", null),
-            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),
-            new SqlColumn("FAMILIAS.Descricao", "Familia"),
-            new SqlColumn("ARTIGO.STKActual", "Stock")
-        };
-
         private static SqlColumn[] sqlColumnsListing =
         {
             new SqlColumn("ARTIGO.Artigo", null),
@@ -36,35 +23,36 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ARTIGO.STKActual", "Stock")
         };
 
-        private static Product GenerateFull(StdBELista queryResult)
+        private static Product GenerateFull(GcpBEArtigo productInfo)
         {
-            string productId = TypeParser.String(queryResult.Valor("Artigo"));
-
             return new Product()
             {
-                Identifier = productId,
-                Name = TypeParser.String(queryResult.Valor("Descricao")),
-                Barcode = TypeParser.String(queryResult.Valor("CodBarras")),
-                Unit = TypeParser.String(queryResult.Valor("UnidadeVenda")),
-                Price = TypeParser.Double(queryResult.Valor("PCMedio")),
-                Discount = TypeParser.Double(queryResult.Valor("Desconto")),
-                Tax = TypeParser.Double(queryResult.Valor("Iva")),
-                Stock = TypeParser.Double(queryResult.Valor("Stock")),
-                Category = CategoryIntegration.GenerateReference(queryResult),
-                Warehouses = WarehouseIntegration.GetWarehouses(productId)
+                Identificador = productInfo.get_Artigo(),
+                Nome = productInfo.get_Descricao(),
+                CodigoBarras = productInfo.get_CodBarras(),
+                Unidade = productInfo.get_UnidadeVenda(),
+                PrecoMedio = productInfo.get_PCMedio(),
+                Desconto = productInfo.get_Desconto(),
+                IVA = productInfo.get_IVA(),
+                Stock = productInfo.get_StkActual(),
+                Categoria = CategoryIntegration.GenerateReference(productInfo.get_Familia()),
+                Warehouses = WarehouseIntegration.GetWarehouses(productInfo.get_Artigo())
             };
         }
 
-        private static ProductListing GenerateListing(StdBELista queryResult)
+        private static ProductListing GenerateListing(StdBELista productInfo)
         {
             return new ProductListing()
             {
-                Identifier = TypeParser.String(queryResult.Valor("Artigo")),
-                Name = TypeParser.String(queryResult.Valor("Descricao")),
-                Price = TypeParser.Double(queryResult.Valor("PCMedio")),
-                Tax = TypeParser.Double(queryResult.Valor("Iva")),
-                Stock = TypeParser.Double(queryResult.Valor("Stock")),
-                Category = CategoryIntegration.GenerateReference(queryResult)
+                Identifier = TypeParser.String(productInfo.Valor("Artigo")),
+                Name = TypeParser.String(productInfo.Valor("Descricao")),
+                Price = TypeParser.Double(productInfo.Valor("PCMedio")),
+                Tax = TypeParser.Double(productInfo.Valor("Iva")),
+                Stock = TypeParser.Double(productInfo.Valor("Stock")),
+                Category = new Reference(
+                    TypeParser.String(productInfo.Valor("IdFamilia")),
+                    TypeParser.String(productInfo.Valor("Familia"))
+                )
             };
         }
 
@@ -78,7 +66,7 @@ namespace FirstREST.LibPrimavera.Integration
             return lhs.Identifier.CompareTo(rhs.Identifier);
         }
 
-        public static List<ProductListing> List(string sessionId)
+        public static List<ProductListing> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -90,7 +78,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("ARTIGO")
                 .Columns(sqlColumnsListing)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
-            
+
             while (!queryObject.NoFim())
             {
                 queryResult.Add(GenerateListing(queryObject));
@@ -102,23 +90,21 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Product View(string sessionId, string productId)
+        public static Product View(string productId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.Comercial.Artigos.Existe(productId) == false)
+            var productsTable = PrimaveraEngine.Engine.Comercial.Artigos;
+
+            if (productsTable.Existe(productId) == false)
             {
                 return null;
             }
 
-            return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("ARTIGO")
-                .Columns(sqlColumnsFull)
-                .Where("ARTIGO.Artigo", Comparison.Equals, productId)
-                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")));
+            return GenerateFull(productsTable.Edita(productId));
         }
 
         public static List<ProductListing> ByCategory(string categoryId)

@@ -28,9 +28,9 @@ namespace FirstREST.Controllers
                         ActivityInterval.Today
                     ));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -55,9 +55,9 @@ namespace FirstREST.Controllers
                         ActivityInterval.Today
                     ));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -82,9 +82,9 @@ namespace FirstREST.Controllers
                         TypeParser.Activity_Interval(when)
                     ));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -109,9 +109,9 @@ namespace FirstREST.Controllers
                         TypeParser.Activity_Interval(when)
                     ));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -128,10 +128,10 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = "activityId";
-                    jsonObject.DateCreated = DateTime.Now;
+                    jsonObject.Identificador = "activityId";
+                    jsonObject.CriadoEm = DateTime.Now;
                     jsonObject.Status = ActivityStatus.Pendente;
-                    jsonObject.DateModified = jsonObject.DateCreated;
+                    jsonObject.ModificadoEm = jsonObject.CriadoEm;
 
                     if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
@@ -142,9 +142,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -161,8 +161,8 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = id;
-                    jsonObject.DateModified = DateTime.Now;
+                    jsonObject.Identificador = id;
+                    jsonObject.ModificadoEm = DateTime.Now;
 
                     if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
@@ -173,9 +173,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -201,9 +201,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

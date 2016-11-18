@@ -15,6 +15,7 @@ using Interop.ICrmBS900;
 
 using FirstREST.QueryBuilder;
 using FirstREST.LibPrimavera.Model;
+using System.Data.SQLite;
 
 namespace FirstREST.LibPrimavera
 {
@@ -26,6 +27,22 @@ namespace FirstREST.LibPrimavera
             set;
         }
 
+        public static IGcpBSVendedores TabelaVendedores
+        {
+            get
+            {
+                return Engine.Comercial.Vendedores;
+            }
+        }
+
+        public static ICrmBSContactos TabelaContactos
+        {
+            get
+            {
+                return Engine.CRM.Contactos;
+            }
+        }
+
         public static ErpBS Engine
         {
             get;
@@ -34,9 +51,25 @@ namespace FirstREST.LibPrimavera
 
         public static StdBELista Consulta(SqlBuilder queryString)
         {
-            string query = queryString.BuildQuery(); 
+            string query = queryString.BuildQuery();
             System.Diagnostics.Debug.Print(query);
             return Engine.Consulta(query);
+        }
+
+        public static SQLiteDataReader ConsultaSQLite(SqlBuilder queryString)
+        {
+            string query = queryString.BuildQuery();
+            var sqlQuery = sqliteConnection.CreateCommand();
+
+            System.Diagnostics.Debug.Print(query);
+            sqliteConnection.Open();      
+            sqlQuery.CommandText = query; 
+  
+            var sqlResult = sqlQuery.ExecuteReader();
+ 
+            sqliteConnection.Close();
+
+            return sqlResult;
         }
 
         private static Dictionary<string, string> loggedIn = new Dictionary<string, string>();
@@ -56,9 +89,44 @@ namespace FirstREST.LibPrimavera
             return null;
         }
 
+        private static SQLiteConnection sqliteConnection;
+
         static PrimaveraEngine()
         {
             loggedIn.Add("4c3b314d9ec74f7690dd819df973fb82", "marques999");
+        }
+
+        private static bool sqliteInitialized = false;
+
+        public static void InitializeSQLite()
+        {
+            if (sqliteInitialized)
+            {
+                return;
+            }
+
+            sqliteConnection = new SQLiteConnection("Data Source=sinFORCE.sqlite;Version=3;");
+
+            using (var sqlQuery = sqliteConnection.CreateCommand())
+            {
+                sqliteConnection.Open();
+                sqlQuery.CommandText = "SELECT name FROM sqlite_master WHERE name='account'";
+
+                var queryResult = sqlQuery.ExecuteScalar();
+
+                if (queryResult != null && queryResult.ToString() == "account")
+                {
+                    sqliteInitialized = true;
+                }
+                else
+                {
+                    sqlQuery.CommandText = "CREATE TABLE users (username VARCHAR(64), password VARCHAR(64), references INT)";
+                    sqlQuery.ExecuteNonQuery();
+                    sqliteInitialized = true;
+                }
+
+                sqliteConnection.Close();
+            }
         }
 
         public static bool InitializeCompany(string Company, string User, string Password)
@@ -119,6 +187,10 @@ namespace FirstREST.LibPrimavera
         internal static bool ApiLogin(string username, string password)
         {
             return username == "merda" && password == "merda";
+        }
+
+        internal static SQLiteConnection getAuthenticationService()
+        {return sqliteConnection;
         }
     }
 }

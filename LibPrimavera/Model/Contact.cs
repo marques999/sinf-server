@@ -8,28 +8,28 @@ namespace FirstREST.LibPrimavera.Model
     public class Contact
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identficador
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string NomeFiscal
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "title")]
-        public string Title
+        public string Titulo
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "location")]
-        public Address Location
+        public Address Localizacao
         {
             get;
             set;
@@ -43,14 +43,22 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "phone")]
-        public string Phone
+        public string Telefone
+        {
+            get;
+            set;
+        }
+
+
+        [JsonProperty(PropertyName = "phone2")]
+        public string Telefone2
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "mobile")]
-        public string MobilePhone
+        public string Telemovel
         {
             get;
             set;
@@ -58,7 +66,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DateModified
+        public DateTime ModificadoEm
         {
             get;
             set;

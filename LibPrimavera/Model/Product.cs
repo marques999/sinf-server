@@ -21,28 +21,28 @@ namespace FirstREST.LibPrimavera.Model
         /// </summary>
 
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identificador
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string Nome
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "barcode")]
-        public string Barcode
+        public string CodigoBarras
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "units")]
-        public string Unit
+        public string Unidade
         {
             get;
             set;
@@ -63,7 +63,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "price")]
-        public double Price
+        public double PrecoMedio
         {
             get
             {
@@ -83,27 +83,10 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "tax")]
-        public double Tax
+        public string IVA
         {
-            get
-            {
-                return _tax;
-            }
-            set
-            {
-                if (value < 0)
-                {
-                    _tax = 0.0;
-                }
-                else if (value > 100)
-                {
-                    _tax = 1.0;
-                }
-                else
-                {
-                    _tax = value * 0.01;
-                }
-            }
+            get;
+            set;
         }
 
         [JsonProperty(PropertyName = "stock")]
@@ -127,7 +110,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "discount")]
-        public double Discount
+        public double Desconto
         {
             get
             {
@@ -158,7 +141,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "category")]
-        public CategoryReference Category
+        public Reference Categoria
         {
             get;
             set;
@@ -258,7 +241,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "category")]
-        public CategoryReference Category
+        public Reference Category
         {
             get;
             set;

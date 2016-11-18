@@ -19,9 +19,9 @@ namespace FirstREST.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK, LocationIntegration.List());
             }
-            catch
+            catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
 
@@ -42,9 +42,9 @@ namespace FirstREST.Controllers
                     return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
             }
         }
     }

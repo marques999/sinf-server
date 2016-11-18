@@ -22,9 +22,9 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(token));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -52,9 +52,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -72,9 +72,9 @@ namespace FirstREST.Controllers
                 try
                 {
                     jsonObject.Active = true;
-                    jsonObject.Identifier = "leadId";
+                    jsonObject.Identficador = "leadId";
                     jsonObject.DateCreated = DateTime.Now;
-                    jsonObject.DateModified = jsonObject.DateCreated;
+                    jsonObject.ModificadoEm = jsonObject.DateCreated;
 
                     if (LeadIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
@@ -85,9 +85,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -104,8 +104,8 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    jsonObject.Identifier = id;
-                    jsonObject.DateModified = DateTime.Now;
+                    jsonObject.Identficador = id;
+                    jsonObject.ModificadoEm = DateTime.Now;
 
                     if (LeadIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
@@ -116,9 +116,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else
@@ -144,9 +144,9 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

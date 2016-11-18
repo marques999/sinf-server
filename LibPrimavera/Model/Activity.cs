@@ -19,7 +19,7 @@ namespace FirstREST.LibPrimavera.Model
         /// </summary>
 
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identificador
         {
             get;
             set;
@@ -33,7 +33,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "description")]
-        public string Description
+        public string Descricao
         {
             get;
             set;
@@ -61,40 +61,21 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "priority")]
-        public int Priority
+        public string Prioridade
         {
-            get
-            {
-                return _priority;
-            }
-            set
-            {
-                if (value < 0)
-                {
-                    _priority = 0;
-                }
-                else if (value > 5)
-                {
-                    _priority = 5;
-                }
-                else
-                {
-                    _priority = value;
-                }
-            }
+            get;
+            set;
         }
 
         [JsonProperty(PropertyName = "duration")]
-        public int Duration
+        public int Duracao
         {
-            get
-            {
-                return (int)((End - Start).TotalMinutes);
-            }
+            get;
+            set;
         }
 
         [JsonProperty(PropertyName = "duration")]
-        public string Owner
+        public string Responsavel
         {
             get;
             set;
@@ -102,7 +83,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "start")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime Start
+        public DateTime DataInicio
         {
             get;
             set;
@@ -110,7 +91,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "end")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime End
+        public DateTime DataFim
         {
             get;
             set;
@@ -118,7 +99,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateCreated")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DateCreated
+        public DateTime CriadoEm
         {
             get;
             set;
@@ -126,14 +107,14 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DateModified
+        public DateTime ModificadoEm
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "entityType")]
-        public int EntityType
+        public string TipoEntidade
         {
             get;
             set;
