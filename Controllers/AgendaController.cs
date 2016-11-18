@@ -164,7 +164,7 @@ namespace FirstREST.Controllers
                     jsonObject.Identificador = id;
                     jsonObject.ModificadoEm = DateTime.Now;
 
-                    if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

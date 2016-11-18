@@ -5,31 +5,45 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Contact
+    public class ContactListing
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identficador
+        public string Identifier
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string NomeFiscal
+        public string Name
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "title")]
-        public string Titulo
+        public string Title
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "location")]
-        public Address Localizacao
+        [JsonProperty(PropertyName = "address")]
+        public string Address
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "state")]
+        public string State
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "country")]
+        public string Country
         {
             get;
             set;
@@ -42,22 +56,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "phone")]
-        public string Telefone
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "phone2")]
-        public string Telefone2
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "mobile")]
-        public string Telemovel
+        public string MobilePhone
         {
             get;
             set;
@@ -65,14 +65,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime ModificadoEm
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "owner")]
-        public Reference Owner
+        public DateTime DateModified
         {
             get;
             set;

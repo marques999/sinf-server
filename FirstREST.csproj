@@ -262,7 +262,13 @@
     <Compile Include="LibPrimavera\HashID.cs" />
     <Compile Include="LibPrimavera\Integration\CustomerIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\AgendaIntegration.cs" />
+    <Compile Include="LibPrimavera\Model\CategoryListing.cs" />
+    <Compile Include="LibPrimavera\Model\ContactListing.cs" />
+    <Compile Include="LibPrimavera\Model\CustomerListing.cs" />
+    <Compile Include="LibPrimavera\Model\LeadListing.cs" />
     <Compile Include="LibPrimavera\Model\Representative.cs" />
+    <Compile Include="LibPrimavera\Model\UserLogin.cs" />
+    <Compile Include="LibPrimavera\Model\UserPassword.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="LibPrimavera\Integration\CategoryIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\ContactIntegration.cs" />
@@ -278,7 +284,7 @@
     <Compile Include="LibPrimavera\Model\EntityType.cs" />
     <Compile Include="LibPrimavera\Model\Location.cs" />
     <Compile Include="LibPrimavera\Model\Reference.cs" />
-    <Compile Include="LibPrimavera\Model\User.cs" />
+    <Compile Include="LibPrimavera\Model\UserForm.cs" />
     <Compile Include="LibPrimavera\Integration\WarehouseIntegration.cs" />
     <Compile Include="LibPrimavera\Model\Activity.cs" />
     <Compile Include="LibPrimavera\Model\Category.cs" />

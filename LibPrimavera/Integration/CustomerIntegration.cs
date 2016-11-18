@@ -66,9 +66,9 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 Identifier = TypeParser.String(customerInfo.Valor("Cliente")),
                 Name = TypeParser.String(customerInfo.Valor("Nome")),
-                Status = TypeParser.String(customerInfo.Valor("Situacao")),
+                Estado = TypeParser.String(customerInfo.Valor("Situacao")),
                 Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
-                Pending = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
+                Pendentes = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
                 DateModified = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
                 Address = TypeParser.String(customerInfo.Valor("Fac_Mor")),
                 Country = TypeParser.String(customerInfo.Valor("Pais")),

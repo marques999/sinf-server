@@ -37,21 +37,16 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        private static UserData generateUser(SQLiteDataReader sqliteQuery, Interop.StdBE900.StdBELista queryObject)
+        private static Representative generateUser(SQLiteDataReader sqliteQuery, Interop.StdBE900.StdBELista queryObject)
         {
             if (sqliteQuery.Read())
             {
-                return new UserData
+                return new Representative
                 {
-                    Username = sqliteQuery.GetString(sqliteQuery.GetOrdinal("username")),
-                    Representative = new Representative
-                    {
-                        Name = queryObject.Valor("Nome"),
-                        Email = queryObject.Valor("Email"),
-                        Mobile = queryObject.Valor("Telemovel"),
-                        Identifier = queryObject.Valor("Vendedor")
-
-                    }
+                    Name = queryObject.Valor("Nome"),
+                    Email = queryObject.Valor("Email"),
+                    Mobile = queryObject.Valor("Telemovel"),
+                    Identifier = queryObject.Valor("Vendedor")
                 };
             }
             else

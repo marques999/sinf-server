@@ -17,14 +17,14 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("COUNT(*)", "Count")
         };
 
-        public static List<Category> List()
+        public static List<CategoryListing> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Category>();
+            var queryResult = new List<CategoryListing>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("FAMILIAS")
                 .Columns(sqlColumnsFull)
@@ -33,7 +33,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(new Category()
+                queryResult.Add(new CategoryListing()
                 {
                     Identificador = TypeParser.String(queryObject.Valor("Familia")),
                     Descricao = TypeParser.String(queryObject.Valor("Descricao")),
@@ -43,7 +43,7 @@ namespace FirstREST.LibPrimavera.Integration
                 queryObject.Seguinte();
             }
 
-            queryResult.Sort(delegate(Category lhs, Category rhs)
+            queryResult.Sort(delegate(CategoryListing lhs, CategoryListing rhs)
             {
                 if (lhs.Identificador == null || rhs.Identificador == null)
                 {
@@ -56,7 +56,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static CategoryProducts Get(string categoryId)
+        public static Category Get(string categoryId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -70,7 +70,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return new CategoryProducts
+            return new Category
             {
                 Identificador = categoryId,
                 Descricao = categoriesTable.DaDescricao(categoryId),
