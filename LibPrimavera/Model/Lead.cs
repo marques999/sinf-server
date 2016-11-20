@@ -5,10 +5,10 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Lead : Contact
+    public class Lead : Entity
     {
         [JsonProperty(PropertyName = "active")]
-        public bool Active
+        public bool Activo
         {
             get;
             set;
@@ -16,7 +16,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateCreated")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DateCreated
+        public DateTime DataCriacao
         {
             get;
             set;

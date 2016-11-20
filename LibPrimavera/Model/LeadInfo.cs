@@ -5,18 +5,17 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Opportunity
+    public class LeadInfo : Lead
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identificador
+        public string Identficador
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataCriacao
+        [JsonProperty(PropertyName = "owner")]
+        public string Responsavel
         {
             get;
             set;
@@ -24,7 +23,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataModificacao
+        public DateTime ModificadoEm
         {
             get;
             set;

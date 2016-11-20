@@ -31,7 +31,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar perfil
         public HttpResponseMessage Get(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -59,7 +59,7 @@ namespace FirstREST.Controllers
 
         // POST api/users/
         // FEATURE: Registar vendedor
-        public HttpResponseMessage Post([FromBody]UserForm jsonObject)
+        public HttpResponseMessage Post([FromBody]UserInfo jsonObject)
         {
             try
             {
@@ -75,62 +75,6 @@ namespace FirstREST.Controllers
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-            }
-        }
-
-        // PUT api/users/{$userId}/
-        // FEATURE: Alterar password
-        public HttpResponseMessage Put(string id, [FromBody]UserPassword jsonObject)
-        {
-            if (PrimaveraEngine.IsAuthenticated())
-            {
-                try
-                {
-                    if (UserIntegration.Update(id, jsonObject))
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
-            }
-        }
-
-        // DELETE api/users/{$userId}/
-        // FEATURE: Apagar vendedor
-        public HttpResponseMessage Delete(string id)
-        {
-            if (PrimaveraEngine.IsAuthenticated())
-            {
-                try
-                {
-                    if (UserIntegration.Delete(Thread.CurrentPrincipal.Identity.Name))
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
             }
         }
     }

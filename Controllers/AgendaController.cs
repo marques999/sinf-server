@@ -16,7 +16,7 @@ namespace FirstREST.Controllers
         // Feature: Visualizar agenda
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -43,7 +43,7 @@ namespace FirstREST.Controllers
         // Feature: Visualizar agenda
         public HttpResponseMessage Get(string type)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -70,7 +70,7 @@ namespace FirstREST.Controllers
         // Feature: Visualizar agenda
         public HttpResponseMessage Get(string type, string when)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -97,7 +97,7 @@ namespace FirstREST.Controllers
         // Feature: Visualizar agenda
         public HttpResponseMessage Get([FromUri] string type, [FromUri] string when, [FromUri] string status)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -124,15 +124,10 @@ namespace FirstREST.Controllers
         // Feature: Agendar actividade
         public HttpResponseMessage Post([FromBody] Activity jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    jsonObject.Identificador = "activityId";
-                    jsonObject.CriadoEm = DateTime.Now;
-                    jsonObject.Status = ActivityStatus.Pendente;
-                    jsonObject.ModificadoEm = jsonObject.CriadoEm;
-
                     if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -157,13 +152,10 @@ namespace FirstREST.Controllers
         // Feature: Modificar actividade existente
         public HttpResponseMessage Post(string id, [FromBody] Activity jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    jsonObject.Identificador = id;
-                    jsonObject.ModificadoEm = DateTime.Now;
-
                     if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -188,7 +180,7 @@ namespace FirstREST.Controllers
         // FEATURE: Remover actividade existente
         public HttpResponseMessage Delete(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

@@ -38,29 +38,29 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Warehouse>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARMAZENS").Columns(sqlColumnsListing));
+            var warehouseList = new List<Warehouse>();
+            var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARMAZENS").Columns(sqlColumnsListing));
 
-            while (!queryObject.NoFim())
+            while (!warehouseInfo.NoFim())
             {
-                queryResult.Add(new Warehouse
+                warehouseList.Add(new Warehouse
                 {
-                    Identificador = TypeParser.String(queryObject.Valor("Armazem")),
-                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
-                    Location = new Address
+                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem")),
+                    Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
+                    Localizacao = new Address
                     {
-                        CodigoPostal = TypeParser.String(queryObject.Valor("Cp")),
-                        Morada = TypeParser.String(queryObject.Valor("Morada")),
-                        Pais = TypeParser.String(queryObject.Valor("Pais")),
-                        Localidade = TypeParser.String(queryObject.Valor("Localidade")),
-                        Distrito = TypeParser.String(queryObject.Valor("Distrito")),
+                        CodigoPostal = TypeParser.String(warehouseInfo.Valor("Cp")),
+                        Morada = TypeParser.String(warehouseInfo.Valor("Morada")),
+                        Pais = TypeParser.String(warehouseInfo.Valor("Pais")),
+                        Localidade = TypeParser.String(warehouseInfo.Valor("Localidade")),
+                        Distrito = TypeParser.String(warehouseInfo.Valor("Distrito")),
                     }
                 });
 
-                queryObject.Seguinte();
+                warehouseInfo.Seguinte();
             }
 
-            return queryResult;
+            return warehouseList;
         }
 
         public static Warehouse Get(string warehouseId)
@@ -71,6 +71,12 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var warehousesTable = PrimaveraEngine.Engine.Comercial.Armazens;
+
+            if (warehousesTable.Existe(warehouseId) == false)
+            {
+                return null;
+            }
+
             var warehouseInfo = warehousesTable.Edita(warehouseId);
 
             return new Warehouse
@@ -78,8 +84,8 @@ namespace FirstREST.LibPrimavera.Integration
                 Identificador = warehouseInfo.get_Armazem(),
                 Descricao = warehouseInfo.get_Descricao(),
                 Telefone = warehouseInfo.get_Telefone(),
-                ModificadoEm = warehouseInfo.get_DataUltimaActualizacao(),
-                Location = new Address
+                DataModificacao = warehouseInfo.get_DataUltimaActualizacao(),
+                Localizacao = new Address
                 {
                     Pais = warehouseInfo.get_Pais(),
                     Morada = warehouseInfo.get_Morada(),
@@ -97,36 +103,35 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Warehouse>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var warehouseList = new List<Warehouse>();
+            var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGOARMAZEM")
                 .Columns(sqlColumnsAggregate)
                 .Where("ARTIGOARMAZEM.Artigo", Comparison.Equals, productId)
                 .LeftJoin("ARMAZENS", "Armazem", Comparison.Equals, "ARTIGOARMAZEM", "Armazem")
                 .GroupBy(new string[] { "ARTIGOARMAZEM.Artigo", "ARMAZENS.Armazem" }));
 
-            while (!queryObject.NoFim())
+            while (!warehouseInfo.NoFim())
             {
-                queryResult.Add(new Warehouse
+                warehouseList.Add(new Warehouse
                 {
-                    Identificador = TypeParser.String(queryObject.Valor("Armazem")),
-                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
-                    Stock = TypeParser.Double(queryObject.Valor("Stock")),
-
-                    Location = new Address
+                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem")),
+                    Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
+                    Stock = TypeParser.Double(warehouseInfo.Valor("Stock")),
+                    Localizacao = new Address
                     {
-                        CodigoPostal = TypeParser.String(queryObject.Valor("Cp")),
-                        Morada = TypeParser.String(queryObject.Valor("Morada")),
-                        Pais = TypeParser.String(queryObject.Valor("Pais")),
-                        Localidade = TypeParser.String(queryObject.Valor("Localidade")),
-                        Distrito = TypeParser.String(queryObject.Valor("Distrito")),
+                        Pais = TypeParser.String(warehouseInfo.Valor("Pais")),
+                        Morada = TypeParser.String(warehouseInfo.Valor("Morada")),
+                        CodigoPostal = TypeParser.String(warehouseInfo.Valor("Cp")),
+                        Distrito = TypeParser.String(warehouseInfo.Valor("Distrito")),
+                        Localidade = TypeParser.String(warehouseInfo.Valor("Localidade"))
                     }
                 });
 
-                queryObject.Seguinte();
+                warehouseInfo.Seguinte();
             }
 
-            return queryResult;
+            return warehouseList;
         }
     }
 }

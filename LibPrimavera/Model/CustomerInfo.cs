@@ -5,10 +5,31 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Opportunity
+    public class CustomerInfo : Customer
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identificador
+        public string Identficador
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "owner")]
+        public string Responsavel
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "debt")]
+        public double Debito
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "pending")]
+        public double Pendentes
         {
             get;
             set;

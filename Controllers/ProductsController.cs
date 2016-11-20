@@ -17,7 +17,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar produto
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -38,7 +38,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar produto
         public HttpResponseMessage Get(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

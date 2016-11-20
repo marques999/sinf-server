@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+
+using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Location
+    public class QuoteInfo : Quote
     {
         [JsonProperty(PropertyName = "id")]
         public string Identificador
@@ -11,8 +13,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "name")]
-        public string Descricao
+        [JsonProperty(PropertyName = "products")]
+        public new List<ProductOrder> Produtos
         {
             get;
             set;

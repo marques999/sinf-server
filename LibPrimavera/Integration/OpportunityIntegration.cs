@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using FirstREST.LibPrimavera.Model;
 using Interop.ICrmBS900;
 using Interop.CrmBE900;
+
+using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration
 {
@@ -68,7 +69,6 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            jsonObject.DateModified = DateTime.Now;
             opportunityInfo.set_EmModoEdicao(true);
             SetFields(opportunityInfo, jsonObject);
             opportunitiesTable.Actualiza(opportunityInfo);
@@ -83,7 +83,8 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var opportunityId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
+            var opportunityInfo = new CrmBEOportunidadeVenda();
+            var opportunityId = PrimaveraEngine.GenerateHash();
             var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
 
             if (opportunitiesTable.Existe(opportunityId))
@@ -91,11 +92,10 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            var opportunityInfo = new CrmBEOportunidadeVenda();
-
-            jsonObject.DateCreated = DateTime.Now;
-            jsonObject.DateModified = jsonObject.DateCreated;
-            opportunityInfo.set_ID(opportunityId);
+            opportunityInfo.set_Oportunidade(opportunityId);
+            opportunityInfo.set_CriadoPor(sessionId);
+            opportunityInfo.set_DataCriacao(DateTime.Now);
+            opportunityInfo.set_Oportunidade(opportunityId);
             opportunitiesTable.Actualiza(opportunityInfo);
 
             return true;
@@ -115,12 +115,16 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            if (opportunitiesTable.Edita(opportunityId).get_Vendedor() != sessionId)
+            var opportunityInfo = opportunitiesTable.Edita(opportunityId);
+
+            if (opportunityInfo.get_Vendedor() != sessionId)
             {
                 return false;
             }
 
-            opportunitiesTable.Remove(opportunityId);
+            opportunityInfo.set_EmModoEdicao(true);
+            opportunityInfo.set_EstadoVenda(-1);
+            opportunitiesTable.Actualiza(opportunityInfo);
 
             return true;
         }

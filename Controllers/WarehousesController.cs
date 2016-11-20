@@ -15,7 +15,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar armazéns
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -36,7 +36,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar armazém
         public HttpResponseMessage Get(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

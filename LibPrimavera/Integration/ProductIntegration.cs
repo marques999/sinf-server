@@ -12,7 +12,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ProductIntegration
     {
-        private static SqlColumn[] sqlColumnsListing =
+        private static SqlColumn[] sqlProdutos =
         {
             new SqlColumn("ARTIGO.Artigo", null),
             new SqlColumn("ARTIGO.Descricao", null),
@@ -23,47 +23,14 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ARTIGO.STKActual", "Stock")
         };
 
-        private static Product GenerateFull(GcpBEArtigo productInfo)
-        {
-            return new Product()
-            {
-                Identificador = productInfo.get_Artigo(),
-                Nome = productInfo.get_Descricao(),
-                CodigoBarras = productInfo.get_CodBarras(),
-                Unidade = productInfo.get_UnidadeVenda(),
-                PrecoMedio = productInfo.get_PCMedio(),
-                Desconto = productInfo.get_Desconto(),
-                IVA = productInfo.get_IVA(),
-                Stock = productInfo.get_StkActual(),
-                Categoria = CategoryIntegration.GenerateReference(productInfo.get_Familia()),
-                Warehouses = WarehouseIntegration.GetWarehouses(productInfo.get_Artigo())
-            };
-        }
-
-        private static ProductListing GenerateListing(StdBELista productInfo)
-        {
-            return new ProductListing()
-            {
-                Identifier = TypeParser.String(productInfo.Valor("Artigo")),
-                Name = TypeParser.String(productInfo.Valor("Descricao")),
-                Price = TypeParser.Double(productInfo.Valor("PCMedio")),
-                Tax = TypeParser.Double(productInfo.Valor("Iva")),
-                Stock = TypeParser.Double(productInfo.Valor("Stock")),
-                Category = new Reference(
-                    TypeParser.String(productInfo.Valor("IdFamilia")),
-                    TypeParser.String(productInfo.Valor("Familia"))
-                )
-            };
-        }
-
         private static int SortProduct(ProductListing lhs, ProductListing rhs)
         {
-            if (lhs.Identifier == null || rhs.Identifier == null)
+            if (lhs.Identificador == null || rhs.Identificador == null)
             {
                 return -1;
             }
 
-            return lhs.Identifier.CompareTo(rhs.Identifier);
+            return lhs.Identificador.CompareTo(rhs.Identificador);
         }
 
         public static List<ProductListing> List()
@@ -73,21 +40,33 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<ProductListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var productList = new List<ProductListing>();
+            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlColumnsListing)
+                .Columns(sqlProdutos)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
 
-            while (!queryObject.NoFim())
+            while (!productInfo.NoFim())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                productList.Add(new ProductListing()
+                {
+                    Identificador = TypeParser.String(productInfo.Valor("Artigo")),
+                    Descricao = TypeParser.String(productInfo.Valor("Descricao")),
+                    Preco = TypeParser.Double(productInfo.Valor("PCMedio")),
+                    IVA = TypeParser.Double(productInfo.Valor("Iva")),
+                    Stock = TypeParser.Double(productInfo.Valor("Stock")),
+                    Categoria = new Reference(
+                        TypeParser.String(productInfo.Valor("IdFamilia")),
+                        TypeParser.String(productInfo.Valor("Familia"))
+                    )
+                });
+
+                productInfo.Seguinte();
             }
 
-            queryResult.Sort(SortProduct);
+            productList.Sort(SortProduct);
 
-            return queryResult;
+            return productList;
         }
 
         public static Product View(string productId)
@@ -104,7 +83,21 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return GenerateFull(productsTable.Edita(productId));
+            var productInfo = productsTable.Edita(productId);
+
+            return new Product()
+            {
+                Identificador = productInfo.get_Artigo(),
+                Descricao = productInfo.get_Descricao(),
+                CodigoBarras = productInfo.get_CodBarras(),
+                Unidade = productInfo.get_UnidadeVenda(),
+                PrecoMedio = productInfo.get_PCMedio(),
+                Desconto = productInfo.get_Desconto(),
+                IVA = productInfo.get_IVA(),
+                Stock = productInfo.get_StkActual(),
+                Categoria = CategoryIntegration.GenerateReference(productInfo.get_Familia()),
+                Armazens = WarehouseIntegration.GetWarehouses(productInfo.get_Artigo())
+            };
         }
 
         public static List<ProductListing> ByCategory(string categoryId)
@@ -114,22 +107,34 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<ProductListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var productList = new List<ProductListing>();
+            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlColumnsListing)
+                .Columns(sqlProdutos)
                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")
                 .Where("ARTIGO.Familia", Comparison.Equals, categoryId));
 
-            while (!queryObject.NoFim())
+            while (!productInfo.NoFim())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                productList.Add(new ProductListing()
+                {
+                    Identificador = TypeParser.String(productInfo.Valor("Artigo")),
+                    Descricao = TypeParser.String(productInfo.Valor("Descricao")),
+                    Preco = TypeParser.Double(productInfo.Valor("PCMedio")),
+                    IVA = TypeParser.Double(productInfo.Valor("Iva")),
+                    Stock = TypeParser.Double(productInfo.Valor("Stock")),
+                    Categoria = new Reference(
+                        TypeParser.String(productInfo.Valor("IdFamilia")),
+                        TypeParser.String(productInfo.Valor("Familia"))
+                    )
+                });
+
+                productInfo.Seguinte();
             }
 
-            queryResult.Sort(SortProduct);
+            productList.Sort(SortProduct);
 
-            return queryResult;
+            return productList;
         }
     }
 }

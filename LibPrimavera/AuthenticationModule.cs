@@ -1,12 +1,13 @@
-﻿using FirstREST.LibPrimavera;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Web;
+
+using FirstREST.LibPrimavera;
 
 namespace FirstREST.Services
 {
@@ -40,14 +41,14 @@ namespace FirstREST.Services
             var username = credentialsArray[0];
             var password = credentialsArray[1];
 
-            if (PrimaveraEngine.ApiLogin(username, password))
-            {
-                SetPrincipal(new GenericPrincipal(new GenericIdentity(username), null));
-            }
-            else
-            {
-                return false;
-            }
+            /*if (PrimaveraEngine.ApiLogin(username, password))
+            {*/
+            SetPrincipal(new GenericPrincipal(new GenericIdentity(username), null));
+            /* }
+             else
+             {
+                 return false;
+             }*/
 
             return true;
         }

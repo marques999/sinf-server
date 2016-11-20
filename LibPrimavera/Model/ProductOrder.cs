@@ -6,33 +6,33 @@ namespace FirstREST.LibPrimavera.Model
     {
         public ProductOrder(Product paramArtigo, int paramQuantidade)
         {
-            Product = paramArtigo;
-            Quantity = paramQuantidade;
+            Produto = paramArtigo;
+            Quantidade = paramQuantidade;
         }
 
         [JsonProperty(PropertyName = "product")]
-        public Product Product
+        public Product Produto
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "quantity")]
-        public int Quantity
+        public int Quantidade
         {
             get
             {
-                return Quantity;
+                return Quantidade;
             }
             set
             {
                 if (value < 0)
                 {
-                    Quantity = 0;
+                    Quantidade = 0;
                 }
                 else
                 {
-                    Quantity = value;
+                    Quantidade = value;
                 }
             }
         }

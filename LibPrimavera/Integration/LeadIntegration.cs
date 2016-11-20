@@ -48,16 +48,16 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
         };
 
-        private static Lead GenerateFull(StdBELista queryObject)
+        private static LeadInfo GenerateFull(StdBELista queryObject)
         {
-            return new Lead()
+            return new LeadInfo()
             {
                 Identficador = TypeParser.String(queryObject.Valor("Entidade")),
-                Active = TypeParser.Boolean(queryObject.Valor("Activo")),
-                NomeFiscal = TypeParser.String(queryObject.Valor("Nome")),
+                Activo = TypeParser.Boolean(queryObject.Valor("Activo")),
+                Nome = TypeParser.String(queryObject.Valor("Nome")),
                 Email = TypeParser.String(queryObject.Valor("Email")),
                 Telefone = TypeParser.String(queryObject.Valor("Telefone")),
-                DateCreated = TypeParser.Date(queryObject.Valor("DataCriacao")),
+                DataCriacao = TypeParser.Date(queryObject.Valor("DataCriacao")),
                 ModificadoEm = TypeParser.Date(queryObject.Valor("DataUltAct")),
                 Telemovel = TypeParser.String(queryObject.Valor("Telemovel")),
 
@@ -76,28 +76,28 @@ namespace FirstREST.LibPrimavera.Integration
         {
             return new LeadListing()
             {
-                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
-                Active = TypeParser.Boolean(queryObject.Valor("Activo")),
-                Name = TypeParser.String(queryObject.Valor("Nome")),
+                Identificador = TypeParser.String(queryObject.Valor("Entidade")),
+                Activo = TypeParser.Boolean(queryObject.Valor("Activo")),
+                Nome = TypeParser.String(queryObject.Valor("Nome")),
                 Email = TypeParser.String(queryObject.Valor("Email")),
-                DateModified = TypeParser.Date(queryObject.Valor("DataUltAct")),
-                MobilePhone = TypeParser.String(queryObject.Valor("Telemovel")),
-                State = TypeParser.String(queryObject.Valor("Distrito")),
-                Address = TypeParser.String(queryObject.Valor("Morada")),
-                Country = TypeParser.String(queryObject.Valor("Pais"))
+                ModificadoEm = TypeParser.Date(queryObject.Valor("DataUltAct")),
+                Telemovel = TypeParser.String(queryObject.Valor("Telemovel")),
+                Distrito = TypeParser.String(queryObject.Valor("Distrito")),
+                Localizacao = TypeParser.String(queryObject.Valor("Morada")),
+                Pais = TypeParser.String(queryObject.Valor("Pais"))
             };
         }
 
-        private static Reference GenerateReference(StdBELista queryObject)
+        private static EntityReference GenerateReference(StdBELista queryObject)
         {
-            return new Reference
-            {
-                Identifier = TypeParser.String(queryObject.Valor("Entidade")),
-                Name = TypeParser.String(queryObject.Valor("Nome"))
-            };
+            return new EntityReference(
+                TypeParser.String(queryObject.Valor("Entidade")),
+                EntityType.Lead,
+                TypeParser.String(queryObject.Valor("Nome"))
+            );
         }
 
-        public static List<LeadListing> List(string sessionId)
+        public static List<LeadListing> List(string leadId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -109,7 +109,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsListing)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")
-                .Where(new WhereClause("Vendedor", Comparison.Equals, sessionId).AddClause(LogicOperator.Or, Comparison.Equals, null)));
+                .Where(new WhereClause("Vendedor", Comparison.Equals, leadId).AddClause(LogicOperator.Or, Comparison.Equals, null)));
 
             while (!queryObject.NoFim())
             {
@@ -119,25 +119,25 @@ namespace FirstREST.LibPrimavera.Integration
 
             queryResult.Sort(delegate(LeadListing lhs, LeadListing rhs)
             {
-                if (lhs.Identifier == null || rhs.Identifier == null)
+                if (lhs.Identificador == null || rhs.Identificador == null)
                 {
                     return -1;
                 }
 
-                return lhs.Identifier.CompareTo(rhs.Identifier);
+                return lhs.Identificador.CompareTo(rhs.Identificador);
             });
 
             return queryResult;
         }
 
-        public static Lead View(string sessionId, string paramId)
+        public static LeadInfo View(string sessionId, string leadId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(leadId) == false)
             {
                 return null;
             }
@@ -145,19 +145,19 @@ namespace FirstREST.LibPrimavera.Integration
             return GenerateFull(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsFull)
-                .Where("Entidade", Comparison.Equals, paramId)
+                .Where("Entidade", Comparison.Equals, leadId)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")
                 .Where(new WhereClause("Vendedor", Comparison.Equals, sessionId).AddClause(LogicOperator.Or, Comparison.Equals, null))));
         }
 
-        public static Reference LeadReference(string paramId)
+        public static EntityReference LeadReference(string leadId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(paramId) == false)
+            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(leadId) == false)
             {
                 throw new NotFoundException();
             }
@@ -165,119 +165,95 @@ namespace FirstREST.LibPrimavera.Integration
             return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsReference)
-                .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, paramId)
+                .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, leadId)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")));
         }
 
-        private static void SetFields(CrmBEEntidadeExterna selectedRow, Lead paramObject)
+        private static void SetAddress(CrmBEEntidadeExterna leadInfo, Address jsonObject)
         {
-            selectedRow.set_Activo(paramObject.Active);
-            selectedRow.set_PotencialCliente(true);
-
-            if (paramObject.NomeFiscal != null)
-            {
-                selectedRow.set_Nome(paramObject.NomeFiscal.Trim());
-            }
-
-            if (paramObject.Email != null)
-            {
-                selectedRow.set_Email(paramObject.Email.Trim());
-            }
-
-            if (paramObject.Telefone != null)
-            {
-                selectedRow.set_Telefone(paramObject.Telefone.Trim());
-            }
-
-            if (paramObject.Telemovel != null)
-            {
-                selectedRow.set_Telemovel(paramObject.Telemovel.Trim());
-            }
-
-            if (paramObject.ModificadoEm != null)
-            {
-                selectedRow.set_DataUltAct(paramObject.ModificadoEm);
-            }
-
-            if (paramObject.Localizacao != null)
-            {
-                var objectLocation = paramObject.Localizacao;
-
-                if (objectLocation.Morada != null)
-                {
-                    selectedRow.set_Morada(paramObject.Localizacao.Morada.Trim());
-                }
-
-                if (objectLocation.Distrito != null)
-                {
-                    selectedRow.set_Distrito(paramObject.Localizacao.Distrito.Trim());
-                }
-
-                if (objectLocation.Localidade != null)
-                {
-                    selectedRow.set_Localidade(paramObject.Localizacao.Localidade.Trim());
-                }
-
-                if (objectLocation.CodigoPostal != null)
-                {
-                    selectedRow.set_CodPostal(paramObject.Localizacao.CodigoPostal.Trim());
-                }
-
-                if (objectLocation.Pais != null)
-                {
-                    selectedRow.set_Pais(paramObject.Localizacao.Pais.Trim());
-                }
-            }
+            if (jsonObject.Morada != null)
+                leadInfo.set_Morada(jsonObject.Morada);
+            if (jsonObject.Distrito != null)
+                leadInfo.set_Distrito(jsonObject.Distrito);
+            if (jsonObject.Localidade != null)
+                leadInfo.set_Localidade(jsonObject.Localidade);
+            if (jsonObject.CodigoPostal != null)
+                leadInfo.set_CodPostal(jsonObject.CodigoPostal);
+            if (jsonObject.Pais != null)
+                leadInfo.set_Pais(jsonObject.Pais);
         }
 
-        public static bool Update(string sessionUsername, Lead paramObject)
+        private static void SetFields(CrmBEEntidadeExterna leadInfo, Lead jsonObject)
+        {
+            if (jsonObject.Nome != null)
+                leadInfo.set_Nome(jsonObject.Nome);
+            if (jsonObject.Email != null)
+                leadInfo.set_Email(jsonObject.Email);
+            if (jsonObject.Telefone != null)
+                leadInfo.set_Telefone(jsonObject.Telefone);
+            if (jsonObject.Telefone2 != null)
+                leadInfo.set_Telefone2(jsonObject.Telefone2);
+            if (jsonObject.Telemovel != null)
+                leadInfo.set_Telemovel(jsonObject.Telemovel);
+            if (jsonObject.Localizacao != null)
+                SetAddress(leadInfo, jsonObject.Localizacao);
+        }
+
+        public static bool Update(string sessionId, string leadId, Lead jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identficador;
-            var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
+            var leadsTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
 
-            if (selectedTable.Existe(selectedId) == false)
+            if (leadsTable.Existe(leadId) == false)
             {
                 return false;
             }
 
-            var selectedRow = selectedTable.Edita(selectedId);
+            var leadInfo = leadsTable.Edita(leadId);
 
-            selectedRow.set_EmModoEdicao(true);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            leadInfo.set_EmModoEdicao(true);
+            leadInfo.set_DataUltAct(DateTime.Now);
+            SetFields(leadInfo, jsonObject);
+            leadsTable.Actualiza(leadInfo);
 
             return true;
         }
 
-        public static bool Insert(string sessionUsername, Lead paramObject)
+        public static bool Insert(string sessionId, Lead jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var selectedId = paramObject.Identficador;
-            var selectedRow = new CrmBEEntidadeExterna();
-            var selectedTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
+            var leadId = PrimaveraEngine.GenerateHash();
+            var leadsTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
+            var leadInfo = leadsTable.PreencheCamposDefeito(new CrmBEEntidadeExterna());
 
-            if (selectedTable.Existe(selectedId))
+            if (leadsTable.Existe(leadId))
             {
                 return false;
             }
 
-            selectedRow.set_Entidade(selectedId);
-            SetFields(selectedRow, paramObject);
-            selectedTable.Actualiza(selectedRow);
+            var serverTime = DateTime.Now;
+
+            leadInfo.set_Activo(true);
+            leadInfo.set_Entidade(leadId);
+            leadInfo.set_Vendedor(sessionId);
+            leadInfo.set_DataCriacao(serverTime);
+            leadInfo.set_DataUltAct(serverTime);
+            leadInfo.set_PotencialCliente(true);
+            SetFields(leadInfo, jsonObject);
+            leadsTable.Actualiza(leadInfo);
 
             return true;
         }
 
-        public static bool Delete(string sessionId, string paramId)
+        public static bool Delete(string sessionId, string leadId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {

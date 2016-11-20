@@ -16,7 +16,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar leads
         public HttpResponseMessage Get([FromUri]string token)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -37,7 +37,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar lead
         public HttpResponseMessage Get(string id, [FromUri]string token)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -67,15 +67,10 @@ namespace FirstREST.Controllers
         // FEATURE: Adicionar lead
         public HttpResponseMessage Post([FromBody] Lead jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    jsonObject.Active = true;
-                    jsonObject.Identficador = "leadId";
-                    jsonObject.DateCreated = DateTime.Now;
-                    jsonObject.ModificadoEm = jsonObject.DateCreated;
-
                     if (LeadIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
@@ -100,14 +95,11 @@ namespace FirstREST.Controllers
         // FEATURE: Modificar lead existente
         public HttpResponseMessage Post(string id, [FromBody] Lead jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    jsonObject.Identficador = id;
-                    jsonObject.ModificadoEm = DateTime.Now;
-
-                    if (LeadIntegration.Update(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (LeadIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -131,7 +123,7 @@ namespace FirstREST.Controllers
         // FEATURE: Remover lead existente
         public HttpResponseMessage Delete(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

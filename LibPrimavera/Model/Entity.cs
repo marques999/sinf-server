@@ -1,19 +1,21 @@
 ﻿using System;
+
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Representative
+    public class Entity
     {
-        [JsonProperty(PropertyName = "id")]
-        public string Identificador
+        [JsonProperty(PropertyName = "name")]
+        public string Nome
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "name")]
-        public string NomeCompleto
+        [JsonProperty(PropertyName = "location")]
+        public Address Localizacao
         {
             get;
             set;
@@ -33,17 +35,11 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-
-        [JsonProperty(PropertyName = "picture")]
-        public string Fotografia
+        [JsonProperty(PropertyName = "phone2")]
+        public string Telefone2
         {
             get;
             set;
-        }
-
-        public void setPicture(byte[] pictureData)
-        {
-            Fotografia = Convert.ToBase64String(pictureData);
         }
 
         [JsonProperty(PropertyName = "mobile")]

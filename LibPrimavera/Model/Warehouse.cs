@@ -41,7 +41,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime ModificadoEm
+        public DateTime DataModificacao
         {
             get;
             set;
@@ -49,7 +49,7 @@ namespace FirstREST.LibPrimavera.Model
 
 
         [JsonProperty(PropertyName = "location")]
-        public Address Location
+        public Address Localizacao
         {
             get;
             set;

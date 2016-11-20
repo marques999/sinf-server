@@ -2,7 +2,7 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class UserForm
+    public class UserInfo
     {
         [JsonProperty(PropertyName = "username")]
         public string Username
@@ -19,7 +19,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "representative")]
-        public string Representative
+        public string Representante
         {
             get;
             set;

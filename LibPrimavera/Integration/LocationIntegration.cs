@@ -37,8 +37,8 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new Location()
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Distrito")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao"))
+                    Identificador = TypeParser.String(queryObject.Valor("Distrito")),
+                    Descricao = TypeParser.String(queryObject.Valor("Descricao"))
                 });
 
                 queryObject.Seguinte();
@@ -60,13 +60,13 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlConcelho)
                 .Where("Distrito", Comparison.Equals, paramId)
                 .Where("Concelho", Comparison.GreaterThan, 0));
-            
+
             while (!queryObject.NoFim())
             {
                 queryResult.Add(new Location()
                 {
-                    Identifier = TypeParser.String(queryObject.Valor("Concelho")),
-                    Name = TypeParser.String(queryObject.Valor("Descricao"))
+                    Identificador = TypeParser.String(queryObject.Valor("Concelho")),
+                    Descricao = TypeParser.String(queryObject.Valor("Descricao"))
                 });
 
                 queryObject.Seguinte();

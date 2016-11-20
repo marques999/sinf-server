@@ -5,74 +5,10 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Contact
+    public class Contact : Entity
     {
-        [JsonProperty(PropertyName = "id")]
-        public string Identficador
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "name")]
-        public string NomeFiscal
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "title")]
         public string Titulo
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "location")]
-        public Address Localizacao
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "email")]
-        public string Email
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "phone")]
-        public string Telefone
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "phone2")]
-        public string Telefone2
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "mobile")]
-        public string Telemovel
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateModified")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime ModificadoEm
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "owner")]
-        public Reference Owner
         {
             get;
             set;

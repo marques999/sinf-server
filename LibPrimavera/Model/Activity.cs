@@ -7,26 +7,8 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class Activity
     {
-        /// <summary>
-        /// Private access fields
-        /// </summary>
-
-        private int _priority;
-
-
-        /// <summary>
-        /// Public access properties
-        /// </summary>
-
-        [JsonProperty(PropertyName = "id")]
-        public string Identificador
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string Resumo
         {
             get;
             set;
@@ -40,26 +22,19 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "status")]
-        public ActivityStatus Status
+        public ActivityStatus Estado
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "type")]
-        public Reference Type
+        public ActivityType Tipo
         {
             get;
             set;
         }
-
-        [JsonProperty(PropertyName = "entity")]
-        public Reference Entity
-        {
-            get;
-            set;
-        }
-
+        
         [JsonProperty(PropertyName = "priority")]
         public string Prioridade
         {
@@ -67,15 +42,15 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "duration")]
-        public int Duracao
+        [JsonProperty(PropertyName = "entity")]
+        public string Entidade
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "duration")]
-        public string Responsavel
+        [JsonProperty(PropertyName = "entityType")]
+        public string TipoEntidade
         {
             get;
             set;
@@ -92,29 +67,6 @@ namespace FirstREST.LibPrimavera.Model
         [JsonProperty(PropertyName = "end")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
         public DateTime DataFim
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime CriadoEm
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateModified")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime ModificadoEm
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "entityType")]
-        public string TipoEntidade
         {
             get;
             set;

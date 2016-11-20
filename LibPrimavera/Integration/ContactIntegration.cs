@@ -26,18 +26,75 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CONTACTOS.Morada", null),
         };
 
-        private static Contact GenerateFull(CrmBEContacto contactInfo)
+        public static List<ContactListing> List(string sessionId)
         {
-            return new Contact()
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var contactList = new List<ContactListing>();
+            var contactInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumnsListing));
+
+            while (!contactInfo.NoFim())
+            {
+                contactList.Add(new ContactListing()
+                {
+                    Identificador = TypeParser.String(contactInfo.Valor("Contacto")),
+                    Nome = TypeParser.String(contactInfo.Valor("PrimeiroNome")) + " " + contactInfo.Valor("UltimoNome"),
+                    Titulo = TypeParser.String(contactInfo.Valor("Titulo")),
+                    Email = TypeParser.String(contactInfo.Valor("Email")),
+                    ModificadoEm = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
+                    Telemovel = TypeParser.String(contactInfo.Valor("Telemovel")),
+                    Localizacao = TypeParser.String(contactInfo.Valor("Morada")),
+                    Pais = TypeParser.String(contactInfo.Valor("Pais")),
+                    Distrito = TypeParser.String(contactInfo.Valor("Distrito"))
+                });
+
+                contactInfo.Seguinte();
+            }
+
+            contactList.Sort(delegate(ContactListing lhs, ContactListing rhs)
+            {
+                if (lhs.Nome == null || rhs.Nome == null)
+                {
+                    return -1;
+                }
+
+                return lhs.Nome.CompareTo(rhs.Nome);
+            });
+
+            return contactList;
+        }
+
+        public static ContactInfo View(string sessionId, string contactId)
+        {
+            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
+
+            if (contactsTable.Existe(contactId) == false)
+            {
+                return null;
+            }
+
+            var contactInfo = contactsTable.Edita(contactId);
+
+            return new ContactInfo()
             {
                 Identficador = contactInfo.get_Contacto(),
-                NomeFiscal = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
+                Responsavel = contactInfo.get_CriadoPor(),
+                DataCriacao = contactInfo.get_DataUltContacto(),
+                DataModificacao = contactInfo.get_DataUltContacto(),
+                Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
                 Titulo = contactInfo.get_Titulo(),
                 Email = contactInfo.get_Email(),
                 Telefone = contactInfo.get_Telefone(),
                 Telefone2 = contactInfo.get_Telefone2(),
                 Telemovel = contactInfo.get_Telemovel(),
-                ModificadoEm = contactInfo.get_DataUltContacto(),
                 Localizacao = new Address
                 {
                     CodigoPostal = contactInfo.get_CodPostal(),
@@ -49,52 +106,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        private static ContactListing GenerateListing(StdBELista contactInfo)
-        {
-            return new ContactListing()
-            {
-                Identifier = TypeParser.String(contactInfo.Valor("Contacto")),
-                Name = TypeParser.String(contactInfo.Valor("PrimeiroNome")) + " " + contactInfo.Valor("UltimoNome"),
-                Title = TypeParser.String(contactInfo.Valor("Titulo")),
-                Email = TypeParser.String(contactInfo.Valor("Email")),
-                DateModified = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
-                MobilePhone = TypeParser.String(contactInfo.Valor("Telemovel")),
-                Address = TypeParser.String(contactInfo.Valor("Morada")),
-                Country = TypeParser.String(contactInfo.Valor("Pais")),
-                State = TypeParser.String(contactInfo.Valor("Distrito"))
-            };
-        }
-
-        public static List<ContactListing> List(string sessionId)
-        {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var queryResult = new List<ContactListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumnsListing));
-
-            while (!queryObject.NoFim())
-            {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
-            }
-
-            queryResult.Sort(delegate(ContactListing lhs, ContactListing rhs)
-            {
-                if (lhs.Name == null || rhs.Name == null)
-                {
-                    return -1;
-                }
-
-                return lhs.Name.CompareTo(rhs.Name);
-            });
-
-            return queryResult;
-        }
-
-        public static Contact View(string sessionId, string contactId)
+        public static EntityReference Reference(string contactId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -108,82 +120,39 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return GenerateFull(contactsTable.Edita(contactId));
+            return new EntityReference(contactId, EntityType.Contact, contactsTable.DaNomeContacto(contactId));
         }
 
-        public static Reference Reference(string contactId)
+        private static void SetAddress(CrmBEContacto contactInfo, Address jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
-
-            if (contactsTable.Existe(contactId) == false)
-            {
-                return null;
-            }
-
-            return new Reference(contactId, contactsTable.DaNomeContacto(contactId));
+            if (jsonObject.Morada != null)
+                contactInfo.set_Morada(jsonObject.Morada);
+            if (jsonObject.Distrito != null)
+                contactInfo.set_Distrito(jsonObject.Distrito);
+            if (jsonObject.Localidade != null)
+                contactInfo.set_Localidade(jsonObject.Localidade);
+            if (jsonObject.CodigoPostal != null)
+                contactInfo.set_CodPostal(jsonObject.CodigoPostal);
+            if (jsonObject.Pais != null)
+                contactInfo.set_Pais(jsonObject.Pais);
         }
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
-            if (jsonObject.NomeFiscal != null)
-            {
-                contactInfo.set_Nome(jsonObject.NomeFiscal.Trim());
-            }
-
+            if (jsonObject.Nome != null)
+                contactInfo.set_Nome(jsonObject.Nome);
+            if (jsonObject.Titulo != null)
+                contactInfo.set_Titulo(jsonObject.Titulo);
             if (jsonObject.Email != null)
-            {
-                contactInfo.set_Email(jsonObject.Email.Trim());
-            }
-
+                contactInfo.set_Email(jsonObject.Email);
             if (jsonObject.Telefone != null)
-            {
-                contactInfo.set_Telefone(jsonObject.Telefone.Trim());
-            }
-
+                contactInfo.set_Telefone(jsonObject.Telefone);
+            if (jsonObject.Telefone2 != null)
+                contactInfo.set_Telefone2(jsonObject.Telefone2);
             if (jsonObject.Telemovel != null)
-            {
-                contactInfo.set_Telemovel(jsonObject.Telemovel.Trim());
-            }
-
-            if (jsonObject.ModificadoEm != null)
-            {
-                contactInfo.set_DataUltContacto(jsonObject.ModificadoEm);
-            }
-
+                contactInfo.set_Telemovel(jsonObject.Telemovel);
             if (jsonObject.Localizacao != null)
-            {
-                var objectLocation = jsonObject.Localizacao;
-
-                if (objectLocation.Morada != null)
-                {
-                    contactInfo.set_Morada(jsonObject.Localizacao.Morada.Trim());
-                }
-
-                if (objectLocation.Distrito != null)
-                {
-                    contactInfo.set_Distrito(jsonObject.Localizacao.Distrito.Trim());
-                }
-
-                if (objectLocation.Localidade != null)
-                {
-                    contactInfo.set_Localidade(jsonObject.Localizacao.Localidade.Trim());
-                }
-
-                if (objectLocation.CodigoPostal != null)
-                {
-                    contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal.Trim());
-                }
-
-                if (objectLocation.Pais != null)
-                {
-                    contactInfo.set_Pais(jsonObject.Localizacao.Pais.Trim());
-                }
-            }
+                SetAddress(contactInfo, jsonObject.Localizacao);
         }
 
         public static bool Update(string sessionId, string contactId, Contact jsonObject)
@@ -207,7 +176,6 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            jsonObject.ModificadoEm = DateTime.Now;
             contactInfo.set_EmModoEdicao(true);
             SetFields(contactInfo, jsonObject);
             contactsTable.Actualiza(contactInfo);
@@ -223,7 +191,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var contactInfo = new CrmBEContacto();
-            var contactId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
+            var contactId = PrimaveraEngine.GenerateHash();
             var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
 
             if (contactsTable.Existe(contactId))
@@ -231,8 +199,8 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            jsonObject.ModificadoEm = DateTime.Now;
             contactInfo.set_Contacto(contactId);
+            contactInfo.set_CriadoPor(sessionId);
             SetFields(contactInfo, jsonObject);
             contactsTable.Actualiza(contactInfo);
 
@@ -253,7 +221,9 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            if (contactsTable.Edita(contactId).get_CriadoPor() != sessionId)
+            var contactInfo = contactsTable.Edita(contactId);
+
+            if (contactInfo.get_CriadoPor() != sessionId)
             {
                 return false;
             }

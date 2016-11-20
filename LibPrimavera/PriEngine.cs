@@ -27,22 +27,6 @@ namespace FirstREST.LibPrimavera
             set;
         }
 
-        public static IGcpBSVendedores TabelaVendedores
-        {
-            get
-            {
-                return Engine.Comercial.Vendedores;
-            }
-        }
-
-        public static ICrmBSContactos TabelaContactos
-        {
-            get
-            {
-                return Engine.CRM.Contactos;
-            }
-        }
-
         public static ErpBS Engine
         {
             get;
@@ -58,43 +42,16 @@ namespace FirstREST.LibPrimavera
 
         public static SQLiteDataReader ConsultaSQLite(SqlBuilder queryString)
         {
-            string query = queryString.BuildQuery();
-            var sqlQuery = sqliteConnection.CreateCommand();
-
-            System.Diagnostics.Debug.Print(query);
-            sqliteConnection.Open();      
-            sqlQuery.CommandText = query; 
-  
-            var sqlResult = sqlQuery.ExecuteReader();
- 
-            sqliteConnection.Close();
-
-            return sqlResult;
-        }
-
-        private static Dictionary<string, string> loggedIn = new Dictionary<string, string>();
-
-        public static bool ValidateSession(string sesssionId)
-        {
-            return loggedIn.ContainsKey(sesssionId);
-        }
-
-        public static string GetUsername(string sesssionId)
-        {
-            if (loggedIn.ContainsKey(sesssionId))
+            using (var sqlQuery = sqliteConnection.CreateCommand())
             {
-                return loggedIn[sesssionId];
+                System.Diagnostics.Debug.Print(queryString.BuildQuery());
+                sqliteConnection.Open();
+                sqlQuery.CommandText = queryString.BuildQuery();
+                return sqlQuery.ExecuteReader();
             }
-
-            return null;
         }
 
         private static SQLiteConnection sqliteConnection;
-
-        static PrimaveraEngine()
-        {
-            loggedIn.Add("4c3b314d9ec74f7690dd819df973fb82", "marques999");
-        }
 
         private static bool sqliteInitialized = false;
 
@@ -170,27 +127,34 @@ namespace FirstREST.LibPrimavera
             return Plataforma.Inicializada;
         }
 
-        public static bool IsAuthenticated()
-        {
-            return true;
-            /*try
-            {
-                var sessionUsername = HttpContext.Current.User.Identity.Name;
-                return sessionUsername != null && string.IsNullOrWhiteSpace(sessionUsername) == false;
-            }
-            catch
-            {
-                return false;
-            }*/
-        }
-
-        internal static bool ApiLogin(string username, string password)
-        {
-            return username == "merda" && password == "merda";
-        }
+        /*  public static bool IsAuthenticated()
+          {
+              try
+              {
+                  return string.IsNullOrWhiteSpace(HttpContext.Current.User.Identity.Name) == false;
+              }
+              catch
+              {
+                  return false;
+              }
+          }
+          */
 
         internal static SQLiteConnection getAuthenticationService()
-        {return sqliteConnection;
+        {
+            return sqliteConnection;
+        }
+
+        public static string generateGUID()
+        {
+            return Guid.NewGuid().ToString("D").ToUpper();
+        }
+
+        private static HashGenerator hashGenerator = new HashGenerator();
+
+        public static string GenerateHash()
+        {
+            return hashGenerator.EncodeLong(DateTime.Now.Ticks);
         }
     }
 }

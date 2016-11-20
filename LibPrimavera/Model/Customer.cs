@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Customer : Contact
+    public class Customer : Entity
     {
         [JsonProperty(PropertyName = "website")]
         public string EnderecoWeb
@@ -15,15 +15,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "status")]
-        public string Estado
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime CriadoEm
+        public string Situacao
         {
             get;
             set;
@@ -31,20 +23,6 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "particular")]
         public bool Particular
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "debt")]
-        public double Debito
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "pending")]
-        public double Pendentes
         {
             get;
             set;

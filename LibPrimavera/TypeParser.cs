@@ -243,24 +243,27 @@ namespace FirstREST.LibPrimavera
 
         #region EntityType Parser
 
+        private static Dictionary<String, EntityType> entities = new Dictionary<string, EntityType>
+        {
+            { "C", EntityType.Customer },
+            { "N", EntityType.Unknown },
+            { "O", EntityType.Contact },
+            { "X", EntityType.Lead }
+        };
+
         public static EntityType Entity_Type(string value)
         {
             if (object.Equals(value, null))
             {
-                return EntityType.N;
+                return EntityType.Unknown;
             }
 
-            if (value is string)
+            if (value is string && entities.ContainsKey(value as string))
             {
-                EntityType parseResult;
-
-                if (Enum.TryParse(value as string, true, out parseResult))
-                {
-                    return parseResult;
-                }
+                return entities[value];
             }
 
-            return EntityType.N;
+            return EntityType.Unknown;
         }
 
         #endregion

@@ -5,14 +5,14 @@ namespace FirstREST.LibPrimavera.Model
     public class Venda
     {
         [JsonProperty(PropertyName = "id")]
-        public string CodArtigo
+        public string CodigoArtigo
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "description")]
-        public string DescArtigo
+        public string DescricaoArtigo
         {
             get;
             set;

@@ -4,13 +4,13 @@ namespace FirstREST.LibPrimavera.Model
 {
     public enum EntityType
     {
-        [Description("Desconhecido")]
-        N = -1,
-        [Description("Cliente")]
-        C,
-        [Description("Lead")]
-        X,
-        [Description("Contacto")]
-        O
+        [Description("N")]
+        Unknown = -1,
+        [Description("C")]
+        Customer,
+        [Description("X")]
+        Lead,
+        [Description("O")]
+        Contact
     }
 }

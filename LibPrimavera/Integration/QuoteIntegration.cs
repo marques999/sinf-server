@@ -36,7 +36,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Quote View(string sessionId, string quoteId)
+        public static QuoteInfo View(string sessionId, string quoteId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
@@ -57,26 +57,23 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return new Quote
+            return new QuoteInfo
             {
-                Description = quoteInfo.get_Nome(),
-                Identifier = quoteInfo.get_ID(),
-                Notes = quoteInfo.get_Observacoes(),
+                Identificador = quoteInfo.get_ID(),
+                Descricao = quoteInfo.get_Nome(),
+                Notas = quoteInfo.get_Observacoes(),
                 OpportunityId = quoteInfo.get_IdOportunidade()
             };
         }
 
         private static void SetFields(GcpBEDocumentoVenda quoteInfo, Quote jsonObject)
         {
-            if (jsonObject.Notes != null)
-            {
-                quoteInfo.set_Observacoes(jsonObject.Notes.Trim());
-            }
-
-            if (jsonObject.Description != null)
-            {
-                quoteInfo.set_Nome(jsonObject.Description.Trim());
-            }
+            if (jsonObject.Descricao != null)
+                quoteInfo.set_Nome(jsonObject.Descricao);
+            if (jsonObject.Notas != null)
+                quoteInfo.set_Observacoes(jsonObject.Notas);
+            if (jsonObject.OpportunityId != null)
+                quoteInfo.set_IdOportunidade(jsonObject.OpportunityId);
         }
 
         public static bool Update(string sessionId, string quoteId, Quote jsonObject)
@@ -101,6 +98,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             quoteInfo.set_EmModoEdicao(true);
+            quoteInfo.set_DataUltimaActualizacao(DateTime.Now);
             SetFields(quoteInfo, jsonObject);
             quotesTable.Actualiza(quoteInfo);
 
@@ -123,7 +121,12 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
+            var serverTime = DateTime.Now;
+
             quoteInfo.set_ID(quoteId);
+            quoteInfo.set_Responsavel(sessionId);
+            quoteInfo.set_DataDoc(serverTime);
+            quoteInfo.set_DataUltimaActualizacao(serverTime);
             SetFields(quoteInfo, jsonObject);
             quoteInfo = quotesTable.PreencheDadosRelacionados(quoteInfo);
             quotesTable.Actualiza(quoteInfo);
@@ -152,7 +155,9 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            quotesTable.Remove(quoteInfo.get_Filial(), quoteInfo.get_Tipodoc(), quoteInfo.get_Serie(), quoteInfo.get_NumDoc());
+            quoteInfo.set_EmModoEdicao(true);
+            quoteInfo.set_Anulado(true);
+            quotesTable.Actualiza(quoteInfo);
 
             return true;
         }

@@ -2,10 +2,10 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class ContactListing : EntityListing
+    public class SessionInfo : Representative
     {
-        [JsonProperty(PropertyName = "title")]
-        public string Titulo
+        [JsonProperty(PropertyName = "token")]
+        public string Token
         {
             get;
             set;

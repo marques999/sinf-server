@@ -16,7 +16,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar oportunidades
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -37,7 +37,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar oportunidade
         public HttpResponseMessage Get(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -67,7 +67,7 @@ namespace FirstREST.Controllers
         // FEATURE: Adicionar oportunidade
         public HttpResponseMessage Post([FromBody] Opportunity jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -95,7 +95,7 @@ namespace FirstREST.Controllers
         // FEATURE: Modificar oportunidade existente
         public HttpResponseMessage Post(string id, [FromBody] Opportunity jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -123,7 +123,7 @@ namespace FirstREST.Controllers
         // FEATURE: Remover oportunidade
         public HttpResponseMessage Delete(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

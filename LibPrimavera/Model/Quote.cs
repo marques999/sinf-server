@@ -5,15 +5,8 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class Quote
     {
-        [JsonProperty(PropertyName = "id")]
-        public string Identifier
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "description")]
-        public string Description
+        public string Descricao
         {
             get;
             set;
@@ -25,16 +18,16 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-
+        
         [JsonProperty(PropertyName = "products")]
-        public List<ProductOrder> Products
+        public List<string> Produtos
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "notes")]
-        public string Notes
+        public string Notas
         {
             get;
             set;

@@ -5,14 +5,14 @@ namespace FirstREST.LibPrimavera.Model
     public class UserPassword
     {
         [JsonProperty(PropertyName = "old")]
-        public string oldPassword
+        public string PasswrdAntiga
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "new")]
-        public string newPassword
+        public string PasswordNova
         {
             get;
             set;

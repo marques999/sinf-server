@@ -16,7 +16,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar encomendas
         public HttpResponseMessage Get()
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -37,7 +37,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar encomenda
         public HttpResponseMessage Get(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -67,7 +67,7 @@ namespace FirstREST.Controllers
         // FEATURE: Adicionar encomenda
         public HttpResponseMessage Post([FromBody] Quote jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -95,7 +95,7 @@ namespace FirstREST.Controllers
         // FEATURE: Modificar encomenda existente
         public HttpResponseMessage Post(string id, [FromBody] Quote jsonObject)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
@@ -123,7 +123,7 @@ namespace FirstREST.Controllers
         // FEATURE: Remover encomenda existente
         public HttpResponseMessage Delete(string id)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {

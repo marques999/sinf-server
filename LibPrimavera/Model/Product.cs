@@ -14,7 +14,6 @@ namespace FirstREST.LibPrimavera.Model
         private double _discount;
         private double _price;
         private double _stock;
-        private double _tax;
 
         /// <summary>
         /// Public access properties
@@ -28,7 +27,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Nome
+        public string Descricao
         {
             get;
             set;
@@ -134,7 +133,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "warehouses")]
-        public IEnumerable<Warehouse> Warehouses
+        public IEnumerable<Warehouse> Armazens
         {
             get;
             set;
@@ -163,21 +162,21 @@ namespace FirstREST.LibPrimavera.Model
         /// </summary>
 
         [JsonProperty(PropertyName = "id")]
-        public string Identifier
+        public string Identificador
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string Name
+        public string Descricao
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "price")]
-        public double Price
+        public double Preco
         {
             get
             {
@@ -197,7 +196,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "tax")]
-        public double Tax
+        public double IVA
         {
             get
             {
@@ -241,7 +240,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "category")]
-        public Reference Category
+        public Reference Categoria
         {
             get;
             set;

@@ -13,9 +13,9 @@ namespace FirstREST.Controllers
     {
         // GET api/categories/
         // FEATURE: Listar categorias
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
@@ -34,9 +34,9 @@ namespace FirstREST.Controllers
 
         // GET api/categories/{$categoryId}/
         // FEATURE: Visualizar categoria
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (PrimaveraEngine.IsAuthenticated())
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {

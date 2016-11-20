@@ -2,7 +2,7 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class CustomerListing : ContactListing
+    public class CustomerListing : EntityListing
     {
         [JsonProperty(PropertyName = "status")]
         public string Estado

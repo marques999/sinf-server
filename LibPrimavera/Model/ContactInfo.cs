@@ -5,10 +5,17 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Opportunity
+    public class ContactInfo : Contact
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identificador
+        public string Identficador
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "owner")]
+        public string Responsavel
         {
             get;
             set;

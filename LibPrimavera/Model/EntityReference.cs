@@ -5,20 +5,28 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Reference
+    public class EntityReference
     {
-        public Reference()
+        public EntityReference()
         {
         }
 
-        public Reference(string entityId, string entityName)
+        public EntityReference(string entityId, EntityType entityType, string entityName)
         {
+            Tipo = entityType.ToDescriptionString();
             Identificador = entityId;
-            Descricao = entityName;
+            Descricao = entityName;         
         }
 
         [JsonProperty(PropertyName = "id")]
         public string Identificador
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "type")]
+        public string Tipo
         {
             get;
             set;

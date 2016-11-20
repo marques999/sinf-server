@@ -1,9 +1,11 @@
 ﻿using System;
+
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Representative
+    public class EntityListing
     {
         [JsonProperty(PropertyName = "id")]
         public string Identificador
@@ -13,7 +15,28 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "name")]
-        public string NomeCompleto
+        public string Nome
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "address")]
+        public string Localizacao
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "state")]
+        public string Distrito
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "country")]
+        public string Pais
         {
             get;
             set;
@@ -26,28 +49,16 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "phone")]
-        public string Telefone
-        {
-            get;
-            set;
-        }
-
-
-        [JsonProperty(PropertyName = "picture")]
-        public string Fotografia
-        {
-            get;
-            set;
-        }
-
-        public void setPicture(byte[] pictureData)
-        {
-            Fotografia = Convert.ToBase64String(pictureData);
-        }
-
         [JsonProperty(PropertyName = "mobile")]
         public string Telemovel
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "dateModified")]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime ModificadoEm
         {
             get;
             set;
