@@ -2,6 +2,10 @@
 {
     public class Session
     {
+        public Session()
+        {
+        }
+
         public Session(string userName, string representativeId)
         {
             Username = userName;

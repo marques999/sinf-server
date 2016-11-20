@@ -20,14 +20,14 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CONCELHOS.Descricao", null)
         };
 
-        public static List<Location> List()
+        public static List<Reference> List()
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Location>();
+            var queryResult = new List<Reference>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("DISTRITOS")
                 .Columns(sqlDistrito)
@@ -35,7 +35,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(new Location()
+                queryResult.Add(new Reference()
                 {
                     Identificador = TypeParser.String(queryObject.Valor("Distrito")),
                     Descricao = TypeParser.String(queryObject.Valor("Descricao"))
@@ -47,14 +47,14 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static List<Location> View(string paramId)
+        public static List<Reference> View(string paramId)
         {
             if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Location>();
+            var queryResult = new List<Reference>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONCELHOS")
                 .Columns(sqlConcelho)
@@ -63,7 +63,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(new Location()
+                queryResult.Add(new Reference()
                 {
                     Identificador = TypeParser.String(queryObject.Valor("Concelho")),
                     Descricao = TypeParser.String(queryObject.Valor("Descricao"))

@@ -4,6 +4,10 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class ProductOrder
     {
+        public ProductOrder()
+        {
+        }
+
         public ProductOrder(Product paramArtigo, int paramQuantidade)
         {
             Produto = paramArtigo;

@@ -294,7 +294,6 @@
     <Compile Include="LibPrimavera\Model\ActivityStatus.cs" />
     <Compile Include="LibPrimavera\Model\ActivityType.cs" />
     <Compile Include="LibPrimavera\Model\EntityType.cs" />
-    <Compile Include="LibPrimavera\Model\Location.cs" />
     <Compile Include="LibPrimavera\Model\Reference.cs" />
     <Compile Include="LibPrimavera\Model\UserInfo.cs" />
     <Compile Include="LibPrimavera\Integration\WarehouseIntegration.cs" />
