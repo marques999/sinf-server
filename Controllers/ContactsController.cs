@@ -91,9 +91,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/contacts/{$contactId}/
+        // PUT api/contacts/{$contactId}/
         // FEATURE: Modificar contacto existente
-        public HttpResponseMessage Post(string id, [FromBody] Contact jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Contact jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Delete(null, id))
+                    if (ContactIntegration.Delete(Authentication.GetRepresentative(null), id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

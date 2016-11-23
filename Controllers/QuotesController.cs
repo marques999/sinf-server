@@ -91,9 +91,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/quotes/{$quoteId}/
+        // PUT api/quotes/{$quoteId}/
         // FEATURE: Modificar encomenda existente
-        public HttpResponseMessage Post(string id, [FromBody] Quote jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Quote jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {

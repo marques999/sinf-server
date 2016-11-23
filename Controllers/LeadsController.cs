@@ -91,9 +91,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/leads/{$prospectId}/
+        // PUT api/leads/{$prospectId}/
         // FEATURE: Modificar lead existente
-        public HttpResponseMessage Post(string id, [FromBody] LeadInfo jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] LeadInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {

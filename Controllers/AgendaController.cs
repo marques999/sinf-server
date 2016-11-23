@@ -148,9 +148,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/agenda/{$activityId}/
+        // PUT api/agenda/{$activityId}/
         // Feature: Modificar actividade existente
-        public HttpResponseMessage Post(string id, [FromBody] Activity jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Activity jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {

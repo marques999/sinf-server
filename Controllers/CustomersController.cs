@@ -92,9 +92,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/customers/{$customerId}/
+        // PUT api/customers/{$customerId}/
         // FEATURE: Modificar cliente existente
-        public HttpResponseMessage Post(string id, [FromBody] Customer jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Customer jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {

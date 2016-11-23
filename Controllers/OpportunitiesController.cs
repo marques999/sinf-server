@@ -91,9 +91,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/opportunities/{$opportunityId}/
+        // PUT api/opportunities/{$opportunityId}/
         // FEATURE: Modificar oportunidade existente
-        public HttpResponseMessage Post(string id, [FromBody] Opportunity jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Opportunity jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
