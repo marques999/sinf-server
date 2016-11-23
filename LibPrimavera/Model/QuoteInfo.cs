@@ -14,7 +14,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "products")]
-        public new List<ProductOrder> Produtos
+        public new List<OrderInfo> Produtos
         {
             get;
             set;

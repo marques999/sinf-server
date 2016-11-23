@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ using Interop.ICrmBS900;
 
 using FirstREST.QueryBuilder;
 using FirstREST.LibPrimavera.Model;
-using System.Data.SQLite;
+using FirstREST.QueryBuilder.Enums;
 
 namespace FirstREST.LibPrimavera
 {
@@ -45,7 +46,6 @@ namespace FirstREST.LibPrimavera
             using (var sqlQuery = sqliteConnection.CreateCommand())
             {
                 System.Diagnostics.Debug.Print(queryString.BuildQuery());
-                sqliteConnection.Open();
                 sqlQuery.CommandText = queryString.BuildQuery();
                 return sqlQuery.ExecuteReader();
             }
@@ -62,31 +62,32 @@ namespace FirstREST.LibPrimavera
                 return;
             }
 
-            sqliteConnection = new SQLiteConnection("Data Source=sinFORCE.sqlite;Version=3;");
+            sqliteConnection = new SQLiteConnection("Data Source=C:\\SINF\\sinFORCE.db;Version=3;");
 
             using (var sqlQuery = sqliteConnection.CreateCommand())
             {
                 sqliteConnection.Open();
-                sqlQuery.CommandText = "SELECT name FROM sqlite_master WHERE name='account'";
+                sqlQuery.CommandText = new SqlBuilder()
+                    .FromTable("sqlite_master")
+                    .Column("name")
+                    .Where("name", Comparison.Equals, "users").BuildQuery();
 
                 var queryResult = sqlQuery.ExecuteScalar();
 
-                if (queryResult != null && queryResult.ToString() == "account")
+                if (queryResult != null && queryResult.ToString() == "users")
                 {
                     sqliteInitialized = true;
                 }
                 else
                 {
-                    sqlQuery.CommandText = "CREATE TABLE users (username VARCHAR(64), password VARCHAR(64), references INT)";
+                    sqlQuery.CommandText = "CREATE TABLE users (username VARCHAR(64), password VARCHAR(64), representative VARCHAR(8))";
                     sqlQuery.ExecuteNonQuery();
                     sqliteInitialized = true;
                 }
-
-                sqliteConnection.Close();
             }
         }
 
-        public static bool InitializeCompany(string Company, string User, string Password)
+        public static bool InitializeCompany()
         {
             if (Platform != null && Platform.Inicializada)
             {
@@ -98,8 +99,8 @@ namespace FirstREST.LibPrimavera
 
             objAplConf.Instancia = "Default";
             objAplConf.AbvtApl = "GCP";
-            objAplConf.PwdUtilizador = Password;
-            objAplConf.Utilizador = User;
+            objAplConf.PwdUtilizador = Properties.Settings.Default.Password.Trim();
+            objAplConf.Utilizador = Properties.Settings.Default.User.Trim();
             objAplConf.LicVersaoMinima = "9.00";
 
             var MotorLE = new ErpBS();
@@ -109,17 +110,19 @@ namespace FirstREST.LibPrimavera
 
             try
             {
-                Plataforma.AbrePlataformaEmpresa(ref Company, ref objStdTransac, ref objAplConf, ref tipoPlataforma, "");
+                Plataforma.AbrePlataformaEmpresa(Properties.Settings.Default.Company.Trim(), ref objStdTransac, ref objAplConf, ref tipoPlataforma, "");
             }
             catch
             {
                 return false;
             }
 
+            PrimaveraEngine.InitializeSQLite();
+
             if (Plataforma.Inicializada)
             {
                 Platform = Plataforma;
-                MotorLE.AbreEmpresaTrabalho(EnumTipoPlataforma.tpProfissional, ref Company, ref User, ref Password, ref objStdTransac, "Default", ref blnModoPrimario);
+                MotorLE.AbreEmpresaTrabalho(EnumTipoPlataforma.tpProfissional, Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim(), ref objStdTransac, "Default", ref blnModoPrimario);
                 MotorLE.set_CacheActiva(true);
                 Engine = MotorLE;
             }
@@ -140,17 +143,17 @@ namespace FirstREST.LibPrimavera
           }
           */
 
-        internal static SQLiteConnection getAuthenticationService()
+        public static SQLiteConnection getAuthenticationService()
         {
             return sqliteConnection;
         }
+
+        private static HashGenerator hashGenerator = new HashGenerator();
 
         public static string generateGUID()
         {
             return Guid.NewGuid().ToString("D").ToUpper();
         }
-
-        private static HashGenerator hashGenerator = new HashGenerator();
 
         public static string GenerateHash()
         {

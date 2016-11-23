@@ -10,5 +10,12 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
+
+        [JsonProperty(PropertyName = "thirdPartyType")]
+        public string TipoTerceiro
+        {
+            get;
+            set;
+        }
     }
 }

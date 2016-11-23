@@ -26,9 +26,21 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CONTACTOS.Morada", null),
         };
 
+        private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)
+        {
+            var representativeId = contactInfo.get_CriadoPor();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static List<ContactListing> List(string sessionId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -69,7 +81,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static ContactInfo View(string sessionId, string contactId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -108,7 +120,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static EntityReference Reference(string contactId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -125,6 +137,8 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetAddress(CrmBEContacto contactInfo, Address jsonObject)
         {
+            if (jsonObject.Pais != null)
+                contactInfo.set_Pais(jsonObject.Pais);
             if (jsonObject.Morada != null)
                 contactInfo.set_Morada(jsonObject.Morada);
             if (jsonObject.Distrito != null)
@@ -133,8 +147,8 @@ namespace FirstREST.LibPrimavera.Integration
                 contactInfo.set_Localidade(jsonObject.Localidade);
             if (jsonObject.CodigoPostal != null)
                 contactInfo.set_CodPostal(jsonObject.CodigoPostal);
-            if (jsonObject.Pais != null)
-                contactInfo.set_Pais(jsonObject.Pais);
+            if (jsonObject.Localidade != null)
+                contactInfo.set_CodPostalLocal(jsonObject.Localidade);
         }
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
@@ -157,7 +171,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Update(string sessionId, string contactId, Contact jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -171,7 +185,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var contactInfo = contactsTable.Edita(contactId);
 
-            if (contactInfo.get_CriadoPor() != sessionId)
+            if (CheckPermissions(contactInfo, sessionId) == false)
             {
                 return false;
             }
@@ -185,7 +199,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Insert(string sessionId, Contact jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -209,7 +223,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Delete(string sessionId, string contactId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -221,9 +235,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            var contactInfo = contactsTable.Edita(contactId);
-
-            if (contactInfo.get_CriadoPor() != sessionId)
+            if (CheckPermissions(contactsTable.Edita(contactId), sessionId) == false)
             {
                 return false;
             }

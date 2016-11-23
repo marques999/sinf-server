@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Authentication.GetRepresentative(null)));
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ContactIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = ContactIntegration.View(Authentication.GetRepresentative(null), id);
 
                     if (queryResult == null)
                     {
@@ -71,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (ContactIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -99,7 +99,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (ContactIntegration.Update(Authentication.GetRepresentative(null), id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (ContactIntegration.Delete(null, id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

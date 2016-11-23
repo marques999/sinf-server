@@ -22,7 +22,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         ActivityType.ANY,
                         ActivityStatus.Any,
                         ActivityInterval.Today
@@ -49,7 +49,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         ActivityStatus.Any,
                         ActivityInterval.Today
@@ -76,7 +76,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         ActivityStatus.Any,
                         TypeParser.Activity_Interval(when)
@@ -103,7 +103,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         TypeParser.Activity_Status(status),
                         TypeParser.Activity_Interval(when)
@@ -128,7 +128,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (AgendaIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -156,7 +156,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (AgendaIntegration.Update(Authentication.GetRepresentative(null), id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -184,7 +184,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (AgendaIntegration.Delete(Authentication.GetRepresentative(null), id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

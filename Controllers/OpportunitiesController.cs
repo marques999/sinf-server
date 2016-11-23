@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, OpportunityIntegration.List(Authentication.GetRepresentative(null)));
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = OpportunityIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = OpportunityIntegration.View(Authentication.GetRepresentative(null), id);
 
                     if (queryResult == null)
                     {
@@ -71,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (OpportunityIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -99,7 +99,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (OpportunityIntegration.Update(Authentication.GetRepresentative(null), id, jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (OpportunityIntegration.Delete(Authentication.GetRepresentative(null), id))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

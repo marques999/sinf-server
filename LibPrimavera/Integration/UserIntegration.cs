@@ -11,25 +11,34 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class UserIntegration
     {
-        public static List<Representative> List()
+        private static string fieldNome = "Nome";
+        private static string fieldComissao = "Comissao";
+        private static string fieldVendedor = "Vendedor";
+
+        private static SqlColumn[] sqlVendedor =
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            new SqlColumn(fieldNome, null),
+            new SqlColumn(fieldComissao, null),
+            new SqlColumn(fieldVendedor, null)    
+        };
+
+        public static List<RepresentativeListing> List()
+        {
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Representative>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("VENDEDORES"));
+            var queryResult = new List<RepresentativeListing>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().Columns(sqlVendedor).FromTable("VENDEDORES"));
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(new Representative
+                queryResult.Add(new RepresentativeListing
                 {
-                    NomeCompleto = TypeParser.String(queryObject.Valor("Nome")),
-                    Email = TypeParser.String(queryObject.Valor("Email")),
-                    Fotografia = TypeParser.String(queryObject.Valor("LocalizacaoFoto")),
-                    Identificador = TypeParser.String(queryObject.Valor("Vendedor"))
+                    Identificador = TypeParser.String(queryObject.Valor(fieldVendedor)),
+                    Nome = TypeParser.String(queryObject.Valor(fieldNome)),
+                    Comissao = TypeParser.Double(queryObject.Valor(fieldComissao))
                 });
 
                 queryObject.Seguinte();
@@ -38,82 +47,54 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        private static Representative generateUser(SQLiteDataReader sqliteQuery, Interop.StdBE900.StdBELista queryObject)
+        public static Representative View(string representativeId)
         {
-            if (sqliteQuery.Read())
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
-                return new Representative
-                {
-                    NomeCompleto = queryObject.Valor("Nome"),
-                    Email = queryObject.Valor("Email"),
-                    Telemovel = queryObject.Valor("Telemovel"),
-                    Identificador = queryObject.Valor("Vendedor")
-                };
+                throw new DatabaseConnectionException();
             }
-            else
+
+            var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;
+            var representativeInfo = representativesTable.Edita(representativeId);
+
+            return new Representative
+            {
+                Nome = representativeInfo.get_Nome(),
+                Email = representativeInfo.get_Email(),
+                Morada = representativeInfo.get_Morada(),
+                Comissao = representativeInfo.get_Comissao(),
+                Telefone = representativeInfo.get_Telefone(),
+                Telemovel = representativeInfo.get_Telemovel(),
+                Identificador = representativeInfo.get_Vendedor(),
+                Empresa = PrimaveraEngine.Engine.Licenca.get_Nome(),
+                CodigoPostal = representativeInfo.get_CodigoPostal(),
+                Fotografia = representativeInfo.get_LocalizacaoFoto(),
+                Localidade = representativeInfo.get_LocalidadeCodigoPostal(),
+            };
+        }
+
+        public static Reference Reference(string representativeId)
+        {
+            if (PrimaveraEngine.InitializeCompany() == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;
+
+            if (representativesTable.Existe(representativeId) == false)
             {
                 return null;
             }
+
+            return new Reference(representativeId, representativesTable.DaValorAtributo(representativeId, "Nome"));
         }
 
-        public static Representative View(string sessionUsername)
-        {
-            try
-            {
-                PrimaveraEngine.InitializeSQLite();
-            }
-            catch
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var sqlQuery = new SqlBuilder()
-                .FromTable("users")
-                .Column("reperesentative", null)
-                .Where("username", Comparison.Equals, sessionUsername);
-
-            using (var queryResult = PrimaveraEngine.ConsultaSQLite(sqlQuery))
-            {
-                if (queryResult.Read())
-                {
-                    var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;
-                    var representativeId = queryResult.GetString(queryResult.GetOrdinal("representative"));
-                    var representativeInfo = representativesTable.Edita(representativeId);
-
-                    return new Representative
-                    {
-                        NomeCompleto = representativeInfo.get_Nome(),
-                        Email = representativeInfo.get_Email(),
-                        Identificador = representativeInfo.get_Vendedor(),
-                        Telefone = representativeInfo.get_Telefone(),
-                        Telemovel = representativeInfo.get_Telemovel(),
-                        Fotografia = representativeInfo.get_LocalizacaoFoto()
-                    };
-                }
-            }
-
-            return null;
-        }
-
-        private static string registerUser = "INSERT INTO users(username, password, reference) VALUES (?,?,?)";
+        private static string registerUser = "INSERT INTO users(username, password, representative) VALUES (:username, :password, :representative)";
 
         public static bool Insert(UserInfo paramObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            try
-            {
-                PrimaveraEngine.InitializeSQLite();
-            }
-            catch
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -125,9 +106,9 @@ namespace FirstREST.LibPrimavera.Integration
 
             using (var sqlCommand = new SQLiteCommand(registerUser, PrimaveraEngine.getAuthenticationService()))
             {
-                sqlCommand.Parameters.Add(paramObject.Username);
-                sqlCommand.Parameters.Add(paramObject.Password);
-                sqlCommand.Parameters.Add(paramObject.Representante);
+                sqlCommand.Parameters.Add(new SQLiteParameter("username", paramObject.Username));
+                sqlCommand.Parameters.Add(new SQLiteParameter("password", paramObject.Password));
+                sqlCommand.Parameters.Add(new SQLiteParameter("representative", paramObject.Representante));
                 sqlCommand.ExecuteNonQuery();
             }
 

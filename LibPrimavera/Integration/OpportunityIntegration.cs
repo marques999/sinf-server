@@ -10,9 +10,26 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class OpportunityIntegration
     {
+        private static bool CheckPermissions(CrmBEOportunidadeVenda opportunityInfo, string sessionId)
+        {
+            if (opportunityInfo.get_EstadoVenda() == -1)
+            {
+                return false;
+            }
+
+            var representativeId = opportunityInfo.get_Vendedor();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static List<Opportunity> List(string sessionId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -22,7 +39,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Opportunity View(string sessionId, string opportunityId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -50,7 +67,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Update(string sessionId, string opportunityId, Opportunity jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -64,7 +81,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
-            if (opportunityInfo.get_Vendedor() != sessionId)
+            if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
                 return false;
             }
@@ -78,7 +95,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Insert(string sessionId, Opportunity jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -103,7 +120,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Delete(string sessionId, string opportunityId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -117,7 +134,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
-            if (opportunityInfo.get_Vendedor() != sessionId)
+            if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
                 return false;
             }

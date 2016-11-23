@@ -35,7 +35,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = UserIntegration.View(Thread.CurrentPrincipal.Identity.Name);
+                    var queryResult = UserIntegration.View(id);
 
                     if (queryResult == null)
                     {

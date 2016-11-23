@@ -32,9 +32,26 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CLIENTES.Distrito", null)
         };
 
+        private static bool CheckPermissions(GcpBECliente customerInfo, string sessionId)
+        {
+            if (customerInfo.get_Inactivo())
+            {
+                return false;
+            }
+
+            var representativeId = customerInfo.get_Vendedor();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static List<CustomerListing> List(string sessionId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -75,7 +92,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static CustomerInfo View(string sessionId, string customerId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -117,7 +134,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static EntityReference Reference(string customerId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -134,6 +151,8 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetMorada(GcpBECliente customerInfo, Address jsonObject)
         {
+            if (jsonObject.Pais != null)
+                customerInfo.set_Pais(jsonObject.Pais);
             if (jsonObject.Morada != null)
                 customerInfo.set_Morada(jsonObject.Morada);
             if (jsonObject.Distrito != null)
@@ -142,8 +161,8 @@ namespace FirstREST.LibPrimavera.Integration
                 customerInfo.set_Localidade(jsonObject.Localidade);
             if (jsonObject.CodigoPostal != null)
                 customerInfo.set_CodigoPostal(jsonObject.CodigoPostal);
-            if (jsonObject.Pais != null)
-                customerInfo.set_Pais(jsonObject.Pais);
+            if (jsonObject.Localidade != null)
+                customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localidade);
         }
 
         private static void SetFields(GcpBECliente customerInfo, Customer jsonObject)
@@ -169,7 +188,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Update(string sessionId, string customerId, Customer jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -183,7 +202,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var customerInfo = customersTable.Edita(customerId);
 
-            if (customerInfo.get_Vendedor() != sessionId)
+            if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return false;
             }
@@ -198,7 +217,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Insert(string sessionId, Customer jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -226,7 +245,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Delete(string sessionId, string customerId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -240,7 +259,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var customerInfo = customersTable.Edita(customerId);
 
-            if (customerInfo.get_Vendedor() != sessionId)
+            if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return false;
             }
