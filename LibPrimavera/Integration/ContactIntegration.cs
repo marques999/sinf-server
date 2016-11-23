@@ -14,16 +14,16 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static SqlColumn[] sqlColumnsListing =
         {
-            new SqlColumn("CONTACTOS.Contacto", null),
-            new SqlColumn("CONTACTOS.Titulo", null),
-            new SqlColumn("CONTACTOS.PrimeiroNome", null),
-            new SqlColumn("CONTACTOS.UltimoNome", null),
-            new SqlColumn("CONTACTOS.DataUltContacto", null),
-            new SqlColumn("CONTACTOS.Email", null),
-            new SqlColumn("CONTACTOS.Telemovel", null),
-            new SqlColumn("CONTACTOS.Pais", null),
-            new SqlColumn("CONTACTOS.Distrito", null),
-            new SqlColumn("CONTACTOS.Morada", null),
+            new SqlColumn("Contacto", null),
+            new SqlColumn("Titulo", null),
+            new SqlColumn("PrimeiroNome", null),
+            new SqlColumn("UltimoNome", null),
+            new SqlColumn("DataUltContacto", null),
+            new SqlColumn("Email", null),
+            new SqlColumn("Telemovel", null),
+            new SqlColumn("Pais", null),
+            new SqlColumn("Distrito", null),
+            new SqlColumn("Morada", null),
         };
 
         private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)

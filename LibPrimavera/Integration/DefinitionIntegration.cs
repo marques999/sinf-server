@@ -17,29 +17,29 @@ namespace FirstREST.LibPrimavera.Integration
             { 
                 DefinitionType.ThirdParty, new SqlColumn[]
                 {
-                    new SqlColumn("TipoTerceiros.TipoTerceiro", null),
-                    new SqlColumn("TipoTerceiros.Descricao", null),          
+                    new SqlColumn("TipoTerceiro", null),
+                    new SqlColumn("Descricao", null),          
                 }
             },
             {
                 DefinitionType.Country, new SqlColumn[]
                 {
-                    new SqlColumn("Paises.Pais", null),
-                    new SqlColumn("Paises.Descricao", null),          
+                    new SqlColumn("Pais", null),
+                    new SqlColumn("Descricao", null),          
                 } 
             },
             { 
                 DefinitionType.Language, new SqlColumn[]
                 {
-                    new SqlColumn("Idiomas.Idioma", null),
-                    new SqlColumn("Idiomas.Descricao", null),          
+                    new SqlColumn("Idioma", null),
+                    new SqlColumn("Descricao", null),          
                 } 
             },
             { 
                 DefinitionType.Zone, new SqlColumn[]
                 {
-                    new SqlColumn("Zonas.Zona", null),
-                    new SqlColumn("Zonas.Descricao", null),         
+                    new SqlColumn("Zona", null),
+                    new SqlColumn("Descricao", null),         
                 }
             }
         };

@@ -12,51 +12,24 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class LeadIntegration
     {
-        private static SqlColumn[] sqlColumnsFull =
-        {
-            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
-            new SqlColumn("ENTIDADESEXTERNAS.TipoTerceiro", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Email", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Activo", null),
-            new SqlColumn("ENTIDADESEXTERNAS.DataCriacao", null),
-            new SqlColumn("ENTIDADESEXTERNAS.DataUltAct", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Telefone", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Telefone2", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Telemovel", null),
-            new SqlColumn("ENTIDADESEXTERNAS.CodPostal", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Distrito", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Localidade", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Morada", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Morada2", null),
-            new SqlColumn("ENTIDADESEXTERNAS.EnderecoWeb", null),
-            new SqlColumn("ENTIDADESEXTERNAS.CodPostalLocal", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Zona", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Idioma", null),
-            new SqlColumn("ENTIDADESEXTERNAS.NumContrib", null),
-            new SqlColumn("ENTIDADESEXTERNAS.PessoaSingular", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Pais", null),
-            new SqlColumn("ENTIDADESEXTERNAS.TipoMercado", null)            
-        };
-
         private static SqlColumn[] sqlColumnsListing =
         {
-            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
-            new SqlColumn("ENTIDADESEXTERNAS.TipoTerceiro", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Email", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Activo", null),
-            new SqlColumn("ENTIDADESEXTERNAS.DataUltAct", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Telemovel", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Distrito", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Morada", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Pais", null)            
+            new SqlColumn("Entidade", null),
+            new SqlColumn("Nome", null),
+            new SqlColumn("TipoTerceiro", null),
+            new SqlColumn("Email", null),
+            new SqlColumn("Activo", null),
+            new SqlColumn("DataUltAct", null),
+            new SqlColumn("Telemovel", null),
+            new SqlColumn("Distrito", null),
+            new SqlColumn("Morada", null),
+            new SqlColumn("Pais", null)            
         };
 
         private static SqlColumn[] sqlColumnsReference =
         {
-            new SqlColumn("ENTIDADESEXTERNAS.Entidade", null),
-            new SqlColumn("ENTIDADESEXTERNAS.Nome", null),
+            new SqlColumn("Entidade", null),
+            new SqlColumn("Nome", null),
         };
 
         private static LeadListing GenerateListing(StdBELista queryObject)

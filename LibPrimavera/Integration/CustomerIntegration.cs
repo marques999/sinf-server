@@ -14,22 +14,22 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static SqlColumn[] sqlColumnsListing =
         {
-            new SqlColumn("CLIENTES.Cliente", null),
-            new SqlColumn("CLIENTES.Situacao", null),
-            new SqlColumn("CLIENTES.Nome", null),
-            new SqlColumn("CLIENTES.Moeda", null),
-            new SqlColumn("CLIENTES.NumContrib", null),
-            new SqlColumn("CLIENTES.EnderecoWeb", null),
-            new SqlColumn("CLIENTES.DataCriacao", null),
-            new SqlColumn("CLIENTES.DataUltimaActualizacao", null),
-            new SqlColumn("CLIENTES.EncomendasPendentes", null),
-            new SqlColumn("CLIENTES.TotalDeb", null),
-            new SqlColumn("CLIENTES.Fac_Tel", null),
-            new SqlColumn("CLIENTES.Fac_Cp", null),
-            new SqlColumn("CLIENTES.Fac_Mor", null),
-            new SqlColumn("CLIENTES.Pais", null),
-            new SqlColumn("CLIENTES.Fac_Local", null),
-            new SqlColumn("CLIENTES.Distrito", null)
+            new SqlColumn("Cliente", null),
+            new SqlColumn("Situacao", null),
+            new SqlColumn("Nome", null),
+            new SqlColumn("Moeda", null),
+            new SqlColumn("NumContrib", null),
+            new SqlColumn("EnderecoWeb", null),
+            new SqlColumn("DataCriacao", null),
+            new SqlColumn("DataUltimaActualizacao", null),
+            new SqlColumn("EncomendasPendentes", null),
+            new SqlColumn("TotalDeb", null),
+            new SqlColumn("Fac_Tel", null),
+            new SqlColumn("Fac_Cp", null),
+            new SqlColumn("Fac_Mor", null),
+            new SqlColumn("Pais", null),
+            new SqlColumn("Fac_Local", null),
+            new SqlColumn("Distrito", null)
         };
 
         private static bool CheckPermissions(GcpBECliente customerInfo, string sessionId)
