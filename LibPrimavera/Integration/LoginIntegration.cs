@@ -1,5 +1,7 @@
 ﻿using System.Data.SQLite;
 
+using Interop.GcpBE900;
+
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
 using FirstREST.LibPrimavera.Model;
@@ -12,7 +14,6 @@ namespace FirstREST.LibPrimavera.Integration
         private static string fieldUsername = "username";
         private static string fieldPassword = "password";
         private static string fieldRepresentative = "representative";
-        private static string queryPassword = "UPDATE users SET password = :password WHERE username = :username";
 
         private static SqlColumn[] loginColumns = new SqlColumn[]
         {
@@ -33,14 +34,14 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(loginColumns)
                 .Where(fieldUsername, Comparison.Equals, userLogin.Username);
 
-            using (var queryResult = PrimaveraEngine.ConsultaSQLite(sqlQuery))
+            using (var userInfo = PrimaveraEngine.ConsultaSQLite(sqlQuery))
             {
-                if (queryResult.Read() == false)
+                if (userInfo.Read() == false)
                 {
                     return null;
                 }
 
-                var userPasword = queryResult.GetString(queryResult.GetOrdinal(fieldPassword));
+                var userPasword = userInfo.GetString(userInfo.GetOrdinal(fieldPassword));
 
                 if (userPasword.Equals(userLogin.Password) == false)
                 {
@@ -48,20 +49,25 @@ namespace FirstREST.LibPrimavera.Integration
                 }
 
                 var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;
-                var representativeId = queryResult.GetString(queryResult.GetOrdinal(fieldRepresentative));
+                var representativeId = userInfo.GetString(userInfo.GetOrdinal(fieldRepresentative));
                 var representativeInfo = representativesTable.Edita(representativeId);
                 var userToken = Authentication.CreateSession(userLogin.Username, representativeId);
 
                 return new SessionInfo
                 {
                     Token = userToken,
-                    Email = representativeInfo.get_Email(),
+                    Username = userLogin.Username,
                     Nome = representativeInfo.get_Nome(),
+                    Email = representativeInfo.get_Email(),
+                    Morada = representativeInfo.get_Morada(),
                     Comissao = representativeInfo.get_Comissao(),
                     Telefone = representativeInfo.get_Telefone(),
                     Telemovel = representativeInfo.get_Telemovel(),
                     Identificador = representativeInfo.get_Vendedor(),
-                    Fotografia = representativeInfo.get_LocalizacaoFoto()
+                    Empresa = PrimaveraEngine.Engine.Licenca.get_Nome(),
+                    CodigoPostal = representativeInfo.get_CodigoPostal(),
+                    Fotografia = representativeInfo.get_LocalizacaoFoto(),
+                    Localidade = representativeInfo.get_LocalidadeCodigoPostal(),
                 };
             }
         }
@@ -71,8 +77,10 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static bool ChangePassword(string sessionUsername, UserPassword userPassword)
+        public static Representative Update(string sessionUsername, UserInfo userInfo)
         {
+            string queryPassword = "UPDATE users SET ";
+
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -85,34 +93,65 @@ namespace FirstREST.LibPrimavera.Integration
 
             using (var queryResult = PrimaveraEngine.ConsultaSQLite(sqlQuery))
             {
+                int changedFields = 0;
+
                 if (queryResult.Read())
                 {
-                    var oldPassword = queryResult.GetString(queryResult.GetOrdinal(fieldPassword));
+                    var currentPassword = queryResult.GetString(queryResult.GetOrdinal(fieldPassword));
 
-                    if (userPassword.PasswordNova.Equals(oldPassword))
+                    if (userInfo.Password.Equals(currentPassword))
                     {
-                        return false;
+                        return null;
                     }
 
-                    if (userPassword.PasswordAntiga.Equals(oldPassword) == false)
+                    if (userInfo.Password == null)
                     {
-                        return false;
+                        queryPassword += "password = :password";
+                        changedFields++;
                     }
+
+                    if (userInfo.Representante != null)
+                    {
+                        if (changedFields > 0)
+                        {
+                            queryPassword += " AND ";
+                        }
+
+                        queryPassword += "representative = :representative";
+                        changedFields++;
+                    }
+
+                    if (changedFields < 1)
+                    {
+                        return null;
+                    }
+
+                    queryPassword += "WHERE username = :username";
 
                     using (var sqlCommand = new SQLiteCommand(queryPassword, PrimaveraEngine.getAuthenticationService()))
                     {
                         sqlCommand.Parameters.Add(new SQLiteParameter(fieldUsername, sessionUsername));
-                        sqlCommand.Parameters.Add(new SQLiteParameter(fieldPassword, userPassword.PasswordNova));
+
+                        if (userInfo.Password != null)
+                        {
+                            sqlCommand.Parameters.Add(new SQLiteParameter(fieldPassword, userInfo.Password));
+                        }
+
+                        if (userInfo.Representante != null)
+                        {
+                            sqlCommand.Parameters.Add(new SQLiteParameter(fieldRepresentative, userInfo.Representante));
+                        }
+
                         sqlCommand.ExecuteNonQuery();
                     }
                 }
                 else
                 {
-                    return false;
+                    return null;
                 }
             }
 
-            return true;
+            return UserIntegration.View(userInfo.Representante);
         }
     }
 }

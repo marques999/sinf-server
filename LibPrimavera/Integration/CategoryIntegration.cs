@@ -82,5 +82,10 @@ namespace FirstREST.LibPrimavera.Integration
         {
             return new Reference(categoryId, PrimaveraEngine.Engine.Comercial.Familias.DaDescricao(categoryId));
         }
+
+        public static Reference GenerateReference(StdBELista categoryInfo)
+        {
+            return new Reference(TypeParser.String(categoryInfo.Valor("IdFamilia")), TypeParser.String(categoryInfo.Valor("Familia")));
+        }
     }
 }

@@ -101,7 +101,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Responsavel = contactInfo.get_CriadoPor(),
                 DataCriacao = contactInfo.get_DataUltContacto(),
                 DataModificacao = contactInfo.get_DataUltContacto(),
-                Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
+                Nome = contactsTable.DaNomeContacto(contactId),
                 Titulo = contactInfo.get_Titulo(),
                 Email = contactInfo.get_Email(),
                 Telefone = contactInfo.get_Telefone(),

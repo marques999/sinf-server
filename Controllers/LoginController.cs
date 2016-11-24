@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 using FirstREST.LibPrimavera;
@@ -42,7 +43,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LoginIntegration.Logout(id))
+                    if (LoginIntegration.Logout(HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -64,19 +65,21 @@ namespace FirstREST.Controllers
 
         // PUT api/login/{$sessionToken}/
         // FEATURE: Alterar password
-        public HttpResponseMessage Put(string id, [FromBody]UserPassword jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody]UserInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (LoginIntegration.ChangePassword(id, jsonObject))
+                    var representativeInfo = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
+
+                    if (representativeInfo == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, representativeInfo);
                     }
                 }
                 catch (Exception ex)

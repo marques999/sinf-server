@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = LeadIntegration.View(Authentication.GetRepresentative(token), id);
+                    var queryResult = LeadIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
@@ -99,7 +99,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LeadIntegration.Update(Authentication.GetRepresentative(null), id, jsonObject))
+                    if (LeadIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LeadIntegration.Delete(Authentication.GetRepresentative(null), id))
+                    if (LeadIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

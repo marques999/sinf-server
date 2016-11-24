@@ -280,6 +280,8 @@
     <Compile Include="LibPrimavera\Model\Lead.cs" />
     <Compile Include="LibPrimavera\Model\LeadListing.cs" />
     <Compile Include="LibPrimavera\Model\OrderInfo.cs" />
+    <Compile Include="LibPrimavera\Model\ProductListing.cs" />
+    <Compile Include="LibPrimavera\Model\ProductPrice.cs" />
     <Compile Include="LibPrimavera\Model\QuoteInfo.cs" />
     <Compile Include="LibPrimavera\Model\Representative.cs" />
     <Compile Include="LibPrimavera\Model\Session.cs" />

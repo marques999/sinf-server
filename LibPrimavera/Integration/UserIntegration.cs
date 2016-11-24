@@ -29,22 +29,22 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<RepresentativeListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder().Columns(sqlVendedor).FromTable("VENDEDORES"));
+            var representativeList = new List<RepresentativeListing>();
+            var representativeInfo = PrimaveraEngine.Consulta(new SqlBuilder().Columns(sqlVendedor).FromTable("VENDEDORES"));
 
-            while (!queryObject.NoFim())
+            while (!representativeInfo.NoFim())
             {
-                queryResult.Add(new RepresentativeListing
+                representativeList.Add(new RepresentativeListing
                 {
-                    Identificador = TypeParser.String(queryObject.Valor(fieldVendedor)),
-                    Nome = TypeParser.String(queryObject.Valor(fieldNome)),
-                    Comissao = TypeParser.Double(queryObject.Valor(fieldComissao))
+                    Identificador = TypeParser.String(representativeInfo.Valor(fieldVendedor)),
+                    Nome = TypeParser.String(representativeInfo.Valor(fieldNome)),
+                    Comissao = TypeParser.Double(representativeInfo.Valor(fieldComissao))
                 });
 
-                queryObject.Seguinte();
+                representativeInfo.Seguinte();
             }
 
-            return queryResult;
+            return representativeList;
         }
 
         public static Representative View(string representativeId)
@@ -55,6 +55,12 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;
+
+            if (representativesTable.Existe(representativeId) == false)
+            {
+                return null;
+            }
+
             var representativeInfo = representativesTable.Edita(representativeId);
 
             return new Representative
@@ -99,7 +105,9 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            if (PrimaveraEngine.Engine.Comercial.Vendedores.Existe(paramObject.Representante) == false)
+            var representativeId = paramObject.Representante;
+
+            if (PrimaveraEngine.Engine.Comercial.Vendedores.Existe(representativeId) == false)
             {
                 return false;
             }
@@ -108,7 +116,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 sqlCommand.Parameters.Add(new SQLiteParameter("username", paramObject.Username));
                 sqlCommand.Parameters.Add(new SQLiteParameter("password", paramObject.Password));
-                sqlCommand.Parameters.Add(new SQLiteParameter("representative", paramObject.Representante));
+                sqlCommand.Parameters.Add(new SQLiteParameter("representative", representativeId));
                 sqlCommand.ExecuteNonQuery();
             }
 

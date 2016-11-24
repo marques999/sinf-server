@@ -211,7 +211,7 @@ namespace FirstREST.LibPrimavera.Integration
             if (jsonObject.TipoTerceiro != null)
                 leadInfo.set_TipoTerceiro(jsonObject.TipoTerceiro);
             if (jsonObject.TipoMercado != null)
-                leadInfo.set_TipoMercado(jsonObject.TipoMercado);
+                leadInfo.set_TipoTerceiro(jsonObject.TipoMercado);
             if (jsonObject.Telefone2 != null)
                 leadInfo.set_Telefone2(jsonObject.Telefone2);
             if (jsonObject.EnderecoWeb != null)

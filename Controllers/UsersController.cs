@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Text;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -35,7 +34,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = UserIntegration.View(id);
+                    var queryResult = UserIntegration.View(HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {

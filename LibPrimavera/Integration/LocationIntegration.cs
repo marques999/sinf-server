@@ -31,24 +31,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var distritoList = new List<Reference>();
+            var distritoInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("DISTRITOS")
                 .Columns(sqlDistrito)
                 .Where(fieldDistrito, Comparison.GreaterThan, 0));
 
-            while (!queryObject.NoFim())
+            while (!distritoInfo.NoFim())
             {
-                queryResult.Add(new Reference()
+                distritoList.Add(new Reference()
                 {
-                    Identificador = TypeParser.String(queryObject.Valor(fieldDistrito)),
-                    Descricao = TypeParser.String(queryObject.Valor(fieldDescricao))
+                    Descricao = TypeParser.String(distritoInfo.Valor(fieldDescricao)),
+                    Identificador = TypeParser.String(distritoInfo.Valor(fieldDistrito))
                 });
 
-                queryObject.Seguinte();
+                distritoInfo.Seguinte();
             }
 
-            return queryResult;
+            return distritoList;
         }
 
         public static List<Reference> View(string paramId)
@@ -58,25 +58,25 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var concelhoList = new List<Reference>();
+            var concelhoInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONCELHOS")
                 .Columns(sqlConcelho)
                 .Where(fieldDistrito, Comparison.Equals, paramId)
                 .Where(fieldConcelho, Comparison.GreaterThan, 0));
 
-            while (!queryObject.NoFim())
+            while (!concelhoInfo.NoFim())
             {
-                queryResult.Add(new Reference()
+                concelhoList.Add(new Reference()
                 {
-                    Identificador = TypeParser.String(queryObject.Valor(fieldConcelho)),
-                    Descricao = TypeParser.String(queryObject.Valor(fieldDescricao))
+                    Descricao = TypeParser.String(concelhoInfo.Valor(fieldDescricao)),
+                    Identificador = TypeParser.String(concelhoInfo.Valor(fieldConcelho))
                 });
 
-                queryObject.Seguinte();
+                concelhoInfo.Seguinte();
             }
 
-            return queryResult;
+            return concelhoList;
         }
     }
 }

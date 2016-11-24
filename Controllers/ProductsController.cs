@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Text;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -42,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ProductIntegration.View(Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    var queryResult = ProductIntegration.View(HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
