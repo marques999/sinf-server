@@ -81,10 +81,12 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static string Reference(string distritoId)
         {
-            return TypeParser.String(PrimaveraEngine.Consulta(new SqlBuilder()
+            var sqlQuery = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("DISTRITOS")
                 .Columns(fieldDescricao)
-                .Where(fieldDistrito, Comparison.Equals, distritoId)).Valor(fieldDescricao));
+                .Where(fieldDistrito, Comparison.Equals, distritoId));
+
+            return sqlQuery.Vazia() ? distritoId : TypeParser.String(sqlQuery.Valor(fieldDescricao));
         }
     }
 }

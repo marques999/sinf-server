@@ -8,7 +8,7 @@ namespace FirstREST.LibPrimavera.Model
     public class CustomerInfo : Customer
     {
         [JsonProperty(PropertyName = "id")]
-        public string Identficador
+        public string Identificador
         {
             get;
             set;

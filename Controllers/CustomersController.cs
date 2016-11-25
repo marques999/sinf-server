@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Text;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -41,7 +42,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+                    var queryResult = CustomerIntegration.View(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
                     if (queryResult == null)
                     {
@@ -71,13 +72,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
+                    var queryResult = CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+
+                    if (queryResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
                 catch (Exception ex)
@@ -99,13 +102,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (CustomerIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
+                    var queryResult = CustomerIntegration.Update(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
+
+                    if (queryResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
                     }
                 }
                 catch (Exception ex)
@@ -127,7 +132,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (CustomerIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
+                    if (CustomerIntegration.Delete(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id))))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

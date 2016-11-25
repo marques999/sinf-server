@@ -22,17 +22,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("SUM(ARTIGOARMAZEM.StkActual)", "Stock")
         };
 
-        private static SqlColumn[] sqlColumnsListing =
-        {
-            new SqlColumn("ARMAZENS.Armazem", null),
-            new SqlColumn("ARMAZENS.Descricao", null),
-            new SqlColumn("ARMAZENS.Morada", null),
-            new SqlColumn("ARMAZENS.Localidade", null),
-            new SqlColumn("ARMAZENS.Cp", null),
-            new SqlColumn("ARMAZENS.Distrito", null),
-            new SqlColumn("ARMAZENS.Pais", null)
-        };
-
         private static Address GetAddress(StdBELista warehouseInfo)
         {
             return new Address
@@ -44,6 +33,17 @@ namespace FirstREST.LibPrimavera.Integration
                 Localidade = TypeParser.String(warehouseInfo.Valor("Localidade"))
             };
         }
+
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("ARMAZENS.Armazem", null),
+            new SqlColumn("ARMAZENS.Descricao", null),
+            new SqlColumn("ARMAZENS.Morada", null),
+            new SqlColumn("ARMAZENS.Localidade", null),
+            new SqlColumn("ARMAZENS.Cp", null),
+            new SqlColumn("ARMAZENS.Distrito", null),
+            new SqlColumn("ARMAZENS.Pais", null)
+        };
 
         public static List<Warehouse> List()
         {
@@ -70,6 +70,18 @@ namespace FirstREST.LibPrimavera.Integration
             return warehouseList;
         }
 
+        private static SqlColumn[] sqlColumnsFull =		
+        {		
+            new SqlColumn("ARMAZENS.Armazem", null),		
+            new SqlColumn("ARMAZENS.Descricao", null),	
+            new SqlColumn("ARMAZENS.Telefone", null),	
+            new SqlColumn("ARMAZENS.Morada", null),
+            new SqlColumn("ARMAZENS.Localidade", null),
+            new SqlColumn("ARMAZENS.Cp", null),
+            new SqlColumn("ARMAZENS.Distrito", null),
+            new SqlColumn("ARMAZENS.Pais", null)		
+        };
+
         public static Warehouse Get(string warehouseId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
@@ -84,22 +96,17 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            var warehouseInfo = warehousesTable.Edita(warehouseId);
+            var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("ARMAZENS")
+                .Columns(sqlColumnsFull)
+                .Where("Armazem", Comparison.Equals, warehouseId));
 
             return new Warehouse
             {
-                Identificador = warehouseInfo.get_Armazem(),
-                Descricao = warehouseInfo.get_Descricao(),
-                Telefone = warehouseInfo.get_Telefone(),
-                DataModificacao = warehouseInfo.get_DataUltimaActualizacao(),
-                Localizacao = new Address
-                {
-                    Pais = warehouseInfo.get_Pais(),
-                    Morada = warehouseInfo.get_Morada(),
-                    Distrito = warehouseInfo.get_Distrito(),
-                    Localidade = warehouseInfo.get_Localidade(),
-                    CodigoPostal = warehouseInfo.get_CodigoPostal()
-                }
+                Localizacao = GetAddress(warehouseInfo),
+                Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
+                Identificador = TypeParser.String(warehouseInfo.Valor("Armazem")),
+                Telefone = TypeParser.String(warehouseInfo.Valor("Telefone"))
             };
         }
 

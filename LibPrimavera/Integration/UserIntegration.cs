@@ -81,6 +81,11 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Reference Reference(string representativeId)
         {
+            if (representativeId == null)
+            {
+                return null;
+            }
+            
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
