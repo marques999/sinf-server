@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -22,7 +22,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         ActivityType.ANY,
                         ActivityStatus.Any,
                         ActivityInterval.Today
@@ -49,7 +49,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         ActivityStatus.Any,
                         ActivityInterval.Today
@@ -76,7 +76,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         ActivityStatus.Any,
                         TypeParser.Activity_Interval(when)
@@ -103,7 +103,7 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        Thread.CurrentPrincipal.Identity.Name,
+                        null,
                         TypeParser.Activity_Type(type),
                         TypeParser.Activity_Status(status),
                         TypeParser.Activity_Interval(when)
@@ -128,7 +128,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (AgendaIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -148,15 +148,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/agenda/{$activityId}/
+        // PUT api/agenda/{$activityId}/
         // Feature: Modificar actividade existente
-        public HttpResponseMessage Post(string id, [FromBody] Activity jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Activity jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (AgendaIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (AgendaIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -184,7 +184,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (AgendaIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

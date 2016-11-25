@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Authentication.GetRepresentative(null)));
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ContactIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = ContactIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
@@ -71,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (ContactIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -91,15 +91,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/contacts/{$contactId}/
+        // PUT api/contacts/{$contactId}/
         // FEATURE: Modificar contacto existente
-        public HttpResponseMessage Post(string id, [FromBody] Contact jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Contact jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (ContactIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (ContactIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (ContactIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (ContactIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

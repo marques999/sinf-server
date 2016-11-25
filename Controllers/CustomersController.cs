@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Text;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -21,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Authentication.GetRepresentative(null)));
                 }
                 catch (Exception ex)
                 {
@@ -42,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.View(Thread.CurrentPrincipal.Identity.Name, Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    var queryResult = CustomerIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
@@ -72,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (CustomerIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -92,15 +91,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/customers/{$customerId}/
+        // PUT api/customers/{$customerId}/
         // FEATURE: Modificar cliente existente
-        public HttpResponseMessage Post(string id, [FromBody] Customer jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Customer jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (CustomerIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (CustomerIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -128,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (CustomerIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (CustomerIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

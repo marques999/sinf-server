@@ -10,9 +10,26 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class QuoteIntegration
     {
+        private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
+        {
+            if (opportunityInfo.get_Anulado())
+            {
+                return false;
+            }
+
+            var representativeId = opportunityInfo.get_Responsavel();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static List<Quote> List(string quoteId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -38,7 +55,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static QuoteInfo View(string sessionId, string quoteId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -57,12 +74,23 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
+            var quoteProducts = new List<OrderInfo>();
+
+            quoteProducts.Add(new OrderInfo
+             {
+                 Quantidade = 2,
+                 Preco = 3.0,
+                 Desconto = 0.5,
+                 Produto = new Reference("1", "Produto de Merda")
+             });
+
             return new QuoteInfo
             {
                 Identificador = quoteInfo.get_ID(),
                 Descricao = quoteInfo.get_Nome(),
                 Notas = quoteInfo.get_Observacoes(),
-                OpportunityId = quoteInfo.get_IdOportunidade()
+                OpportunityId = quoteInfo.get_IdOportunidade(),
+                Produtos = quoteProducts
             };
         }
 
@@ -78,7 +106,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Update(string sessionId, string quoteId, Quote jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -92,7 +120,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var quoteInfo = quotesTable.EditaID(quoteId);
 
-            if (quoteInfo.get_Responsavel() != sessionId)
+            if (CheckPermissions(quoteInfo, sessionId) == false)
             {
                 return false;
             }
@@ -107,7 +135,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Insert(string sessionId, Quote jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -136,7 +164,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Delete(string sessionId, string quoteId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -150,7 +178,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var quoteInfo = quotesTable.EditaID(quoteId);
 
-            if (quoteInfo.get_Responsavel() != sessionId)
+            if (CheckPermissions(quoteInfo, sessionId) == false)
             {
                 return false;
             }

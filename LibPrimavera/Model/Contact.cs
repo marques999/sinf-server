@@ -13,5 +13,12 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
+
+        [JsonProperty(PropertyName = "entity")]
+        public string Entity
+        {
+            get;
+            set;
+        }
     }
 }

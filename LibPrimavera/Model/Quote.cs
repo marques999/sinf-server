@@ -18,9 +18,9 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-        
+
         [JsonProperty(PropertyName = "products")]
-        public List<string> Produtos
+        public List<Order> Produtos
         {
             get;
             set;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 using FirstREST.LibPrimavera;
@@ -9,15 +10,15 @@ using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
-    public class AuthController : ApiController
+    public class LoginController : ApiController
     {
-        // POST api/auth/
+        // POST api/login/
         // FEATURE: Autenticar utilizador
-        public HttpResponseMessage Post(string id, [FromBody]UserLogin jsonObject)
+        public HttpResponseMessage Post([FromBody]UserLogin jsonObject)
         {
             try
             {
-                var representativeInfo = AuthIntegration.Authenticate(jsonObject);
+                var representativeInfo = LoginIntegration.Authenticate(jsonObject);
 
                 if (representativeInfo == null)
                 {
@@ -34,7 +35,7 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/auth/{$sessionToken}/
+        // DELETE api/login/{$sessionToken}/
         // FEATURE: Terminar sessão
         public HttpResponseMessage Post(string id)
         {
@@ -42,7 +43,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AuthIntegration.Logout(id))
+                    if (LoginIntegration.Logout(HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -62,21 +63,23 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/auth/{$sessionToken}/
+        // PUT api/login/{$sessionToken}/
         // FEATURE: Alterar password
-        public HttpResponseMessage Put(string id, [FromBody]UserPassword jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody]UserInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (AuthIntegration.ChangePassword(id, jsonObject))
+                    var representativeInfo = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
+
+                    if (representativeInfo == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, representativeInfo);
                     }
                 }
                 catch (Exception ex)

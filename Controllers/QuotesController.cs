@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.List(Thread.CurrentPrincipal.Identity.Name));
+                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.List(Authentication.GetRepresentative(null)));
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = QuoteIntegration.View(Thread.CurrentPrincipal.Identity.Name, id);
+                    var queryResult = QuoteIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
@@ -71,7 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (QuoteIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (QuoteIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -91,15 +91,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/quotes/{$quoteId}/
+        // PUT api/quotes/{$quoteId}/
         // FEATURE: Modificar encomenda existente
-        public HttpResponseMessage Post(string id, [FromBody] Quote jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Quote jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (QuoteIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (QuoteIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (QuoteIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (QuoteIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

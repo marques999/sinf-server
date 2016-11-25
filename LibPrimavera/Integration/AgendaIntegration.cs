@@ -31,9 +31,26 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("TIPOSTAREFA.Descricao", "DescricaoActividade"),
         };
 
+        private static bool CheckPermissions(CrmBEActividade activityInfo, string sessionId)
+        {
+            if (activityInfo.get_Estado() == null)
+            {
+                return false;
+            }
+
+            var representativeId = activityInfo.get_CriadoPor();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static List<Activity> List(string sessionId, ActivityType agendaType, ActivityStatus agendaStatus, ActivityInterval agendaWhen)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -268,7 +285,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static ActivityInfo View(string sessionId, string activityId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -309,7 +326,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Update(string sessionId, string activityId, Activity jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -323,7 +340,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var activityInfo = activitiesTable.Edita(activityId);
 
-            if (activityInfo.get_CriadoPor() != activityId)
+            if (CheckPermissions(activityInfo, sessionId) == false)
             {
                 return false;
             }
@@ -338,7 +355,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Insert(string sessionId, Activity jsonObject)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -365,7 +382,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Delete(string sessionId, string activityId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -377,12 +394,17 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            if (activitiesTable.Edita(activityId).get_CriadoPor() != activityId)
+            var activityInfo = activitiesTable.Edita(activityId);
+
+            if (CheckPermissions(activityInfo, sessionId) == false)
             {
                 return false;
             }
 
-            activitiesTable.Remove(activityId);
+            activityInfo.set_EmModoEdicao(true);
+            activityInfo.set_Estado(null);
+            activityInfo.set_DataUltAct(DateTime.Now);
+            activitiesTable.Actualiza(activityInfo);
 
             return true;
         }

@@ -8,71 +8,75 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class LocationIntegration
     {
+        private static string fieldConcelho = "Concelho";
+        private static string fieldDistrito = "Distrito";
+        private static string fieldDescricao = "Descricao";
+
         private static SqlColumn[] sqlDistrito =
         {
-            new SqlColumn("DISTRITOS.Distrito", null),
-            new SqlColumn("DISTRITOS.Descricao", null),
+            new SqlColumn(fieldDistrito, null),
+            new SqlColumn(fieldDescricao, null),
         };
 
         private static SqlColumn[] sqlConcelho =
         {
-            new SqlColumn("CONCELHOS.Concelho", null),
-            new SqlColumn("CONCELHOS.Descricao", null)
+            new SqlColumn(fieldConcelho, null),
+            new SqlColumn(fieldDescricao, null)
         };
 
         public static List<Reference> List()
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var distritoList = new List<Reference>();
+            var distritoInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("DISTRITOS")
                 .Columns(sqlDistrito)
-                .Where("Distrito", Comparison.GreaterThan, 0));
+                .Where(fieldDistrito, Comparison.GreaterThan, 0));
 
-            while (!queryObject.NoFim())
+            while (!distritoInfo.NoFim())
             {
-                queryResult.Add(new Reference()
+                distritoList.Add(new Reference()
                 {
-                    Identificador = TypeParser.String(queryObject.Valor("Distrito")),
-                    Descricao = TypeParser.String(queryObject.Valor("Descricao"))
+                    Descricao = TypeParser.String(distritoInfo.Valor(fieldDescricao)),
+                    Identificador = TypeParser.String(distritoInfo.Valor(fieldDistrito))
                 });
 
-                queryObject.Seguinte();
+                distritoInfo.Seguinte();
             }
 
-            return queryResult;
+            return distritoList;
         }
 
         public static List<Reference> View(string paramId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var concelhoList = new List<Reference>();
+            var concelhoInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CONCELHOS")
                 .Columns(sqlConcelho)
-                .Where("Distrito", Comparison.Equals, paramId)
-                .Where("Concelho", Comparison.GreaterThan, 0));
+                .Where(fieldDistrito, Comparison.Equals, paramId)
+                .Where(fieldConcelho, Comparison.GreaterThan, 0));
 
-            while (!queryObject.NoFim())
+            while (!concelhoInfo.NoFim())
             {
-                queryResult.Add(new Reference()
+                concelhoList.Add(new Reference()
                 {
-                    Identificador = TypeParser.String(queryObject.Valor("Concelho")),
-                    Descricao = TypeParser.String(queryObject.Valor("Descricao"))
+                    Descricao = TypeParser.String(concelhoInfo.Valor(fieldDescricao)),
+                    Identificador = TypeParser.String(concelhoInfo.Valor(fieldConcelho))
                 });
 
-                queryObject.Seguinte();
+                concelhoInfo.Seguinte();
             }
 
-            return queryResult;
+            return concelhoList;
         }
     }
 }

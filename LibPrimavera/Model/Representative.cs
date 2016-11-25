@@ -1,24 +1,9 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Representative
+    public class Representative : RepresentativeListing
     {
-        [JsonProperty(PropertyName = "id")]
-        public string Identificador
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "name")]
-        public string NomeCompleto
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "email")]
         public string Email
         {
@@ -33,7 +18,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-
         [JsonProperty(PropertyName = "picture")]
         public string Fotografia
         {
@@ -41,13 +25,36 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        public void setPicture(byte[] pictureData)
-        {
-            Fotografia = Convert.ToBase64String(pictureData);
-        }
-
         [JsonProperty(PropertyName = "mobile")]
         public string Telemovel
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "address")]
+        public string Morada
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "parish")]
+        public string Localidade
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "postal")]
+        public string CodigoPostal
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "company")]
+        public string Empresa
         {
             get;
             set;

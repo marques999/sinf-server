@@ -34,7 +34,7 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-        
+
         [JsonProperty(PropertyName = "priority")]
         public string Prioridade
         {

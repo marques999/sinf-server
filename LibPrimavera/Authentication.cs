@@ -39,5 +39,10 @@ namespace FirstREST.LibPrimavera
             return true;
             //return DateTime.FromBinary(BitConverter.ToInt64(Convert.FromBase64String(userToken), 0)) >= DateTime.UtcNow.AddMinutes(-30);
         }
+
+        public static string GetRepresentative(string sessionId)
+        {
+            return sessionId == null ? "1" : sessionId;
+        }
     }
 }

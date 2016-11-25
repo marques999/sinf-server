@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
-using System.Threading;
 
 using FirstREST.LibPrimavera;
 using FirstREST.LibPrimavera.Model;
@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(token));
+                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(Authentication.GetRepresentative(token)));
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = LeadIntegration.View(token, id);
+                    var queryResult = LeadIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
 
                     if (queryResult == null)
                     {
@@ -65,13 +65,13 @@ namespace FirstREST.Controllers
 
         // POST api/leads/
         // FEATURE: Adicionar lead
-        public HttpResponseMessage Post([FromBody] Lead jsonObject)
+        public HttpResponseMessage Post([FromBody] LeadInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (LeadIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
+                    if (LeadIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -91,15 +91,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/leads/{$prospectId}/
+        // PUT api/leads/{$prospectId}/
         // FEATURE: Modificar lead existente
-        public HttpResponseMessage Post(string id, [FromBody] Lead jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] LeadInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (LeadIntegration.Update(Thread.CurrentPrincipal.Identity.Name, id, jsonObject))
+                    if (LeadIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
@@ -127,7 +127,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LeadIntegration.Delete(Thread.CurrentPrincipal.Identity.Name, id))
+                    if (LeadIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

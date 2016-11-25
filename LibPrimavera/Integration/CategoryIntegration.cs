@@ -19,7 +19,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static List<CategoryListing> List()
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -58,7 +58,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Category Get(string categoryId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -81,6 +81,11 @@ namespace FirstREST.LibPrimavera.Integration
         public static Reference GenerateReference(string categoryId)
         {
             return new Reference(categoryId, PrimaveraEngine.Engine.Comercial.Familias.DaDescricao(categoryId));
+        }
+
+        public static Reference GenerateReference(StdBELista categoryInfo)
+        {
+            return new Reference(TypeParser.String(categoryInfo.Valor("IdFamilia")), TypeParser.String(categoryInfo.Valor("Familia")));
         }
     }
 }

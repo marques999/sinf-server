@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Interop.StdBE900;
+
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
 using FirstREST.LibPrimavera.Model;
@@ -31,9 +33,21 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ARMAZENS.Pais", null)
         };
 
+        private static Address GetAddress(StdBELista warehouseInfo)
+        {
+            return new Address
+            {
+                Pais = TypeParser.String(warehouseInfo.Valor("Pais")),
+                Morada = TypeParser.String(warehouseInfo.Valor("Morada")),
+                CodigoPostal = TypeParser.String(warehouseInfo.Valor("Cp")),
+                Distrito = TypeParser.String(warehouseInfo.Valor("Distrito")),
+                Localidade = TypeParser.String(warehouseInfo.Valor("Localidade"))
+            };
+        }
+
         public static List<Warehouse> List()
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -45,16 +59,9 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 warehouseList.Add(new Warehouse
                 {
-                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem")),
+                    Localizacao = GetAddress(warehouseInfo),
                     Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
-                    Localizacao = new Address
-                    {
-                        CodigoPostal = TypeParser.String(warehouseInfo.Valor("Cp")),
-                        Morada = TypeParser.String(warehouseInfo.Valor("Morada")),
-                        Pais = TypeParser.String(warehouseInfo.Valor("Pais")),
-                        Localidade = TypeParser.String(warehouseInfo.Valor("Localidade")),
-                        Distrito = TypeParser.String(warehouseInfo.Valor("Distrito")),
-                    }
+                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem"))
                 });
 
                 warehouseInfo.Seguinte();
@@ -65,7 +72,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Warehouse Get(string warehouseId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -98,7 +105,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static List<Warehouse> GetWarehouses(string productId)
         {
-            if (PrimaveraEngine.InitializeCompany(Properties.Settings.Default.Company.Trim(), Properties.Settings.Default.User.Trim(), Properties.Settings.Default.Password.Trim()) == false)
+            if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
@@ -115,17 +122,10 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 warehouseList.Add(new Warehouse
                 {
-                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem")),
-                    Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
+                    Localizacao = GetAddress(warehouseInfo),
                     Stock = TypeParser.Double(warehouseInfo.Valor("Stock")),
-                    Localizacao = new Address
-                    {
-                        Pais = TypeParser.String(warehouseInfo.Valor("Pais")),
-                        Morada = TypeParser.String(warehouseInfo.Valor("Morada")),
-                        CodigoPostal = TypeParser.String(warehouseInfo.Valor("Cp")),
-                        Distrito = TypeParser.String(warehouseInfo.Valor("Distrito")),
-                        Localidade = TypeParser.String(warehouseInfo.Valor("Localidade"))
-                    }
+                    Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
+                    Identificador = TypeParser.String(warehouseInfo.Valor("Armazem"))
                 });
 
                 warehouseInfo.Seguinte();

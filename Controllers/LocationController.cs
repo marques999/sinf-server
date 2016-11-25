@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 using FirstREST.LibPrimavera;
@@ -31,7 +32,7 @@ namespace FirstREST.Controllers
         {
             try
             {
-                var queryResult = LocationIntegration.View(id);
+                var queryResult = LocationIntegration.View(HttpUtility.UrlDecode(id));
 
                 if (queryResult == null)
                 {
