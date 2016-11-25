@@ -17,7 +17,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Cliente", null),
             new SqlColumn("Situacao", null),
             new SqlColumn("Nome", null),
-            new SqlColumn("Moeda", null),
             new SqlColumn("NumContrib", null),
             new SqlColumn("EnderecoWeb", null),
             new SqlColumn("DataCriacao", null),
@@ -110,7 +109,6 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 Identficador = customerInfo.get_Cliente(),
                 Nome = customerInfo.get_Nome(),
-                Moeda = customerInfo.get_Moeda(),
                 Situacao = customerInfo.get_Situacao(),
                 Debito = customerInfo.get_DebitoContaCorrente(),
                 NumContribuinte = customerInfo.get_NumContribuinte(),
@@ -170,8 +168,6 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_PessoaSingular(jsonObject.Particular);
             if (jsonObject.Nome != null)
                 customerInfo.set_Nome(jsonObject.Nome);
-            if (jsonObject.Moeda != null)
-                customerInfo.set_Moeda(jsonObject.Moeda);
             if (jsonObject.Situacao != null)
                 customerInfo.set_Situacao(jsonObject.Situacao);
             if (jsonObject.NumContribuinte != null)

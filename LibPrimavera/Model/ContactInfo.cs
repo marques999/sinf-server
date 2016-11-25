@@ -15,7 +15,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "owner")]
-        public string Responsavel
+        public Reference Responsavel
         {
             get;
             set;

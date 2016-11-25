@@ -27,6 +27,11 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(DefinitionType.Country));
                     }
 
+                    if (type2get.Equals("titulos"))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(DefinitionType.Title));
+                    }
+
                     if (type2get.Equals("idiomas"))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(DefinitionType.Language));

@@ -8,6 +8,8 @@ namespace FirstREST.LibPrimavera.Model
         Country,
         [Description("Idioma")]
         Language,
+        [Description("Titulo")]
+        Title,
         [Description("TipoTerceiro")]
         ThirdParty,
         [Description("Zona")]

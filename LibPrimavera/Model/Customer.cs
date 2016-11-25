@@ -34,12 +34,5 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-
-        [JsonProperty(PropertyName = "currency")]
-        public string Moeda
-        {
-            get;
-            set;
-        }
     }
 }

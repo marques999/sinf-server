@@ -22,7 +22,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Email", null),
             new SqlColumn("Telemovel", null),
             new SqlColumn("Pais", null),
-            new SqlColumn("Distrito", null),
             new SqlColumn("Morada", null),
         };
 
@@ -60,7 +59,6 @@ namespace FirstREST.LibPrimavera.Integration
                     Telemovel = TypeParser.String(contactInfo.Valor("Telemovel")),
                     Localizacao = TypeParser.String(contactInfo.Valor("Morada")),
                     Pais = TypeParser.String(contactInfo.Valor("Pais")),
-                    Distrito = TypeParser.String(contactInfo.Valor("Distrito"))
                 });
 
                 contactInfo.Seguinte();
@@ -98,7 +96,7 @@ namespace FirstREST.LibPrimavera.Integration
             return new ContactInfo()
             {
                 Identficador = contactInfo.get_Contacto(),
-                Responsavel = contactInfo.get_CriadoPor(),
+                Responsavel = UserIntegration.Reference(contactInfo.get_CriadoPor()),
                 DataCriacao = contactInfo.get_DataUltContacto(),
                 DataModificacao = contactInfo.get_DataUltContacto(),
                 Nome = contactsTable.DaNomeContacto(contactId),
@@ -113,7 +111,7 @@ namespace FirstREST.LibPrimavera.Integration
                     Morada = contactInfo.get_Morada(),
                     Pais = contactInfo.get_Pais(),
                     Localidade = contactInfo.get_Localidade(),
-                    Distrito = contactInfo.get_Distrito()
+                    Distrito = LocationIntegration.Reference(contactInfo.get_Distrito())
                 }
             };
         }
@@ -135,22 +133,6 @@ namespace FirstREST.LibPrimavera.Integration
             return new EntityReference(contactId, EntityType.Contact, contactsTable.DaNomeContacto(contactId));
         }
 
-        private static void SetAddress(CrmBEContacto contactInfo, Address jsonObject)
-        {
-            if (jsonObject.Pais != null)
-                contactInfo.set_Pais(jsonObject.Pais);
-            if (jsonObject.Morada != null)
-                contactInfo.set_Morada(jsonObject.Morada);
-            if (jsonObject.Distrito != null)
-                contactInfo.set_Distrito(jsonObject.Distrito);
-            if (jsonObject.Localidade != null)
-                contactInfo.set_Localidade(jsonObject.Localidade);
-            if (jsonObject.CodigoPostal != null)
-                contactInfo.set_CodPostal(jsonObject.CodigoPostal);
-            if (jsonObject.Localidade != null)
-                contactInfo.set_CodPostalLocal(jsonObject.Localidade);
-        }
-
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
             if (jsonObject.Nome != null)
@@ -165,8 +147,18 @@ namespace FirstREST.LibPrimavera.Integration
                 contactInfo.set_Telefone2(jsonObject.Telefone2);
             if (jsonObject.Telemovel != null)
                 contactInfo.set_Telemovel(jsonObject.Telemovel);
-            if (jsonObject.Localizacao != null)
-                SetAddress(contactInfo, jsonObject.Localizacao);
+            if (jsonObject.Localizacao.Pais != null)
+                contactInfo.set_Pais(jsonObject.Localizacao.Pais);
+            if (jsonObject.Localizacao.Morada != null)
+                contactInfo.set_Morada(jsonObject.Localizacao.Morada);
+            if (jsonObject.Localizacao.Distrito != null)
+                contactInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+            if (jsonObject.Localizacao.Localidade != null)
+                contactInfo.set_Localidade(jsonObject.Localizacao.Localidade);
+            if (jsonObject.Localizacao.CodigoPostal != null)
+                contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal);
+            if (jsonObject.Localizacao.Localidade != null)
+                contactInfo.set_CodPostalLocal(jsonObject.Localizacao.Localidade);
         }
 
         public static bool Update(string sessionId, string contactId, Contact jsonObject)
@@ -215,6 +207,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             contactInfo.set_Contacto(contactId);
             contactInfo.set_CriadoPor(sessionId);
+            contactInfo.set_ID(PrimaveraEngine.generateGUID());
             SetFields(contactInfo, jsonObject);
             contactsTable.Actualiza(contactInfo);
 

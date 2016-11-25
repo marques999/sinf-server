@@ -78,5 +78,13 @@ namespace FirstREST.LibPrimavera.Integration
 
             return concelhoList;
         }
+
+        public static string Reference(string distritoId)
+        {
+            return TypeParser.String(PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("DISTRITOS")
+                .Columns(fieldDescricao)
+                .Where(fieldDistrito, Comparison.Equals, distritoId)).Valor(fieldDescricao));
+        }
     }
 }

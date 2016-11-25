@@ -41,12 +41,20 @@ namespace FirstREST.LibPrimavera.Integration
                     new SqlColumn("Zona", null),
                     new SqlColumn("Descricao", null),         
                 }
+            },
+            {
+            DefinitionType.Title, new SqlColumn[]
+                {
+                    new SqlColumn("Titulo", null),
+                    new SqlColumn("Descricao", null),         
+                }
             }
         };
 
         private static Dictionary<DefinitionType, String> definitionTables = new Dictionary<DefinitionType, String>
-        {
+        {   
             { DefinitionType.ThirdParty, "TipoTerceiros" },
+            { DefinitionType.Title, "TitulosAcademicos" },
             { DefinitionType.Country, "Paises" },
             { DefinitionType.Language, "Idiomas" },
             { DefinitionType.Zone, "Zonas" }
