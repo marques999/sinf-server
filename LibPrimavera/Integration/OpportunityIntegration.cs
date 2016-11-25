@@ -13,8 +13,6 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class OpportunityIntegration
     {
-
-
         private static SqlColumn[] sqlColumnsListing =
         {
             new SqlColumn("CABECOPORTUNIDADESVENDA.ID", null),
@@ -61,11 +59,10 @@ namespace FirstREST.LibPrimavera.Integration
                 RealBillingDate = TypeParser.Date(queryObject.Valor("DataRealFacturacao")),
                 ClosureDate = TypeParser.Date(queryObject.Valor("DataFecho")),
                 LossMotive = TypeParser.String(queryObject.Valor("MotivoPerda")),
-                Opportunityy = TypeParser.String(queryObject.Valor("Oportunidade")),
+                OpportunityId = TypeParser.String(queryObject.Valor("Oportunidade")),
                 Currency = TypeParser.String(queryObject.Valor("Moeda")),
                 Identificador = TypeParser.String(queryObject.Valor("ID")),
                 Brief = TypeParser.String(queryObject.Valor("Resumo"))
-
             };
         }
 
@@ -109,7 +106,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static Opportunity View(string sessionId, string opportunityId)
+        public static OpportunityInfo View(string sessionId, string opportunityId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -130,8 +127,9 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }*/
 
-            return new Opportunity()
+            return new OpportunityInfo()
             {
+                DataCriacao = opportunityInfo.get_DataCriacao(),
                 Entity = opportunityInfo.get_Entidade(),
                 Campaign = opportunityInfo.get_Campanha(),
                 SellCycle = opportunityInfo.get_CicloVenda(),
@@ -146,7 +144,7 @@ namespace FirstREST.LibPrimavera.Integration
                 RealBillingDate = opportunityInfo.get_DataRealFacturacao(),
                 ClosureDate = opportunityInfo.get_DataFecho(),
                 LossMotive = opportunityInfo.get_MotivoPerda(),
-                Opportunityy = opportunityInfo.get_Oportunidade(),
+                OpportunityId = opportunityInfo.get_Oportunidade(),
                 Currency = opportunityInfo.get_Moeda(),
                 Brief = opportunityInfo.get_Resumo()
             };
@@ -154,6 +152,27 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetFields(CrmBEOportunidadeVenda opportunityInfo, Opportunity jsonObject)
         {
+            opportunityInfo.set_Entidade(jsonObject.Entity);
+            opportunityInfo.set_Campanha(jsonObject.Campaign);
+            opportunityInfo.set_CicloVenda(jsonObject.SellCycle);
+            opportunityInfo.set_DataEncomenda(jsonObject.DateOrdered);
+            opportunityInfo.set_DataExpiracao(jsonObject.ExpirationDate);
+            opportunityInfo.set_DataRealEncomenda(jsonObject.RealBillingDate);
+            opportunityInfo.set_Descricao(jsonObject.Description);
+            opportunityInfo.set_MargemOV(jsonObject.MarginOV);
+            opportunityInfo.set_Origem(jsonObject.Origin);
+            opportunityInfo.set_ValorEncomendaOV(jsonObject.OrderValueOV);
+            opportunityInfo.set_ValorPropostoOV(jsonObject.ProposedValueOV);
+            opportunityInfo.set_Zona(jsonObject.Zone);
+            opportunityInfo.set_Vendedor(jsonObject.Seller);
+            opportunityInfo.set_CriadoPor(jsonObject.CreatedBy);
+            opportunityInfo.set_DataRealFacturacao(jsonObject.RealBillingDate);
+            opportunityInfo.set_DataFecho(jsonObject.ClosureDate);
+            opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
+            opportunityInfo.set_Oportunidade(jsonObject.OpportunityId);
+            opportunityInfo.set_Moeda(jsonObject.Currency);
+            opportunityInfo.set_Resumo(jsonObject.Brief);
+            opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
         }
 
         public static bool Update(string sessionId, string opportunityId, Opportunity jsonObject)
@@ -172,44 +191,16 @@ namespace FirstREST.LibPrimavera.Integration
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
-            /*if (opportunityInfo.get_Vendedor() != sessionId)
-
-            if (CheckPermissions(opportunityInfo, sessionId) == false)
+            /*if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
                 return false;
             }*/
 
             opportunityInfo.set_EmModoEdicao(true);
-
-            opportunityInfo.set_Entidade(jsonObject.Entity);
-            opportunityInfo.set_Campanha(jsonObject.Campaign);
-            opportunityInfo.set_CicloVenda(jsonObject.SellCycle);
-            opportunityInfo.set_DataEncomenda(jsonObject.DateOrdered);
-            opportunityInfo.set_DataExpiracao(jsonObject.ExpirationDate);
-            opportunityInfo.set_DataRealEncomenda(jsonObject.RealBillingDate);
-            opportunityInfo.set_Descricao(jsonObject.Description);
-            opportunityInfo.set_MargemOV(jsonObject.MarginOV);
-            opportunityInfo.set_Origem(jsonObject.Origin);
-            opportunityInfo.set_ValorEncomendaOV(jsonObject.OrderValueOV);
-            opportunityInfo.set_ValorPropostoOV(jsonObject.ProposedValueOV);
-            opportunityInfo.set_Zona(jsonObject.Zone);
-            opportunityInfo.set_Vendedor(jsonObject.Seller);
-            opportunityInfo.set_CriadoPor(jsonObject.CreatedBy);
-            opportunityInfo.set_DataRealFacturacao(jsonObject.RealBillingDate);
-            opportunityInfo.set_DataFecho(jsonObject.ClosureDate);
-            opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
-            opportunityInfo.set_Oportunidade(jsonObject.Opportunityy);
-            opportunityInfo.set_Moeda(jsonObject.Currency);
-            opportunityInfo.set_Resumo(jsonObject.Brief);
-            opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
-            //opportunityInfo.set_ID(jsonObject.Opportunityy);
-            //opportunityInfo.set_Oportunidade(jsonObject.Opportunityy);
-            //opportunityInfo.set_ID
+            SetFields(opportunityInfo, jsonObject);
             opportunityInfo.set_CriadoPor(sessionId);
             opportunityInfo.set_DataCriacao(DateTime.Now);
-            //opportunityInfo.set_Oportunidade(opportunityId);
             opportunitiesTable.Actualiza(opportunityInfo);
-            //SetFields(opportunityInfo, jsonObject);
 
             return true;
         }
@@ -230,33 +221,9 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            opportunityInfo.set_Entidade(jsonObject.Entity);
-            opportunityInfo.set_Campanha(jsonObject.Campaign);
-            opportunityInfo.set_CicloVenda(jsonObject.SellCycle);
-            opportunityInfo.set_DataEncomenda(jsonObject.DateOrdered);
-            opportunityInfo.set_DataExpiracao(jsonObject.ExpirationDate);
-            opportunityInfo.set_DataRealEncomenda(jsonObject.RealBillingDate);
-            opportunityInfo.set_Descricao(jsonObject.Description);
-            opportunityInfo.set_MargemOV(jsonObject.MarginOV);
-            opportunityInfo.set_Origem(jsonObject.Origin);
-            opportunityInfo.set_ValorEncomendaOV(jsonObject.OrderValueOV);
-            opportunityInfo.set_ValorPropostoOV(jsonObject.ProposedValueOV);
-            opportunityInfo.set_Zona(jsonObject.Zone);
-            opportunityInfo.set_Vendedor(jsonObject.Seller);
-            opportunityInfo.set_CriadoPor(jsonObject.CreatedBy);
-            opportunityInfo.set_DataRealFacturacao(jsonObject.RealBillingDate);
-            opportunityInfo.set_DataFecho(jsonObject.ClosureDate);
-            opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
-            opportunityInfo.set_Oportunidade(jsonObject.Opportunityy);
-            opportunityInfo.set_Moeda(jsonObject.Currency);
-            opportunityInfo.set_Resumo(jsonObject.Brief);
-            opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
-            //opportunityInfo.set_ID(jsonObject.Opportunityy);
-            //opportunityInfo.set_Oportunidade(jsonObject.Opportunityy);
-            //opportunityInfo.set_ID
+            SetFields(opportunityInfo, jsonObject);
             opportunityInfo.set_CriadoPor(sessionId);
             opportunityInfo.set_DataCriacao(DateTime.Now);
-            //opportunityInfo.set_Oportunidade(opportunityId);
             opportunitiesTable.Actualiza(opportunityInfo);
 
             return true;
@@ -278,10 +245,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
-
-            /*if (opportunityInfo.get_Vendedor() != sessionId)
-
-            if (CheckPermissions(opportunityInfo, sessionId) == false)
+            /*if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
                 return false;
             }*/

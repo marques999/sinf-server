@@ -146,7 +146,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "opportunity")]
-        public string Opportunityy
+        public string OpportunityId
         {
             get;
             set;
@@ -168,22 +168,6 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "entityType")]
         public string EntityType
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataCriacao
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "dateModified")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataModificacao
         {
             get;
             set;
