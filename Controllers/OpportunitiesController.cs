@@ -71,12 +71,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-<<<<<<< HEAD
-                    
-                    if (OpportunityIntegration.Insert(Thread.CurrentPrincipal.Identity.Name, jsonObject))
-=======
                     if (OpportunityIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
->>>>>>> e12947d3709f6b815a7a7664625ff93b3ccf1bb4
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
