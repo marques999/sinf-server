@@ -41,15 +41,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = WarehouseIntegration.Get(HttpUtility.UrlDecode(id));
+                    var operationResult = WarehouseIntegration.Get(HttpUtility.UrlDecode(id));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

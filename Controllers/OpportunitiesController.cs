@@ -41,15 +41,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = OpportunityIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+                    var operationResult = OpportunityIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -71,13 +71,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
+                    var operationResult = OpportunityIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -99,13 +101,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (OpportunityIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
+                    var operationResult = OpportunityIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

@@ -12,90 +12,9 @@ namespace FirstREST.Controllers
 {
     public class AgendaController : ApiController
     {
-        // GET api/agenda/
-        // Feature: Visualizar agenda
-        public HttpResponseMessage Get()
-        {
-            if (Authentication.VerifyToken("?"))
-            {
-                try
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
-                    (
-                        null,
-                        ActivityType.ANY,
-                        ActivityStatus.Any,
-                        ActivityInterval.Today
-                    ));
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
-            }
-        }
-
-        // GET api/agenda/?type=calls
-        // Feature: Visualizar agenda
-        public HttpResponseMessage Get(string type)
-        {
-            if (Authentication.VerifyToken("?"))
-            {
-                try
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
-                    (
-                        null,
-                        TypeParser.Activity_Type(type),
-                        ActivityStatus.Any,
-                        ActivityInterval.Today
-                    ));
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
-            }
-        }
-
-        // GET api/agenda/?type=calls&when=today
-        // Feature: Visualizar agenda
-        public HttpResponseMessage Get(string type, string when)
-        {
-            if (Authentication.VerifyToken("?"))
-            {
-                try
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
-                    (
-                        null,
-                        TypeParser.Activity_Type(type),
-                        ActivityStatus.Any,
-                        TypeParser.Activity_Interval(when)
-                    ));
-                }
-                catch (Exception ex)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-                }
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.Forbidden);
-            }
-        }
-
         // GET api/agenda/?type=calls&when=today&status=ongoing
         // Feature: Visualizar agenda
-        public HttpResponseMessage Get([FromUri] string type, [FromUri] string when, [FromUri] string status)
+        public HttpResponseMessage Get([FromUri] string interval = "any", [FromUri] string status = "any", [FromUri] string type = "any")
         {
             if (Authentication.VerifyToken("?"))
             {
@@ -103,11 +22,41 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
                     (
-                        null,
+                        Authentication.GetRepresentative(null),
                         TypeParser.Activity_Type(type),
                         TypeParser.Activity_Status(status),
-                        TypeParser.Activity_Interval(when)
+                        TypeParser.Activity_Interval(interval)
                     ));
+                }
+                catch (Exception ex)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        // GET api/agenda/{$activityId}/
+        // FEATURE: Visualizar actividade
+        public HttpResponseMessage Get(string id)
+        {
+            if (Authentication.VerifyToken("?"))
+            {
+                try
+                {
+                    var operationResult = AgendaIntegration.View(Authentication.GetRepresentative(null), id);
+
+                    if (operationResult == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -128,13 +77,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
+                    var operationResult = AgendaIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -156,13 +107,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
+                    var operationResult = AgendaIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK);
                     }
                 }
                 catch (Exception ex)

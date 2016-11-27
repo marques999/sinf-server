@@ -41,15 +41,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = LeadIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
+                    var operationResult = LeadIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -71,13 +71,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LeadIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
+                    var operationResult = LeadIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

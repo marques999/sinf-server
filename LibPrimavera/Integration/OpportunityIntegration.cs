@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 using Interop.ICrmBS900;
 using Interop.CrmBE900;
+using Interop.StdBE900;
 
-using FirstREST.LibPrimavera.Model;
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
-using Interop.StdBE900;
+using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration
 {
@@ -41,28 +41,53 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CABECOPORTUNIDADESVENDA.Resumo", null)
         };
 
-        private static Opportunity GenerateListing(StdBELista queryObject)
+        private static Opportunity GenerateListing(StdBELista opportunityInfo)
         {
             return new Opportunity()
             {
-                Entity = TypeParser.String(queryObject.Valor("Entidade")),
-                Campaign = TypeParser.String(queryObject.Valor("Campanha")),
-                SellCycle = TypeParser.String(queryObject.Valor("CicloVenda")),
-                ExpirationDate = TypeParser.Date(queryObject.Valor("DataExpiracao")),
-                RealDateOrdered = TypeParser.Date(queryObject.Valor("DataRealEncomenda")),
-                Description = TypeParser.String(queryObject.Valor("Descricao")),
-                MarginOV = (float)TypeParser.Double(queryObject.Valor("MargemOV")),
-                ProposedValueOV = (float)TypeParser.Double(queryObject.Valor("MargemPercOV")),
-                Origin = TypeParser.String(queryObject.Valor("Origem")),
-                Seller = TypeParser.String(queryObject.Valor("Vendedor")),
-                CreatedBy = TypeParser.String(queryObject.Valor("CriadoPor")),
-                RealBillingDate = TypeParser.Date(queryObject.Valor("DataRealFacturacao")),
-                ClosureDate = TypeParser.Date(queryObject.Valor("DataFecho")),
-                LossMotive = TypeParser.String(queryObject.Valor("MotivoPerda")),
-                OpportunityId = TypeParser.String(queryObject.Valor("Oportunidade")),
-                Currency = TypeParser.String(queryObject.Valor("Moeda")),
-                Identificador = TypeParser.String(queryObject.Valor("ID")),
-                Brief = TypeParser.String(queryObject.Valor("Resumo"))
+                Entity = TypeParser.String(opportunityInfo.Valor("Entidade")),
+                Campaign = TypeParser.String(opportunityInfo.Valor("Campanha")),
+                SellCycle = TypeParser.String(opportunityInfo.Valor("CicloVenda")),
+                ExpirationDate = TypeParser.Date(opportunityInfo.Valor("DataExpiracao")),
+                RealDateOrdered = TypeParser.Date(opportunityInfo.Valor("DataRealEncomenda")),
+                Description = TypeParser.String(opportunityInfo.Valor("Descricao")),
+                MarginOV = (float)TypeParser.Double(opportunityInfo.Valor("MargemOV")),
+                ProposedValueOV = (float)TypeParser.Double(opportunityInfo.Valor("MargemPercOV")),
+                Origin = TypeParser.String(opportunityInfo.Valor("Origem")),
+                Seller = TypeParser.String(opportunityInfo.Valor("Vendedor")),
+                CreatedBy = TypeParser.String(opportunityInfo.Valor("CriadoPor")),
+                RealBillingDate = TypeParser.Date(opportunityInfo.Valor("DataRealFacturacao")),
+                ClosureDate = TypeParser.Date(opportunityInfo.Valor("DataFecho")),
+                LossMotive = TypeParser.String(opportunityInfo.Valor("MotivoPerda")),
+                OpportunityId = TypeParser.String(opportunityInfo.Valor("Oportunidade")),
+                Currency = TypeParser.String(opportunityInfo.Valor("Moeda")),
+                Identificador = TypeParser.String(opportunityInfo.Valor("ID")),
+                Brief = TypeParser.String(opportunityInfo.Valor("Resumo"))
+            };
+        }
+
+        private static OpportunityInfo GenerateOpportunity(CrmBEOportunidadeVenda opportunityInfo)
+        {
+            return new OpportunityInfo()
+            {
+                DataCriacao = opportunityInfo.get_DataCriacao(),
+                Entity = opportunityInfo.get_Entidade(),
+                Campaign = opportunityInfo.get_Campanha(),
+                SellCycle = opportunityInfo.get_CicloVenda(),
+                ExpirationDate = opportunityInfo.get_DataExpiracao(),
+                RealDateOrdered = opportunityInfo.get_DataRealEncomenda(),
+                Description = opportunityInfo.get_Descricao(),
+                MarginOV = (float)opportunityInfo.get_MargemOV(),
+                ProposedValueOV = (float)opportunityInfo.get_ValorPropostoOV(),
+                Origin = opportunityInfo.get_Origem(),
+                Seller = opportunityInfo.get_Vendedor(),
+                CreatedBy = opportunityInfo.get_CriadoPor(),
+                RealBillingDate = opportunityInfo.get_DataRealFacturacao(),
+                ClosureDate = opportunityInfo.get_DataFecho(),
+                LossMotive = opportunityInfo.get_MotivoPerda(),
+                OpportunityId = opportunityInfo.get_Oportunidade(),
+                Currency = opportunityInfo.get_Moeda(),
+                Brief = opportunityInfo.get_Resumo()
             };
         }
 
@@ -127,27 +152,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }*/
 
-            return new OpportunityInfo()
-            {
-                DataCriacao = opportunityInfo.get_DataCriacao(),
-                Entity = opportunityInfo.get_Entidade(),
-                Campaign = opportunityInfo.get_Campanha(),
-                SellCycle = opportunityInfo.get_CicloVenda(),
-                ExpirationDate = opportunityInfo.get_DataExpiracao(),
-                RealDateOrdered = opportunityInfo.get_DataRealEncomenda(),
-                Description = opportunityInfo.get_Descricao(),
-                MarginOV = (float)opportunityInfo.get_MargemOV(),
-                ProposedValueOV = (float)opportunityInfo.get_ValorPropostoOV(),
-                Origin = opportunityInfo.get_Origem(),
-                Seller = opportunityInfo.get_Vendedor(),
-                CreatedBy = opportunityInfo.get_CriadoPor(),
-                RealBillingDate = opportunityInfo.get_DataRealFacturacao(),
-                ClosureDate = opportunityInfo.get_DataFecho(),
-                LossMotive = opportunityInfo.get_MotivoPerda(),
-                OpportunityId = opportunityInfo.get_Oportunidade(),
-                Currency = opportunityInfo.get_Moeda(),
-                Brief = opportunityInfo.get_Resumo()
-            };
+            return GenerateOpportunity(opportunityInfo);
         }
 
         private static void SetFields(CrmBEOportunidadeVenda opportunityInfo, Opportunity jsonObject)
@@ -175,7 +180,7 @@ namespace FirstREST.LibPrimavera.Integration
             opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
         }
 
-        public static bool Update(string sessionId, string opportunityId, Opportunity jsonObject)
+        public static OpportunityInfo Update(string sessionId, string opportunityId, Opportunity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -186,14 +191,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId) == false)
             {
-                return false;
+                return null;
             }
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
 
             /*if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }*/
 
             opportunityInfo.set_EmModoEdicao(true);
@@ -202,10 +207,10 @@ namespace FirstREST.LibPrimavera.Integration
             opportunityInfo.set_DataCriacao(DateTime.Now);
             opportunitiesTable.Actualiza(opportunityInfo);
 
-            return true;
+            return GenerateOpportunity(opportunityInfo);
         }
 
-        public static bool Insert(string sessionId, Opportunity jsonObject)
+        public static OpportunityInfo Insert(string sessionId, Opportunity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -218,7 +223,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId))
             {
-                return false;
+                return null;
             }
 
             SetFields(opportunityInfo, jsonObject);
@@ -226,7 +231,7 @@ namespace FirstREST.LibPrimavera.Integration
             opportunityInfo.set_DataCriacao(DateTime.Now);
             opportunitiesTable.Actualiza(opportunityInfo);
 
-            return true;
+            return GenerateOpportunity(opportunityInfo);
         }
 
         public static bool Delete(string sessionId, string opportunityId)

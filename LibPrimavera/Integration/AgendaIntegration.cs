@@ -59,7 +59,7 @@ namespace FirstREST.LibPrimavera.Integration
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("TAREFAS")
                 .Columns(sqlColumns)
-                .Where(FilterDate(agendaWhen))
+               // .Where(FilterDate(agendaWhen))
                 .LeftJoin("TIPOSTAREFA", "Id", Comparison.Equals, "TAREFAS", "IdTipoActividade"));
             /*  .Where(FilterStatus(agendaStatus))
               .Where(FilterType(agendaType)));
@@ -89,14 +89,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             return new ActivityInfo
             {
-                Tipo = TypeParser.String(queryResult.Valor("TipoActividade")),
+                Tipo = ((ActivityType) TypeParser.Activity_Type(TypeParser.String(queryResult.Valor("TipoActividade")))).ToDescriptionString(),
                 Identificador = TypeParser.String(queryResult.Valor("Id")),
                 Resumo = TypeParser.String(queryResult.Valor("Resumo")),
                 Responsavel = TypeParser.String(queryResult.Valor("CriadoPor")),
                 DataInicio = TypeParser.Date(queryResult.Valor("DataInicio")),
                 DataFim = TypeParser.Date(queryResult.Valor("DataFim")),
-                Estado = (ActivityStatus)TypeParser.Integer(queryResult.Valor("Estado")),
-                Prioridade = TypeParser.Integer(queryResult.Valor("Prioridade")),
+                Estado = (int) TypeParser.Activity_Status(TypeParser.String (queryResult.Valor("Estado"))),
+                Prioridade = TypeParser.String(queryResult.Valor("Prioridade")),
                 Descricao = TypeParser.String(queryResult.Valor("Descricao")),
                 CriadoEm = TypeParser.Date(queryResult.Valor("DataCriacao")),
                 ModificadoEm = TypeParser.Date(queryResult.Valor("DataUltAct")),
@@ -124,7 +124,7 @@ namespace FirstREST.LibPrimavera.Integration
                 }
             }
 
-            throw new NotFoundException();
+            return null;
         }
 
         private static DateTime GetWeek()
@@ -267,9 +267,9 @@ namespace FirstREST.LibPrimavera.Integration
                 activityInfo.set_Resumo(jsonObject.Resumo);
             if (jsonObject.Descricao != null)
                 activityInfo.set_Descricao(jsonObject.Descricao);
-            if (jsonObject.Estado != ActivityStatus.Any)
+            if (jsonObject.Estado != null)
                 activityInfo.set_Estado(jsonObject.Estado.ToString());
-            if (jsonObject.Tipo != ActivityType.ANY)
+            if (jsonObject.Tipo != null)
                 activityInfo.set_IDTipoActividade(jsonObject.Tipo.ToString());
             if (jsonObject.Prioridade != null)
                 activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
@@ -299,11 +299,16 @@ namespace FirstREST.LibPrimavera.Integration
 
             var activityInfo = activitiesTable.Edita(activityId);
 
-            if (activityInfo.get_CriadoPor() != activityId)
+            /*if (activityInfo.get_CriadoPor() != activityId)
             {
                 return null;
-            }
+            }*/
 
+            return GenerateActivity(activityInfo);
+        }
+
+        private static ActivityInfo GenerateActivity(CrmBEActividade activityInfo)
+        {
             var entityId = activityInfo.get_EntidadePrincipal();
             var entityType = activityInfo.get_TipoEntidadePrincipal();
 
@@ -319,12 +324,12 @@ namespace FirstREST.LibPrimavera.Integration
                 Prioridade = activityInfo.get_Prioridade(),
                 DataInicio = activityInfo.get_DataInicio(),
                 Duracao = activityInfo.get_Duracao(),
-                Estado = TypeParser.Activity_Status(activityInfo.get_Estado()),
-                Tipo = TypeParser.Activity_Type(activityInfo.get_IDTipoActividade())
+                Estado = (int) TypeParser.Activity_Status(activityInfo.get_Estado()),
+                Tipo = TypeParser.Activity_Type(activityInfo.get_IDTipoActividade()).ToDescriptionString()
             };
         }
 
-        public static bool Update(string sessionId, string activityId, Activity jsonObject)
+        public static ActivityInfo Update(string sessionId, string activityId, Activity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -335,14 +340,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (activitiesTable.Existe(activityId) == false)
             {
-                return false;
+                return null;
             }
 
             var activityInfo = activitiesTable.Edita(activityId);
 
             if (CheckPermissions(activityInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             activityInfo.set_EmModoEdicao(true);
@@ -350,10 +355,10 @@ namespace FirstREST.LibPrimavera.Integration
             activityInfo.set_DataUltAct(DateTime.Now);
             activitiesTable.Actualiza(activityInfo);
 
-            return true;
+            return GenerateActivity(activityInfo);
         }
 
-        public static bool Insert(string sessionId, Activity jsonObject)
+        public static ActivityInfo Insert(string sessionId, Activity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -366,7 +371,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (activitiesTable.Existe(activityId))
             {
-                return false;
+                return null;
             }
 
             activityInfo.set_ID(activityId);
@@ -377,7 +382,7 @@ namespace FirstREST.LibPrimavera.Integration
             activityInfo = activitiesTable.PreencheDadosRelacionados(activityInfo);
             activitiesTable.Actualiza(activityInfo);
 
-            return true;
+            return GenerateActivity(activityInfo);
         }
 
         public static bool Delete(string sessionId, string activityId)

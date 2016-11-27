@@ -41,15 +41,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ContactIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+                    var operationResult = ContactIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -71,15 +71,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = ContactIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                    var operationResult = ContactIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -99,17 +99,17 @@ namespace FirstREST.Controllers
         {
             if (Authentication.VerifyToken("?"))
             {
-                var queryResult = ContactIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+                var operationResult = ContactIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
 
                 try
                 {
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

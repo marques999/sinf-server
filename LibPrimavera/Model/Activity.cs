@@ -22,14 +22,14 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "status")]
-        public ActivityStatus Estado
+        public int Estado
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "type")]
-        public ActivityType Tipo
+        public string Tipo
         {
             get;
             set;

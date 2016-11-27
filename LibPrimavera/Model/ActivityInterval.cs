@@ -20,6 +20,7 @@ namespace FirstREST.LibPrimavera.Model
         [Description("Mês")]
         Month,
         [Description("Ano")]
-        Year
+        Year,
+        Any
     }
 }

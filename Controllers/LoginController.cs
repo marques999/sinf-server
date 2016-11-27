@@ -18,15 +18,15 @@ namespace FirstREST.Controllers
         {
             try
             {
-                var representativeInfo = LoginIntegration.Authenticate(jsonObject);
+                var operationRresult = LoginIntegration.Authenticate(jsonObject);
 
-                if (representativeInfo == null)
+                if (operationRresult == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.Forbidden);
                 }
                 else
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, representativeInfo);
+                    return Request.CreateResponse(HttpStatusCode.OK, operationRresult);
                 }
             }
             catch (Exception ex)
@@ -71,15 +71,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var representativeInfo = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
+                    var operationResult = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
 
-                    if (representativeInfo == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, representativeInfo);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

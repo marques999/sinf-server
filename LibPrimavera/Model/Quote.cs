@@ -36,33 +36,15 @@ namespace FirstREST.LibPrimavera.Model
         [JsonProperty(PropertyName = "billingAddress")]
         public Address BillingAddress
         {
-            get
-            {
-                return BillingAddress;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    BillingAddress = value;
-                }
-            }
+            get;
+            set;
         }
 
         [JsonProperty(PropertyName = "shippingAddress")]
         public Address ShippingAddress
         {
-            get
-            {
-                return ShippingAddress;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    ShippingAddress = value;
-                }
-            }
+            get;
+            set;
         }
     }
 }

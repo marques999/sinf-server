@@ -36,7 +36,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Nome", null),
             new SqlColumn("NumContrib", null),
             new SqlColumn("EnderecoWeb", null),
-            new SqlColumn("DataCriacao", null),
             new SqlColumn("DataUltimaActualizacao", null),
             new SqlColumn("EncomendasPendentes", null),
             new SqlColumn("TotalDeb", null),
@@ -44,8 +43,6 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Fac_Cp", null),
             new SqlColumn("Fac_Mor", null),
             new SqlColumn("Pais", null),
-            new SqlColumn("Fac_Local", null),
-            new SqlColumn("Distrito", null)
         };
 
         public static List<CustomerListing> List(string sessionId)
@@ -67,10 +64,8 @@ namespace FirstREST.LibPrimavera.Integration
                     Estado = TypeParser.String(customerInfo.Valor("Situacao")),
                     Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
                     Pendentes = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
-                    ModificadoEm = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
-                    Localizacao = TypeParser.String(customerInfo.Valor("Fac_Mor")),
+                    DataModificacao = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
                     Pais = TypeParser.String(customerInfo.Valor("Pais")),
-                    Distrito = TypeParser.String(customerInfo.Valor("Distrito"))
                 });
 
                 customerInfo.Seguinte();
@@ -129,6 +124,8 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumnsFull)
                 .Where("Cliente", Comparison.Equals, customerId));
 
+            var distritoId = TypeParser.String(customerInfo.Valor("Distrito"));
+
             return new CustomerInfo()
             {
                 Identificador = TypeParser.String(customerInfo.Valor("Cliente")),
@@ -145,11 +142,11 @@ namespace FirstREST.LibPrimavera.Integration
                 Telefone2 = TypeParser.String(customerInfo.Valor("Fac_Fax")),
                 Localizacao = new Address
                 {
-                    CodigoPostal = TypeParser.String(customerInfo.Valor("Fac_Cp")),
-                    Morada = TypeParser.String(customerInfo.Valor("Fac_Mor")),
                     Pais = TypeParser.String(customerInfo.Valor("Pais")),
-                    Localidade = TypeParser.String(customerInfo.Valor("Fac_Local")),
-                    Distrito = TypeParser.String(customerInfo.Valor("Distrito"))
+                    Morada = TypeParser.String(customerInfo.Valor("Fac_Mor")),
+                    Distrito = LocationIntegration.DistritoReference(distritoId),
+                    CodigoPostal = TypeParser.String(customerInfo.Valor("Fac_Cp")),
+                    Localidade = TypeParser.String(customerInfo.Valor("Fac_Local"))
                 }
             };
         }
@@ -248,11 +245,11 @@ namespace FirstREST.LibPrimavera.Integration
                 Telefone2 = customerInfo.get_Telefone2(),
                 Localizacao = new Address
                 {
-                    CodigoPostal = customerInfo.get_CodigoPostal(),
-                    Morada = customerInfo.get_Morada(),
                     Pais = customerInfo.get_Pais(),
+                    Morada = customerInfo.get_Morada(),
                     Localidade = customerInfo.get_Localidade(),
-                    Distrito = customerInfo.get_Distrito()
+                    CodigoPostal = customerInfo.get_CodigoPostal(),
+                    Distrito = LocationIntegration.DistritoReference(customerInfo.get_Distrito())
                 }
             };
         }
@@ -290,8 +287,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Estado = customerInfo.get_Situacao(),
                 Debito = customerInfo.get_DebitoContaCorrente(),
                 Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
-                ModificadoEm = customerInfo.get_DataUltimaActualizacao(),
-                Localizacao = customerInfo.get_Morada(),
+                DataModificacao = customerInfo.get_DataUltimaActualizacao(),
                 Pais = customerInfo.get_Pais(),
                 Distrito = customerInfo.get_Distrito()
             };

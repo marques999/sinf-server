@@ -8,6 +8,7 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class LocationIntegration
     {
+        private static string fieldPais = "Pais";
         private static string fieldConcelho = "Concelho";
         private static string fieldDistrito = "Distrito";
         private static string fieldDescricao = "Descricao";
@@ -79,7 +80,7 @@ namespace FirstREST.LibPrimavera.Integration
             return concelhoList;
         }
 
-        public static string Reference(string distritoId)
+        public static string DistritoReference(string distritoId)
         {
             var sqlQuery = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("DISTRITOS")
@@ -87,6 +88,15 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where(fieldDistrito, Comparison.Equals, distritoId));
 
             return sqlQuery.Vazia() ? distritoId : TypeParser.String(sqlQuery.Valor(fieldDescricao));
+        }
+
+        public static string ContryReference(string countryId)
+        {
+            var sqlQuery = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("PAISES")
+                .Columns(fieldDescricao)
+                .Where(fieldPais, Comparison.Equals, countryId));
+            return sqlQuery.Vazia() ? countryId : TypeParser.String(sqlQuery.Valor(fieldDescricao));
         }
     }
 }

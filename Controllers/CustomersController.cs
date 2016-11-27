@@ -42,15 +42,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.View(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    var operationResult = CustomerIntegration.View(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -72,15 +72,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                    var operationResult = CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -102,15 +102,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = CustomerIntegration.Update(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
+                    var operationResult = CustomerIntegration.Update(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

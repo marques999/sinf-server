@@ -21,8 +21,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "address")]
-        public string Localizacao
+        [JsonProperty(PropertyName = "email")]
+        public string Email
         {
             get;
             set;
@@ -42,13 +42,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "email")]
-        public string Email
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "mobile")]
         public string Telemovel
         {
@@ -58,7 +51,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "dateModified")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime ModificadoEm
+        public DateTime DataModificacao
         {
             get;
             set;
