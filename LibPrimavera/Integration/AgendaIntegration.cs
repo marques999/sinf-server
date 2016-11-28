@@ -48,7 +48,7 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static List<Activity> List(string sessionId, ActivityType agendaType, ActivityStatus agendaStatus, ActivityInterval agendaWhen)
+        public static List<Activity> List(string sessionId, EnumActivityType agendaType, EnumActivityStatus agendaStatus, EnumActivityInterval agendaWhen)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -89,7 +89,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             return new ActivityInfo
             {
-                Tipo = ((ActivityType) TypeParser.Activity_Type(TypeParser.String(queryResult.Valor("TipoActividade")))).ToDescriptionString(),
+                Tipo = TypeReference(queryResult),
                 Identificador = TypeParser.String(queryResult.Valor("Id")),
                 Resumo = TypeParser.String(queryResult.Valor("Resumo")),
                 Responsavel = TypeParser.String(queryResult.Valor("CriadoPor")),
@@ -135,42 +135,42 @@ namespace FirstREST.LibPrimavera.Integration
             return DateTime.Now.AddDays(-(today - fdow)).Date;
         }
 
-        private static WhereClause FilterDate(ActivityInterval agendaWhen)
+        private static WhereClause FilterDate(EnumActivityInterval agendaWhen)
         {
             var startInterval = DateTime.Today;
             var endInterval = startInterval.AddHours(24);
 
-            if (agendaWhen == ActivityInterval.Yesterday)
+            if (agendaWhen == EnumActivityInterval.Yesterday)
             {
                 startInterval = startInterval.AddDays(-1);
                 endInterval = startInterval.AddHours(24);
             }
-            else if (agendaWhen == ActivityInterval.Tomorrow)
+            else if (agendaWhen == EnumActivityInterval.Tomorrow)
             {
                 startInterval = startInterval.AddDays(1);
                 endInterval = startInterval.AddHours(24);
             }
-            else if (agendaWhen == ActivityInterval.Week)
+            else if (agendaWhen == EnumActivityInterval.Week)
             {
                 startInterval = GetWeek();
                 endInterval = startInterval.AddDays(7);
             }
-            else if (agendaWhen == ActivityInterval.Month)
+            else if (agendaWhen == EnumActivityInterval.Month)
             {
                 startInterval = new DateTime(startInterval.Year, startInterval.Month, 1);
                 endInterval = startInterval.AddMonths(1);
             }
-            else if (agendaWhen == ActivityInterval.Year)
+            else if (agendaWhen == EnumActivityInterval.Year)
             {
                 startInterval = new DateTime(startInterval.Year, 1, 1);
                 endInterval = startInterval.AddYears(1);
             }
-            else if (agendaWhen == ActivityInterval.Past)
+            else if (agendaWhen == EnumActivityInterval.Past)
             {
                 startInterval = MinimumValue;
                 endInterval = DateTime.Now;
             }
-            else if (agendaWhen == ActivityInterval.Future)
+            else if (agendaWhen == EnumActivityInterval.Future)
             {
                 startInterval = DateTime.Now;
                 endInterval = MaximumValue;
@@ -197,15 +197,15 @@ namespace FirstREST.LibPrimavera.Integration
         private static DateTime MinimumValue = DateTime.MinValue;
         private static DateTime MaximumValue = DateTime.MaxValue;
 
-        private static WhereClause FilterStatus(ActivityStatus agendaStatus)
+        private static WhereClause FilterStatus(EnumActivityStatus agendaStatus)
         {
             return new WhereClause("Estado", Comparison.Equals, agendaStatus);
         }
 
-        private static WhereClause FilterStatus(ActivityStatus[] agendaStatus)
+        private static WhereClause FilterStatus(EnumActivityStatus[] agendaStatus)
         {
             WhereClause wc = null;
-            Dictionary<ActivityStatus, bool> duplicateCheck = new Dictionary<ActivityStatus, bool>();
+            Dictionary<EnumActivityStatus, bool> duplicateCheck = new Dictionary<EnumActivityStatus, bool>();
 
             foreach (var activityStatus in agendaStatus)
             {
@@ -229,15 +229,15 @@ namespace FirstREST.LibPrimavera.Integration
             return wc;
         }
 
-        public static WhereClause FilterType(ActivityType agendaType)
+        public static WhereClause FilterType(EnumActivityType agendaType)
         {
             return new WhereClause("IdTipoActividade", Comparison.Equals, agendaType);
         }
 
-        public static WhereClause FilterType(ActivityType[] agendaType)
+        public static WhereClause FilterType(EnumActivityType[] agendaType)
         {
             WhereClause wc = null;
-            Dictionary<ActivityType, bool> duplicateCheck = new Dictionary<ActivityType, bool>();
+            Dictionary<EnumActivityType, bool> duplicateCheck = new Dictionary<EnumActivityType, bool>();
 
             foreach (var activityType in agendaType)
             {
@@ -283,6 +283,12 @@ namespace FirstREST.LibPrimavera.Integration
                 activityInfo.set_DataFim(jsonObject.DataFim);
         }
 
+        public static Reference ActivityType(string typeId)
+        {
+            var activityTypes = PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId);
+            return new Reference(activityTypes.get_TipoActividade(), activityTypes.get_Descricao());
+        }
+
         public static ActivityInfo View(string sessionId, string activityId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
@@ -325,7 +331,8 @@ namespace FirstREST.LibPrimavera.Integration
                 DataInicio = activityInfo.get_DataInicio(),
                 Duracao = activityInfo.get_Duracao(),
                 Estado = (int) TypeParser.Activity_Status(activityInfo.get_Estado()),
-                Tipo = TypeParser.Activity_Type(activityInfo.get_IDTipoActividade()).ToDescriptionString()
+                Resumo = activityInfo.get_Resumo(),
+                Tipo = ActivityType(activityInfo.get_IDTipoActividade())
             };
         }
 

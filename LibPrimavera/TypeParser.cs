@@ -176,16 +176,16 @@ namespace FirstREST.LibPrimavera
 
         #region ActivityInterval Parser
 
-        public static ActivityInterval Activity_Interval(string value)
+        public static EnumActivityInterval Activity_Interval(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                return ActivityInterval.Today;
+                return EnumActivityInterval.Today;
             }
 
-            ActivityInterval parseResult;
+            EnumActivityInterval parseResult;
 
-            return Enum.TryParse(value, true, out parseResult) ? parseResult : ActivityInterval.Today;
+            return Enum.TryParse(value, true, out parseResult) ? parseResult : EnumActivityInterval.Today;
         }
 
         #endregion
@@ -194,14 +194,14 @@ namespace FirstREST.LibPrimavera
 
         #region ActivityType Parser
 
-        public static ActivityType Activity_Type(dynamic value)
+        public static EnumActivityType Activity_Type(dynamic value)
         {
             if (object.Equals(value, null))
             {
-                return ActivityType.ANY;
+                return EnumActivityType.ANY;
             }
 
-            ActivityType parseResult = ActivityType.ANY;
+            EnumActivityType parseResult = EnumActivityType.ANY;
 
             if (value is string)
             {
@@ -220,21 +220,21 @@ namespace FirstREST.LibPrimavera
 
         #region ActivityStatus Parser
 
-        public static ActivityStatus Activity_Status(string value)
+        public static EnumActivityStatus Activity_Status(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                return ActivityStatus.Any;
+                return EnumActivityStatus.Any;
             }
 
-            ActivityStatus parseResult;
+            EnumActivityStatus parseResult;
 
             if (Enum.TryParse(value, true, out parseResult))
             {
                 return parseResult;
             }
 
-            return ActivityStatus.Any;
+            return EnumActivityStatus.Any;
         }
 
         #endregion

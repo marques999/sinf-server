@@ -32,6 +32,11 @@ namespace FirstREST.Controllers
                         return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(DefinitionType.Title));
                     }
 
+                    if (type2get.Equals("eventos"))
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListActivityTypes());
+                    }
+
                     if (type2get.Equals("idiomas"))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(DefinitionType.Language));
@@ -44,9 +49,9 @@ namespace FirstREST.Controllers
 
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
                 }
             }
             else

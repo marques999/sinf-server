@@ -3,7 +3,7 @@
 namespace FirstREST.LibPrimavera.Model
 {
     [DefaultValue(Pendente)]
-    public enum ActivityStatus
+    public enum EnumActivityStatus
     {
         [Description("Todos")]
         Any = -1,

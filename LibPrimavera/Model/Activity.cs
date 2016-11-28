@@ -29,7 +29,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "type")]
-        public string Tipo
+        public Reference Tipo
         {
             get;
             set;

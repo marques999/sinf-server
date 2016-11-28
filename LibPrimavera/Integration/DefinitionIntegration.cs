@@ -28,6 +28,14 @@ namespace FirstREST.LibPrimavera.Integration
                     new SqlColumn("Descricao", null),          
                 } 
             },
+            {
+                DefinitionType.ActivityType, new SqlColumn[]
+                {
+                    new SqlColumn("Id", null),
+                    new SqlColumn("TipoActividade", null),
+                    new SqlColumn("Descricao", null),          
+                } 
+            },
             { 
                 DefinitionType.Language, new SqlColumn[]
                 {
@@ -53,6 +61,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static Dictionary<DefinitionType, String> definitionTables = new Dictionary<DefinitionType, String>
         {   
+            { DefinitionType.ActivityType, "TiposTarefa" },
             { DefinitionType.ThirdParty, "TipoTerceiros" },
             { DefinitionType.Title, "TitulosAcademicos" },
             { DefinitionType.Country, "Paises" },
@@ -65,9 +74,14 @@ namespace FirstREST.LibPrimavera.Integration
             return definitionType.ToDescriptionString();
         }
 
-        public static String GetTableName(DefinitionType definitionType)
+        public static SqlColumn[] getColumns(DefinitionType definitionType)
         {
-            return definitionTables.ContainsKey(definitionType) ? definitionTables[definitionType] : null;
+            return definitionColumns.ContainsKey(definitionType) ? definitionColumns[definitionType] : new SqlColumn[] { };
+        }
+
+        public static String getTable(DefinitionType definitionType)
+        {
+            return definitionTables.ContainsKey(definitionType) ? definitionTables[definitionType] : "";
         }
 
         private static Reference GenerateType(StdBELista queryInfo, DefinitionType definitionType)
@@ -101,6 +115,31 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
+        public static List<ActivityType> ListActivityTypes()
+        {
+            if (PrimaveraEngine.InitializeCompany() == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var queryResult = new List<ActivityType>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable(getTable(DefinitionType.ActivityType))
+                .Columns(getColumns(DefinitionType.ActivityType)));
+
+            while (!queryObject.NoFim())
+            {
+                queryResult.Add(new ActivityType(
+                    queryObject.Valor("Id"),
+                    queryObject.Valor("TipoActividade"),
+                    queryObject.Valor("Descricao")
+                ));
+                queryObject.Seguinte();
+            }
+
+            return queryResult;
+        }
+
         public static List<Reference> ListTypes(DefinitionType definitionType)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
@@ -115,7 +154,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             var queryResult = new List<Reference>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable(GetTableName(definitionType))
+                .FromTable(getTable(definitionType))
                 .Columns(definitionColumns[definitionType]));
 
             while (!queryObject.NoFim())

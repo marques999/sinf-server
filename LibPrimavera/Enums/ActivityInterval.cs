@@ -3,7 +3,7 @@
 namespace FirstREST.LibPrimavera.Model
 {
     [DefaultValue(Today)]
-    public enum ActivityInterval
+    public enum EnumActivityInterval
     {
         [Description("Hoje")]
         Today,
