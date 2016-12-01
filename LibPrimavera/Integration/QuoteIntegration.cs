@@ -38,7 +38,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (quotesTable.ExisteID(quoteId) == false)
             {
-                return null;
+                throw new NotFoundException("encomenda", true);
             }
 
             var queryResult = new List<Quote>();
@@ -115,7 +115,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (quotesTable.ExisteID(quoteId) == false)
             {
-                return false;
+                throw new NotFoundException("encomenda", true);
             }
 
             var quoteInfo = quotesTable.EditaID(quoteId);
@@ -146,7 +146,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (quotesTable.ExisteID(quoteId))
             {
-                return false;
+                throw new EntityExistsException("encomenda", true);
             }
 
             var serverTime = DateTime.Now;
@@ -173,7 +173,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (quotesTable.ExisteID(quoteId) == false)
             {
-                return false;
+                throw new NotFoundException("encomenda", true);
             }
 
             var quoteInfo = quotesTable.EditaID(quoteId);

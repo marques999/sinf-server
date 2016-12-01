@@ -106,7 +106,6 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             return true;
-
         }
 
         public static List<Opportunity> List(string sessionId)
@@ -142,7 +141,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId) == false)
             {
-                return null;
+                throw new NotFoundException("oportunidade", true);
             }
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
@@ -191,7 +190,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId) == false)
             {
-                return null;
+                throw new NotFoundException("oportunidade", true);
             }
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);
@@ -223,7 +222,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId))
             {
-                return null;
+                throw new EntityExistsException("oportunidade", true);
             }
 
             SetFields(opportunityInfo, jsonObject);
@@ -245,7 +244,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (opportunitiesTable.Existe(opportunityId) == false)
             {
-                return false;
+                throw new NotFoundException("oportunidade", true);
             }
 
             var opportunityInfo = opportunitiesTable.Edita(opportunityId);

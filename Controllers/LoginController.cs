@@ -35,21 +35,23 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/login/{$sessionToken}/
-        // FEATURE: Terminar sessão
-        public HttpResponseMessage Post(string id)
+        // PUT api/login/{$id}?token={$token}/
+        // FEATURE: Actualizar vendedor
+        public HttpResponseMessage Put(string id, [FromBody]UserInfo jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    if (LoginIntegration.Logout(HttpUtility.UrlDecode(id)))
+                    var operationResult = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.Forbidden);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -63,23 +65,21 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/login/{$sessionToken}/
-        // FEATURE: Alterar password
-        public HttpResponseMessage Put(string id, [FromBody]UserInfo jsonObject)
+        // DELETE api/login/{$id}?token={$token}/
+        // FEATURE: Terminar sessão
+        public HttpResponseMessage Delete(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = LoginIntegration.Update(HttpUtility.UrlDecode(id), jsonObject);
-
-                    if (operationResult == null)
+                    if (LoginIntegration.Logout(HttpUtility.UrlDecode(id)))
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
+                        return Request.CreateResponse(HttpStatusCode.Forbidden);
                     }
                 }
                 catch (Exception ex)

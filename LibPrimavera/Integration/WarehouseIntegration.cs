@@ -93,7 +93,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (warehousesTable.Existe(warehouseId) == false)
             {
-                return null;
+                throw new NotFoundException("armazém", false);
             }
 
             var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder()

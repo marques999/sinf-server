@@ -117,16 +117,16 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (leadsTable.Existe(leadId) == false)
             {
-                return null;
+                throw new NotFoundException("lead", true);
             }
 
             var queryResult = leadsTable.Edita(leadId);
             var representativeId = queryResult.get_Vendedor();
 
-          /*  if (representativeId != null && representativeId != sessionId)
-            {
-                return null;
-            }*/
+            /*  if (representativeId != null && representativeId != sessionId)
+              {
+                  return null;
+              }*/
 
             return new LeadInfo
             {
@@ -168,7 +168,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(leadId) == false)
             {
-                throw new NotFoundException();
+                return null;
             }
 
             return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
@@ -235,7 +235,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (leadsTable.Existe(leadId) == false)
             {
-                return false;
+                throw new NotFoundException("lead", true);
             }
 
             var leadInfo = leadsTable.Edita(leadId);
@@ -288,7 +288,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (leadsTable.Existe(leadId))
             {
-                return null;
+                throw new EntityExistsException("lead", true);
             }
 
             var serverTime = DateTime.Now;
@@ -326,7 +326,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (leadsTable.Existe(leadId) == false)
             {
-                return false;
+                throw new NotFoundException("lead", true);
             }
 
             var leadInfo = leadsTable.Edita(leadId);

@@ -12,9 +12,9 @@ namespace FirstREST.Controllers
 {
     public class LocationController : ApiController
     {
-        // GET api/location/
+        // GET api/location?token={$token}/
         // FEATURE: Listar distritos
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
             try
             {
@@ -26,9 +26,9 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/location/{$distritoId}/
+        // GET api/location/{$id}?token={$token}/
         // FEATURE: Listar concelhos
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
             try
             {

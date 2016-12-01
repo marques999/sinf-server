@@ -67,7 +67,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (categoriesTable.Existe(categoryId) == false)
             {
-                return null;
+                throw new NotFoundException("categoria", true);
             }
 
             return new Category

@@ -149,7 +149,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (definitionColumns.ContainsKey(definitionType) == false)
             {
-                return null;
+                throw new NotFoundException("tipo", false);
             }
 
             var queryResult = new List<Reference>();

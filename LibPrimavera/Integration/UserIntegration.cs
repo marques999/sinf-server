@@ -58,7 +58,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (representativesTable.Existe(representativeId) == false)
             {
-                return null;
+                throw new NotFoundException("vendedor", false);
             }
 
             var representativeInfo = representativesTable.Edita(representativeId);
@@ -85,7 +85,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 return null;
             }
-            
+
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -114,7 +114,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (PrimaveraEngine.Engine.Comercial.Vendedores.Existe(representativeId) == false)
             {
-                return false;
+                throw new NotFoundException("vendedor", false);
             }
 
             using (var sqlCommand = new SQLiteCommand(registerUser, PrimaveraEngine.getAuthenticationService()))

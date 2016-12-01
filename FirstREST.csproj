@@ -262,7 +262,7 @@
     </Compile>
     <Compile Include="LibPrimavera\Authentication.cs" />
     <Compile Include="LibPrimavera\EnumExtension.cs" />
-    <Compile Include="LibPrimavera\HashID.cs" />
+    <Compile Include="LibPrimavera\HashGenerator.cs" />
     <Compile Include="LibPrimavera\Integration\LoginIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\CustomerIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\AgendaIntegration.cs" />
@@ -274,7 +274,7 @@
     <Compile Include="LibPrimavera\Model\ContactListing.cs" />
     <Compile Include="LibPrimavera\Model\CustomerInfo.cs" />
     <Compile Include="LibPrimavera\Model\CustomerListing.cs" />
-    <Compile Include="LibPrimavera\Enums\DefinitionType.cs" />
+    <Compile Include="LibPrimavera\Model\DefinitionType.cs" />
     <Compile Include="LibPrimavera\Model\Entity.cs" />
     <Compile Include="LibPrimavera\Model\EntityListing.cs" />
     <Compile Include="LibPrimavera\Model\EntityReference.cs" />
@@ -299,10 +299,7 @@
     <Compile Include="LibPrimavera\Integration\ProductIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\QuoteIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\UserIntegration.cs" />
-    <Compile Include="LibPrimavera\Enums\ActivityInterval.cs" />
-    <Compile Include="LibPrimavera\Enums\ActivityStatus.cs" />
-    <Compile Include="LibPrimavera\Enums\ActivityType.cs" />
-    <Compile Include="LibPrimavera\Enums\EntityType.cs" />
+    <Compile Include="LibPrimavera\Model\EntityType.cs" />
     <Compile Include="LibPrimavera\Model\Reference.cs" />
     <Compile Include="LibPrimavera\Model\UserInfo.cs" />
     <Compile Include="LibPrimavera\Integration\WarehouseIntegration.cs" />
@@ -323,7 +320,7 @@
     <Compile Include="LibPrimavera\Model\Product.cs" />
     <Compile Include="LibPrimavera\Model\Customer.cs" />
     <Compile Include="LibPrimavera\Model\Venda.cs" />
-    <Compile Include="LibPrimavera\PriEngine.cs" />
+    <Compile Include="LibPrimavera\PrimaveraEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

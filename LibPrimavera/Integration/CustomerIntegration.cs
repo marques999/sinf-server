@@ -116,7 +116,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (customersTable.Existe(customerId) == false)
             {
-                return null;
+                throw new NotFoundException("cliente", false);
             }
 
             var customerInfo = PrimaveraEngine.Consulta(new SqlBuilder()
@@ -168,25 +168,12 @@ namespace FirstREST.LibPrimavera.Integration
             return new EntityReference(customerId, EntityType.Customer, customersTable.DaNome(customerId));
         }
 
-        private static void SetMorada(GcpBECliente customerInfo, Address jsonObject)
-        {
-            if (jsonObject.Pais != null)
-                customerInfo.set_Pais(jsonObject.Pais);
-            if (jsonObject.Morada != null)
-                customerInfo.set_Morada(jsonObject.Morada);
-            if (jsonObject.Distrito != null)
-                customerInfo.set_Distrito(jsonObject.Distrito);
-            if (jsonObject.Localidade != null)
-                customerInfo.set_Localidade(jsonObject.Localidade);
-            if (jsonObject.CodigoPostal != null)
-                customerInfo.set_CodigoPostal(jsonObject.CodigoPostal);
-            if (jsonObject.Localidade != null)
-                customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localidade);
-        }
-
         private static void SetFields(GcpBECliente customerInfo, Customer jsonObject)
         {
+            customerInfo.set_Pais(jsonObject.Localizacao.Pais);
+            customerInfo.set_Distrito(jsonObject.Localizacao.Distrito);
             customerInfo.set_PessoaSingular(jsonObject.Particular);
+
             if (jsonObject.Nome != null)
                 customerInfo.set_Nome(jsonObject.Nome);
             if (jsonObject.Situacao != null)
@@ -199,8 +186,14 @@ namespace FirstREST.LibPrimavera.Integration
                 customerInfo.set_Telefone(jsonObject.Telefone2);
             if (jsonObject.EnderecoWeb != null)
                 customerInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
-            if (jsonObject.Localizacao != null)
-                SetMorada(customerInfo, jsonObject.Localizacao);
+            if (jsonObject.Localizacao.CodigoPostal != null)
+                customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal);
+            if (jsonObject.Localizacao.Morada != null)
+                customerInfo.set_Morada(jsonObject.Localizacao.Morada);
+            if (jsonObject.Localizacao.Localidade != null)
+                customerInfo.set_Localidade(jsonObject.Localizacao.Localidade);
+            if (jsonObject.Localizacao.Localidade != null)
+                customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localizacao.Localidade);
         }
 
         public static CustomerInfo Update(string sessionId, string customerId, Customer jsonObject)
@@ -214,7 +207,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (customersTable.Existe(customerId) == false)
             {
-                return null;
+                throw new NotFoundException("cliente", false);
             }
 
             var customerInfo = customersTable.Edita(customerId);
@@ -267,17 +260,15 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (customersTable.Existe(customerId))
             {
-                return null;
+                throw new EntityExistsException("cliente", false);
             }
-
-            var dateCreated = DateTime.Now;
 
             customerInfo.set_Cliente(customerId);
             SetFields(customerInfo, jsonObject);
             customerInfo.set_Moeda("EUR");
             customerInfo.set_Vendedor(sessionId);
-            customerInfo.set_DataCriacao(dateCreated);
-            customerInfo.set_DataUltimaActualizacao(dateCreated);
+            customerInfo.set_DataCriacao(DateTime.Now);
+            customerInfo.set_DataUltimaActualizacao(DateTime.Now);
             customersTable.Actualiza(customerInfo);
 
             return new CustomerListing()
@@ -304,22 +295,20 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (customersTable.Existe(customerId) == false)
             {
-                return false;
+                throw new NotFoundException("cliente", false);
             }
 
-            //var customerInfo = customersTable.Edita(customerId);
+            var customerInfo = customersTable.Edita(customerId);
 
             /*if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return false;
             }*/
 
-            customersTable.Remove(customerId);
-
-            //customerInfo.set_EmModoEdicao(true);
-            //customerInfo.set_Inactivo(true);
-            //customerInfo.set_DataUltimaActualizacao(DateTime.Now);
-            //customersTable.Actualiza(customerInfo);
+            customerInfo.set_EmModoEdicao(true);
+            customerInfo.set_Inactivo(true);
+            customerInfo.set_DataUltimaActualizacao(DateTime.Now);
+            customersTable.Actualiza(customerInfo);
 
             return true;
         }

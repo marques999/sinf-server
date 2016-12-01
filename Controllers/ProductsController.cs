@@ -13,11 +13,11 @@ namespace FirstREST.Controllers
 {
     public class ProductsController : ApiController
     {
-        // GET api/products/
+        // GET api/products?token={$token}/
         // FEATURE: Listar produto
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
@@ -34,24 +34,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/products/{$productId}/
+        // GET api/products/{$id}?token={$token}/
         // FEATURE: Visualizar produto
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = ProductIntegration.View(Encoding.UTF8.GetString(Convert.FromBase64String(id)));
-
-                    if (operationResult == null)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
-                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, ProductIntegration.View(Encoding.UTF8.GetString(Convert.FromBase64String(id))));
                 }
                 catch (Exception ex)
                 {

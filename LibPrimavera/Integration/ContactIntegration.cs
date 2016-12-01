@@ -84,7 +84,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (contactsTable.Existe(contactId) == false)
             {
-                return null;
+                throw new NotFoundException("contacto", false);
             }
 
             return GenerateContact(contactsTable.Edita(contactId));
@@ -134,6 +134,9 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
+            contactInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+            contactInfo.set_Pais(jsonObject.Localizacao.Pais);
+
             if (jsonObject.Nome != null)
                 contactInfo.set_Nome(jsonObject.Nome);
             if (jsonObject.Titulo != null)
@@ -146,8 +149,6 @@ namespace FirstREST.LibPrimavera.Integration
                 contactInfo.set_Telefone2(jsonObject.Telefone2);
             if (jsonObject.Telemovel != null)
                 contactInfo.set_Telemovel(jsonObject.Telemovel);
-            contactInfo.set_Distrito(jsonObject.Localizacao.Distrito);
-            contactInfo.set_Pais(jsonObject.Localizacao.Pais);
             if (jsonObject.Localizacao.Morada != null)
                 contactInfo.set_Morada(jsonObject.Localizacao.Morada);
             if (jsonObject.Localizacao.Localidade != null)
@@ -169,7 +170,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (contactsTable.Existe(contactId) == false)
             {
-                return null;
+                throw new NotFoundException("contacto", false);
             }
 
             var contactInfo = contactsTable.Edita(contactId);
@@ -199,7 +200,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (contactsTable.Existe(contactId))
             {
-                return null;
+                throw new EntityExistsException("contacto", false);
             }
 
             contactInfo.set_Contacto(contactId);
@@ -230,7 +231,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (contactsTable.Existe(contactId) == false)
             {
-                return false;
+                throw new NotFoundException("contacto", false);
             }
 
             if (CheckPermissions(contactsTable.Edita(contactId), sessionId) == false)

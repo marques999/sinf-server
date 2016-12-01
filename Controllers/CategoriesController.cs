@@ -12,7 +12,7 @@ namespace FirstREST.Controllers
 {
     public class CategoriesController : ApiController
     {
-        // GET api/categories/
+        // GET api/categories?token={$token}/
         // FEATURE: Listar categorias
         public HttpResponseMessage Get([FromUri] string token)
         {
@@ -33,7 +33,7 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/categories/{$categoryId}/
+        // GET api/categories/{$id}?token={$token}/
         // FEATURE: Visualizar categoria
         public HttpResponseMessage Get(string id, [FromUri] string token)
         {
@@ -41,16 +41,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var operationResult = CategoryIntegration.Get(HttpUtility.UrlDecode(id));
-
-                    if (operationResult == null)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
-                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, CategoryIntegration.Get(HttpUtility.UrlDecode(id)));
                 }
                 catch (Exception ex)
                 {

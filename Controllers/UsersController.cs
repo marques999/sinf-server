@@ -26,11 +26,11 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/users/{$userId}/
+        // GET api/users/{$id}?token={$token}/
         // FEATURE: Visualizar perfil
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {

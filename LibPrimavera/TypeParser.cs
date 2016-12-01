@@ -1,15 +1,12 @@
-﻿using FirstREST.LibPrimavera.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+
+using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera
 {
     public class TypeParser
     {
-        #region String Parser
-
         internal static string String(dynamic paramObject)
         {
             if (object.Equals(paramObject, null))
@@ -37,11 +34,7 @@ namespace FirstREST.LibPrimavera
             return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////
-
-        #region Double Parser
 
         internal static double Double(dynamic paramObject)
         {
@@ -60,7 +53,7 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        public static bool IsNumber(Type paramType)
+        internal static bool IsNumber(Type paramType)
         {
             if (paramType.IsPrimitive)
             {
@@ -70,11 +63,7 @@ namespace FirstREST.LibPrimavera
             return paramType == typeof(decimal);
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////
-
-        #region Date Parser
 
         private static DateTime DefaultDate = DateTime.MinValue;
 
@@ -124,11 +113,7 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////
-
-        #region Boolean Parser
 
         internal static bool Boolean(dynamic paramObject)
         {
@@ -147,11 +132,7 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////
-
-        #region Integer Parser
 
         internal static int Integer(dynamic paramObject)
         {
@@ -170,78 +151,7 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        #endregion
-
         ///////////////////////////////////////////////////////////////////////
-
-        #region ActivityInterval Parser
-
-        public static EnumActivityInterval Activity_Interval(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return EnumActivityInterval.Today;
-            }
-
-            EnumActivityInterval parseResult;
-
-            return Enum.TryParse(value, true, out parseResult) ? parseResult : EnumActivityInterval.Today;
-        }
-
-        #endregion
-
-        ///////////////////////////////////////////////////////////////////////
-
-        #region ActivityType Parser
-
-        public static EnumActivityType Activity_Type(dynamic value)
-        {
-            if (object.Equals(value, null))
-            {
-                return EnumActivityType.ANY;
-            }
-
-            EnumActivityType parseResult = EnumActivityType.ANY;
-
-            if (value is string)
-            {
-                if (Enum.TryParse(value as string, true, out parseResult))
-                {
-                    return parseResult;
-                }
-            }
-
-            return parseResult;
-        }
-
-        #endregion
-
-        ///////////////////////////////////////////////////////////////////////
-
-        #region ActivityStatus Parser
-
-        public static EnumActivityStatus Activity_Status(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return EnumActivityStatus.Any;
-            }
-
-            EnumActivityStatus parseResult;
-
-            if (Enum.TryParse(value, true, out parseResult))
-            {
-                return parseResult;
-            }
-
-            return EnumActivityStatus.Any;
-        }
-
-        #endregion
-
-        ///////////////////////////////////////////////////////////////////////
-
-        #region EntityType Parser
 
         private static Dictionary<String, EntityType> entities = new Dictionary<string, EntityType>
         {
@@ -251,7 +161,7 @@ namespace FirstREST.LibPrimavera
             { "X", EntityType.Lead }
         };
 
-        public static EntityType Entity_Type(string value)
+        internal static EntityType Entity_Type(string value)
         {
             if (object.Equals(value, null))
             {
@@ -265,7 +175,5 @@ namespace FirstREST.LibPrimavera
 
             return EntityType.Unknown;
         }
-
-        #endregion
     }
 }

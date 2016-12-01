@@ -12,15 +12,15 @@ namespace FirstREST.Controllers
 {
     public class ContactsController : ApiController
     {
-        // GET api/contacts/
+        // GET api/contacts?token={$token}/
         // FEATURE: Listar contactos
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Authentication.GetRepresentative(null)));
+                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.List(Authentication.GetRepresentative(token)));
                 }
                 catch (Exception ex)
                 {
@@ -33,24 +33,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/contacts/{$contactId}
+        // GET api/contacts/{$id}?token={$token}/
         // FEATURE: Visualizar cliente
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = ContactIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
-
-                    if (operationResult == null)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
-                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, ContactIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id)));
                 }
                 catch (Exception ex)
                 {
@@ -63,15 +54,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/contacts/
+        // POST api/contacts?token={$token}/
         // FEATURE: Adicionar contacto
-        public HttpResponseMessage Post([FromBody] Contact jsonObject)
+        public HttpResponseMessage Post([FromBody] Contact jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = ContactIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                    var operationResult = ContactIntegration.Insert(Authentication.GetRepresentative(token), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -93,13 +84,13 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/contacts/{$contactId}/
+        // PUT api/contacts/{$id}?token={$token}/
         // FEATURE: Modificar contacto existente
-        public HttpResponseMessage Put(string id, [FromBody] Contact jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Contact jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
-                var operationResult = ContactIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+                var operationResult = ContactIntegration.Update(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id), jsonObject);
 
                 try
                 {
@@ -123,15 +114,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/contacts/{$contactId}/
+        // DELETE api/contacts/{$id}?token={$token}/
         // FEATURE: Remover contacto existente
-        public HttpResponseMessage Delete(string id)
+        public HttpResponseMessage Delete(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    if (ContactIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
+                    if (ContactIntegration.Delete(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

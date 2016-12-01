@@ -12,11 +12,11 @@ namespace FirstREST.Controllers
 {
     public class WarehousesController : ApiController
     {
-        // GET api/warehouses/
+        // GET api/warehouses?token={$token}/
         // FEATURE: Listar armazéns
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
@@ -33,24 +33,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/warehouses/{$warehouseId}/
+        // GET api/warehouses/{$id}?token={$token}/
         // FEATURE: Visualizar armazém
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = WarehouseIntegration.Get(HttpUtility.UrlDecode(id));
-
-                    if (operationResult == null)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
-                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, WarehouseIntegration.Get(HttpUtility.UrlDecode(id)));
                 }
                 catch (Exception ex)
                 {

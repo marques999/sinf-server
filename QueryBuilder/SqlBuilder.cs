@@ -126,14 +126,12 @@ namespace FirstREST.QueryBuilder
         {
             _selectedColumns.Clear();
             _selectedColumns.AddRange(columns);
-
             return this;
         }
 
         public SqlBuilder FromTable(string table)
         {
             _selectedTables.Add(table);
-
             return this;
         }
 
@@ -141,14 +139,12 @@ namespace FirstREST.QueryBuilder
         {
             _selectedTables.Clear();
             _selectedTables.AddRange(tables);
-
             return this;
         }
 
         public SqlBuilder AddJoin(JoinClause newJoin)
         {
             _joins.Add(newJoin);
-
             return this;
         }
 
@@ -175,7 +171,6 @@ namespace FirstREST.QueryBuilder
         private SqlBuilder Join(JoinType join, string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
             _joins.Add(new JoinClause(join, toTableName, toColumnName, @operator, fromTableName, fromColumnName));
-
             return this;
         }
 
@@ -199,14 +194,12 @@ namespace FirstREST.QueryBuilder
         public SqlBuilder Where(WhereClause clause, int level)
         {
             _whereStatement.Add(clause, level);
-
             return this;
         }
 
         public SqlBuilder Where(string field, Comparison @operator, object compareValue)
         {
             Where(field, @operator, compareValue, 1);
-
             return this;
         }
 
@@ -229,7 +222,7 @@ namespace FirstREST.QueryBuilder
 
         public void AddOrderBy(Enum field, Sorting order)
         {
-            this.AddOrderBy(field.ToString(), order);
+            AddOrderBy(field.ToString(), order);
         }
 
         public void AddOrderBy(string field, Sorting order)
@@ -281,7 +274,7 @@ namespace FirstREST.QueryBuilder
 
         public WhereClause AddHaving(string field, Comparison @operator, object compareValue, int level)
         {
-            WhereClause NewWhereClause = new WhereClause(field, @operator, compareValue);
+            var NewWhereClause = new WhereClause(field, @operator, compareValue);
             _havingStatement.Add(NewWhereClause, level);
             return NewWhereClause;
         }
@@ -355,18 +348,18 @@ namespace FirstREST.QueryBuilder
 
                     switch (Clause.JoinType)
                     {
-                        case JoinType.InnerJoin:
-                            JoinString = "INNER JOIN";
-                            break;
-                        case JoinType.OuterJoin:
-                            JoinString = "OUTER JOIN";
-                            break;
-                        case JoinType.LeftJoin:
-                            JoinString = "LEFT JOIN";
-                            break;
-                        case JoinType.RightJoin:
-                            JoinString = "RIGHT JOIN";
-                            break;
+                    case JoinType.InnerJoin:
+                        JoinString = "INNER JOIN";
+                        break;
+                    case JoinType.OuterJoin:
+                        JoinString = "OUTER JOIN";
+                        break;
+                    case JoinType.LeftJoin:
+                        JoinString = "LEFT JOIN";
+                        break;
+                    case JoinType.RightJoin:
+                        JoinString = "RIGHT JOIN";
+                        break;
                     }
 
                     JoinString += " " + Clause.ToTable + " ON ";
@@ -413,12 +406,12 @@ namespace FirstREST.QueryBuilder
 
                     switch (Clause.SortOrder)
                     {
-                        case Sorting.Ascending:
-                            OrderByClause = Clause.FieldName + " ASC";
-                            break;
-                        case Sorting.Descending:
-                            OrderByClause = Clause.FieldName + " DESC";
-                            break;
+                    case Sorting.Ascending:
+                        OrderByClause = Clause.FieldName + " ASC";
+                        break;
+                    case Sorting.Descending:
+                        OrderByClause = Clause.FieldName + " DESC";
+                        break;
                     }
 
                     Query += OrderByClause + ',';

@@ -146,7 +146,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (productsTable.Existe(productId) == false)
             {
-                return null;
+                throw new NotFoundException("produto", false);
             }
 
             var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()

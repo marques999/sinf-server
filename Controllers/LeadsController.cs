@@ -16,7 +16,7 @@ namespace FirstREST.Controllers
         // FEATURE: Listar leads
         public HttpResponseMessage Get([FromUri]string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
@@ -37,7 +37,7 @@ namespace FirstREST.Controllers
         // FEATURE: Visualizar lead
         public HttpResponseMessage Get(string id, [FromUri]string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {

@@ -12,21 +12,22 @@ namespace FirstREST.Controllers
 {
     public class AgendaController : ApiController
     {
-        // GET api/agenda/?type=calls&when=today&status=ongoing
+        // GET api/agenda/?token={$token}&status=active
         // Feature: Visualizar agenda
-        public HttpResponseMessage Get([FromUri] string interval = "any", [FromUri] string status = "any", [FromUri] string type = "any")
+        public HttpResponseMessage Get([FromUri] string token, [FromUri] bool status, [FromUri] string empty = "")
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.List
-                    (
-                        Authentication.GetRepresentative(null),
-                        TypeParser.Activity_Type(type),
-                        TypeParser.Activity_Status(status),
-                        TypeParser.Activity_Interval(interval)
-                    ));
+                    if (status)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.ListActive(Authentication.GetRepresentative(token)));
+                    }
+                    else
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, AgendaIntegration.ListInactive(Authentication.GetRepresentative(token)));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -39,15 +40,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/agenda/{$activityId}/
+        // GET api/agenda/{$id}?token={$token}/
         // FEATURE: Visualizar actividade
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = AgendaIntegration.View(Authentication.GetRepresentative(null), id);
+                    var operationResult = AgendaIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
 
                     if (operationResult == null)
                     {
@@ -69,15 +70,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/agenda/
+        // POST api/agenda?token={$token}/
         // Feature: Agendar actividade
-        public HttpResponseMessage Post([FromBody] Activity jsonObject)
+        public HttpResponseMessage Post([FromBody] Activity jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = AgendaIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                    var operationResult = AgendaIntegration.Insert(Authentication.GetRepresentative(token), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -99,15 +100,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/agenda/{$activityId}/
+        // PUT api/agenda/{$id}?token={$token}/
         // Feature: Modificar actividade existente
-        public HttpResponseMessage Put(string id, [FromBody] Activity jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Activity jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = AgendaIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+                    var operationResult = AgendaIntegration.Update(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -129,15 +130,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/agenda/{$activityId}/
+        // DELETE api/agenda/{$id}?token={$token}/
         // FEATURE: Remover actividade existente
-        public HttpResponseMessage Delete(string id)
+        public HttpResponseMessage Delete(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    if (AgendaIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
+                    if (AgendaIntegration.Delete(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id)))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }

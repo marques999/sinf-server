@@ -12,30 +12,30 @@ namespace FirstREST.QueryBuilder
         {
             get
             {
-                return this.Count;
+                return Count;
             }
         }
 
         private void AssertLevelExistance(int level)
         {
-            if (this.Count < (level - 1))
+            if (Count < (level - 1))
             {
                 throw new Exception("Level " + level + " not allowed because level " + (level - 1) + " does not exist.");
             }
-            else if (this.Count < level)
+            else if (Count < level)
             {
-                this.Add(new List<WhereClause>());
+                Add(new List<WhereClause>());
             }
         }
 
         public void Add(WhereClause clause)
         {
-            this.Add(clause, 1);
+            Add(clause, 1);
         }
 
         public void Add(WhereClause clause, int level)
         {
-            this.AddWhereClauseToLevel(clause, level);
+            AddWhereClauseToLevel(clause, level);
         }
 
         public WhereClause Add(string field, Comparison @operator, object compareValue)
@@ -50,8 +50,8 @@ namespace FirstREST.QueryBuilder
 
         public WhereClause Add(string field, Comparison @operator, object compareValue, int level)
         {
-            WhereClause NewWhereClause = new WhereClause(field, @operator, compareValue);
-            this.AddWhereClauseToLevel(NewWhereClause, level);
+            var NewWhereClause = new WhereClause(field, @operator, compareValue);
+            AddWhereClauseToLevel(NewWhereClause, level);
             return NewWhereClause;
         }
 
@@ -91,8 +91,7 @@ namespace FirstREST.QueryBuilder
                             usedDbCommand.Parameters.Count + 1,
                             Clause.FieldName.Replace('.', '_')
                             );
-
-                        DbParameter parameter = usedDbCommand.CreateParameter();
+                        var parameter = usedDbCommand.CreateParameter();
 
                         parameter.ParameterName = parameterName;
                         parameter.Value = Clause.Value;
@@ -104,33 +103,30 @@ namespace FirstREST.QueryBuilder
                         WhereClause = CreateComparisonClause(Clause.FieldName, Clause.ComparisonOperator, Clause.Value);
                     }
 
-                    foreach (WhereClause.SubClause SubWhereClause in Clause.SubClauses)	// Loop through all subclauses, append them together with the specified logic operator
+                    foreach (WhereClause.SubClause SubWhereClause in Clause.SubClauses)
                     {
                         switch (SubWhereClause.LogicOperator)
                         {
-                            case LogicOperator.And:
-                                WhereClause += " AND ";
-                                break;
-                            case LogicOperator.Or:
-                                WhereClause += " OR ";
-                                break;
+                        case LogicOperator.And:
+                            WhereClause += " AND ";
+                            break;
+                        case LogicOperator.Or:
+                            WhereClause += " OR ";
+                            break;
                         }
 
                         if (useCommandObject)
                         {
-                            // Create a parameter
                             string parameterName = string.Format(
                                 "@p{0}_{1}",
                                 usedDbCommand.Parameters.Count + 1,
                                 Clause.FieldName.Replace('.', '_')
                                 );
+                            var parameter = usedDbCommand.CreateParameter();
 
-                            DbParameter parameter = usedDbCommand.CreateParameter();
                             parameter.ParameterName = parameterName;
                             parameter.Value = SubWhereClause.Value;
                             usedDbCommand.Parameters.Add(parameter);
-
-                            // Create a where clause using the parameter, instead of its value
                             WhereClause += CreateComparisonClause(Clause.FieldName, SubWhereClause.ComparisonOperator, new SqlLiteral(parameterName));
                         }
                         else
@@ -138,9 +134,12 @@ namespace FirstREST.QueryBuilder
                             WhereClause += CreateComparisonClause(Clause.FieldName, SubWhereClause.ComparisonOperator, SubWhereClause.Value);
                         }
                     }
+
                     LevelWhere += "(" + WhereClause + ") AND ";
                 }
-                LevelWhere = LevelWhere.Substring(0, LevelWhere.Length - 5); // Trim de last AND inserted by foreach loop
+
+                LevelWhere = LevelWhere.Substring(0, LevelWhere.Length - 5);
+
                 if (WhereStatement.Count > 1)
                 {
                     Result += " (" + LevelWhere + ") ";
@@ -149,9 +148,11 @@ namespace FirstREST.QueryBuilder
                 {
                     Result += " " + LevelWhere + " ";
                 }
+
                 Result += " OR";
             }
-            Result = Result.Substring(0, Result.Length - 2); // Trim de last OR inserted by foreach loop
+
+            Result = Result.Substring(0, Result.Length - 2);
 
             return Result;
         }
@@ -159,40 +160,41 @@ namespace FirstREST.QueryBuilder
         internal static string CreateComparisonClause(string fieldName, Comparison comparisonOperator, object value)
         {
             string Output = "";
+
             if (value != null && value != System.DBNull.Value)
             {
                 switch (comparisonOperator)
                 {
-                    case Comparison.Equals:
-                        Output = fieldName + " = " + FormatSQLValue(value);
-                        break;
-                    case Comparison.NotEquals:
-                        Output = fieldName + " <> " + FormatSQLValue(value);
-                        break;
-                    case Comparison.GreaterThan:
-                        Output = fieldName + " > " + FormatSQLValue(value);
-                        break;
-                    case Comparison.GreaterOrEquals:
-                        Output = fieldName + " >= " + FormatSQLValue(value);
-                        break;
-                    case Comparison.LessThan:
-                        Output = fieldName + " < " + FormatSQLValue(value);
-                        break;
-                    case Comparison.LessOrEquals:
-                        Output = fieldName + " <= " + FormatSQLValue(value);
-                        break;
-                    case Comparison.Like:
-                        Output = fieldName + " LIKE " + FormatSQLValue(value);
-                        break;
-                    case Comparison.NotLike:
-                        Output = "NOT " + fieldName + " LIKE " + FormatSQLValue(value);
-                        break;
-                    case Comparison.In:
-                        Output = fieldName + " IN (" + FormatSQLValue(value) + ")";
-                        break;
+                case Comparison.Equals:
+                    Output = fieldName + " = " + FormatSQLValue(value);
+                    break;
+                case Comparison.NotEquals:
+                    Output = fieldName + " <> " + FormatSQLValue(value);
+                    break;
+                case Comparison.GreaterThan:
+                    Output = fieldName + " > " + FormatSQLValue(value);
+                    break;
+                case Comparison.GreaterOrEquals:
+                    Output = fieldName + " >= " + FormatSQLValue(value);
+                    break;
+                case Comparison.LessThan:
+                    Output = fieldName + " < " + FormatSQLValue(value);
+                    break;
+                case Comparison.LessOrEquals:
+                    Output = fieldName + " <= " + FormatSQLValue(value);
+                    break;
+                case Comparison.Like:
+                    Output = fieldName + " LIKE " + FormatSQLValue(value);
+                    break;
+                case Comparison.NotLike:
+                    Output = "NOT " + fieldName + " LIKE " + FormatSQLValue(value);
+                    break;
+                case Comparison.In:
+                    Output = fieldName + " IN (" + FormatSQLValue(value) + ")";
+                    break;
                 }
             }
-            else // value==null	|| value==DBNull.Value
+            else
             {
                 if ((comparisonOperator != Comparison.Equals) && (comparisonOperator != Comparison.NotEquals))
                 {
@@ -202,23 +204,22 @@ namespace FirstREST.QueryBuilder
                 {
                     switch (comparisonOperator)
                     {
-                        case Comparison.Equals:
-                            Output = fieldName + " IS NULL";
-                            break;
-                        case Comparison.NotEquals:
-                            Output = "NOT " + fieldName + " IS NULL";
-                            break;
+                    case Comparison.Equals:
+                        Output = fieldName + " IS NULL";
+                        break;
+                    case Comparison.NotEquals:
+                        Output = "NOT " + fieldName + " IS NULL";
+                        break;
                     }
                 }
             }
+
             return Output;
         }
 
         internal static string FormatSQLValue(object someValue)
         {
             string FormattedValue = "";
-            //				string StringType = Type.GetType("string").Name;
-            //				string DateTimeType = Type.GetType("DateTime").Name;
 
             if (someValue == null)
             {
@@ -251,28 +252,17 @@ namespace FirstREST.QueryBuilder
             return FormattedValue;
         }
 
-        /// <summary>
-        /// This static method combines 2 where statements with eachother to form a new statement
-        /// </summary>
-        /// <param name="statement1"></param>
-        /// <param name="statement2"></param>
-        /// <returns></returns>
         public static WhereStatement CombineStatements(WhereStatement statement1, WhereStatement statement2)
         {
-            // statement1: {Level1}((Age<15 OR Age>=20) AND (strEmail LIKE 'e%') OR {Level2}(Age BETWEEN 15 AND 20))
-            // Statement2: {Level1}((Name = 'Peter'))
-            // Return statement: {Level1}((Age<15 or Age>=20) AND (strEmail like 'e%') AND (Name = 'Peter'))
+            var result = WhereStatement.Copy(statement1);
 
-            // Make a copy of statement1
-            WhereStatement result = WhereStatement.Copy(statement1);
-
-            // Add all clauses of statement2 to result
-            for (int i = 0; i < statement2.ClauseLevels; i++) // for each clause level in statement2
+            for (int i = 0; i < statement2.ClauseLevels; i++)
             {
-                List<WhereClause> level = statement2[i];
-                foreach (WhereClause clause in level) // for each clause in level i
+                var level = statement2[i];
+
+                foreach (var clause in level)
                 {
-                    for (int j = 0; j < result.ClauseLevels; j++)  // for each level in result, add the clause
+                    for (int j = 0; j < result.ClauseLevels; j++)
                     {
                         result.AddWhereClauseToLevel(clause, j);
                     }
@@ -284,26 +274,28 @@ namespace FirstREST.QueryBuilder
 
         public static WhereStatement Copy(WhereStatement statement)
         {
-            WhereStatement result = new WhereStatement();
             int currentLevel = 0;
-            foreach (List<WhereClause> level in statement)
+            var result = new WhereStatement();
+
+            foreach (var level in statement)
             {
                 currentLevel++;
                 result.Add(new List<WhereClause>());
-                foreach (WhereClause clause in statement[currentLevel - 1])
+
+                foreach (var clause in statement[currentLevel - 1])
                 {
-                    WhereClause clauseCopy = new WhereClause(clause.FieldName, clause.ComparisonOperator, clause.Value);
-                    foreach (WhereClause.SubClause subClause in clause.SubClauses)
+                    var clauseCopy = new WhereClause(clause.FieldName, clause.ComparisonOperator, clause.Value);
+
+                    foreach (var subClause in clause.SubClauses)
                     {
-                        WhereClause.SubClause subClauseCopy = new WhereClause.SubClause(subClause.LogicOperator, subClause.ComparisonOperator, subClause.Value);
-                        clauseCopy.SubClauses.Add(subClauseCopy);
+                        clauseCopy.SubClauses.Add(new WhereClause.SubClause(subClause.LogicOperator, subClause.ComparisonOperator, subClause.Value));
                     }
+
                     result[currentLevel - 1].Add(clauseCopy);
                 }
             }
+
             return result;
         }
-
     }
-
 }

@@ -13,15 +13,15 @@ namespace FirstREST.Controllers
 {
     public class CustomersController : ApiController
     {
-        // GET api/customers/
+        // GET api/customers?token={$token}/
         // FEATURE: Listar clientes
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get([FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Authentication.GetRepresentative(null)));
+                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Authentication.GetRepresentative(token)));
                 }
                 catch (Exception ex)
                 {
@@ -34,15 +34,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/customers/{$customerId}/
+        // GET api/customers/{$id}?token={$token}/
         // FEATURE: Visualizar cliente
-        public HttpResponseMessage Get(string id)
+        public HttpResponseMessage Get(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.View(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    var operationResult = CustomerIntegration.View(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
 
                     if (operationResult == null)
                     {
@@ -64,15 +64,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/customers/
+        // POST api/customers?token={$token}/
         // FEATURE: Adicionar cliente
-        public HttpResponseMessage Post([FromBody] Customer jsonObject)
+        public HttpResponseMessage Post([FromBody] Customer jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                    var operationResult = CustomerIntegration.Insert(Authentication.GetRepresentative(token), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -94,15 +94,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/customers/{$customerId}/
+        // PUT api/customers/{$id}?token={$token}/
         // FEATURE: Modificar cliente existente
-        public HttpResponseMessage Put(string id, [FromBody] Customer jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] Customer jsonObject, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.Update(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
+                    var operationResult = CustomerIntegration.Update(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -124,15 +124,15 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/customers/{$customerId}/
+        // DELETE api/customers/{$id}?token={$token}/
         // FEATURE: Remover cliente existente
-        public HttpResponseMessage Delete(string id)
+        public HttpResponseMessage Delete(string id, [FromUri] string token)
         {
-            if (Authentication.VerifyToken("?"))
+            if (Authentication.VerifyToken(token))
             {
                 try
                 {
-                    if (CustomerIntegration.Delete(Authentication.GetRepresentative(null), Encoding.UTF8.GetString(Convert.FromBase64String(id))))
+                    if (CustomerIntegration.Delete(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id))))
                     {
                         return Request.CreateResponse(HttpStatusCode.OK);
                     }
