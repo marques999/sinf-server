@@ -2,18 +2,8 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Reference
+    public class WarehouseListing
     {
-        public Reference()
-        {
-        }
-
-        public Reference(string entityId, string entityName)
-        {
-            Identificador = entityId;
-            Descricao = entityName;
-        }
-
         [JsonProperty(PropertyName = "id")]
         public string Identificador
         {
@@ -23,6 +13,13 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "name")]
         public string Descricao
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "location")]
+        public Address Localizacao
         {
             get;
             set;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Interop.ICrmBS900;
 using Interop.CrmBE900;
 using Interop.StdBE900;
 

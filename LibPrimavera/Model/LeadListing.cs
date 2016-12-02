@@ -4,6 +4,13 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class LeadListing : EntityListing
     {
+        [JsonProperty(PropertyName = "email")]
+        public string Email
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "active")]
         public bool Activo
         {

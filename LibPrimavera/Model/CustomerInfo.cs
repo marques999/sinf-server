@@ -14,13 +14,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "owner")]
-        public string Responsavel
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "debt")]
         public double Debito
         {
@@ -30,6 +23,13 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "pending")]
         public double Pendentes
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "owner")]
+        public Reference Responsavel
         {
             get;
             set;

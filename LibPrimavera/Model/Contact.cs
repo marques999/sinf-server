@@ -1,12 +1,16 @@
-﻿using System;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
     public class Contact : Entity
     {
+        [JsonProperty(PropertyName = "email")]
+        public string Email
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "title")]
         public string Titulo
         {
@@ -15,7 +19,7 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "entity")]
-        public string Entity
+        public string Cliente
         {
             get;
             set;

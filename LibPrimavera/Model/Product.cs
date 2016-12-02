@@ -2,36 +2,21 @@
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class Product
+    public class Product : ProductListing
     {
         /// <summary>
         /// Private access fields
         /// </summary>
 
         private double _discount;
-        private double _price;
-        private double _stock;
 
         /// <summary>
         /// Public access properties
         /// </summary>
-
-        [JsonProperty(PropertyName = "id")]
-        public string Identificador
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "name")]
-        public string Descricao
-        {
-            get;
-            set;
-        }
 
         [JsonProperty(PropertyName = "barcode")]
         public string CodigoBarras
@@ -40,45 +25,20 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "units")]
-        public string Unidade
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "dateCreated")]
-        public DateTime DateCreated
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime UltimaEntrada
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "dateModified")]
-        public DateTime DateModified
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime UltimaSaida
         {
             get;
             set;
-        }
-
-        [JsonProperty(PropertyName = "average")]
-        public double PrecoMedio
-        {
-            get
-            {
-                return _price;
-            }
-            set
-            {
-                if (value < 0.0)
-                {
-                    _price = 0.0;
-                }
-                else
-                {
-                    _price = value;
-                }
-            }
         }
 
         [JsonProperty(PropertyName = "tax")]
@@ -86,26 +46,6 @@ namespace FirstREST.LibPrimavera.Model
         {
             get;
             set;
-        }
-
-        [JsonProperty(PropertyName = "stock")]
-        public double Stock
-        {
-            get
-            {
-                return _stock;
-            }
-            set
-            {
-                if (value < 0.0)
-                {
-                    _stock = 0.0;
-                }
-                else
-                {
-                    _stock = value;
-                }
-            }
         }
 
         [JsonProperty(PropertyName = "discount")]
@@ -132,13 +72,6 @@ namespace FirstREST.LibPrimavera.Model
             }
         }
 
-        [JsonProperty(PropertyName = "warehouses")]
-        public IEnumerable<Warehouse> Armazens
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "category")]
         public Reference Categoria
         {
@@ -148,6 +81,13 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "prices")]
         public List<ProductPrice> Precos
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "warehouses")]
+        public List<WarehouseProduct> Armazens
         {
             get;
             set;

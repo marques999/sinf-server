@@ -4,8 +4,8 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class ContactListing : EntityListing
     {
-        [JsonProperty(PropertyName = "title")]
-        public string Titulo
+        [JsonProperty(PropertyName = "email")]
+        public string Email
         {
             get;
             set;

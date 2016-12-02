@@ -16,20 +16,12 @@ namespace FirstREST.LibPrimavera.Integration
         {
             new SqlColumn("Entidade", null),
             new SqlColumn("Nome", null),
-            new SqlColumn("TipoTerceiro", null),
             new SqlColumn("Email", null),
             new SqlColumn("Activo", null),
+            new SqlColumn("TipoTerceiro", null),       
             new SqlColumn("DataUltAct", null),
             new SqlColumn("Telemovel", null),
-            new SqlColumn("Distrito", null),
-            new SqlColumn("Morada", null),
             new SqlColumn("Pais", null)            
-        };
-
-        private static SqlColumn[] sqlColumnsReference =
-        {
-            new SqlColumn("Entidade", null),
-            new SqlColumn("Nome", null),
         };
 
         private static LeadListing GenerateListing(StdBELista queryObject)
@@ -37,15 +29,21 @@ namespace FirstREST.LibPrimavera.Integration
             return new LeadListing()
             {
                 Identificador = TypeParser.String(queryObject.Valor("Entidade")),
-                Activo = TypeParser.Boolean(queryObject.Valor("Activo")),
-                TipoTerceiro = TypeParser.String(queryObject.Valor("TipoTerceiro")),
                 Nome = TypeParser.String(queryObject.Valor("Nome")),
                 Email = TypeParser.String(queryObject.Valor("Email")),
+                Activo = TypeParser.Boolean(queryObject.Valor("Activo")),
+                TipoTerceiro = TypeParser.String(queryObject.Valor("TipoTerceiro")),
                 DataModificacao = TypeParser.Date(queryObject.Valor("DataUltAct")),
-                Telemovel = TypeParser.String(queryObject.Valor("Telemovel")),
+                Telefone = TypeParser.String(queryObject.Valor("Telemovel")),
                 Pais = TypeParser.String(queryObject.Valor("Pais"))
             };
         }
+
+        private static SqlColumn[] sqlColumnsReference =
+        {
+            new SqlColumn("Entidade", null),
+            new SqlColumn("Nome", null),
+        };
 
         private static EntityReference GenerateReference(StdBELista queryObject)
         {
@@ -58,7 +56,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static bool CheckPermissions(CrmBEEntidadeExterna leadInfo, string sessionId)
         {
-            if (leadInfo.get_Activo() == false)
+            /*if (leadInfo.get_Activo() == false)
             {
                 return false;
             }
@@ -68,7 +66,7 @@ namespace FirstREST.LibPrimavera.Integration
             if (representativeId != null && representativeId != sessionId)
             {
                 return false;
-            }
+            }*/
 
             return true;
         }
@@ -159,7 +157,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        public static EntityReference LeadReference(string leadId)
+        public static EntityReference Reference(string leadId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -178,50 +176,54 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")));
         }
 
-        private static void SetAddress(CrmBEEntidadeExterna leadInfo, Address jsonObject)
-        {
-            if (jsonObject.Pais != null)
-                leadInfo.set_Pais(jsonObject.Pais);
-            if (jsonObject.Morada != null)
-                leadInfo.set_Morada(jsonObject.Morada);
-            if (jsonObject.Distrito != null)
-                leadInfo.set_Distrito(jsonObject.Distrito);
-            if (jsonObject.Localidade != null)
-                leadInfo.set_Localidade(jsonObject.Localidade);
-            if (jsonObject.CodigoPostal != null)
-                leadInfo.set_CodPostal(jsonObject.CodigoPostal);
-            if (jsonObject.Localidade != null)
-                leadInfo.set_CodPostalLocal(jsonObject.Localidade);
-        }
-
         private static void SetFields(CrmBEEntidadeExterna leadInfo, Lead jsonObject)
         {
-            if (jsonObject.Nome != null)
-                leadInfo.set_Nome(jsonObject.Nome);
-            if (jsonObject.Email != null)
-                leadInfo.set_Email(jsonObject.Email);
-            if (jsonObject.Telefone != null)
-                leadInfo.set_Telefone(jsonObject.Telefone);
-            if (jsonObject.Telemovel != null)
-                leadInfo.set_Telemovel(jsonObject.Telemovel);
-            if (jsonObject.Localizacao != null)
-                SetAddress(leadInfo, jsonObject.Localizacao);
+            leadInfo.set_Nome(jsonObject.Nome);
+            leadInfo.set_Zona(jsonObject.Zona);
+            leadInfo.set_Email(jsonObject.Email);
+            leadInfo.set_Idioma(jsonObject.Idioma);
+            leadInfo.set_Morada2(jsonObject.Morada2);
+            leadInfo.set_Telefone(jsonObject.Telefone);
+            leadInfo.set_Telefone2(jsonObject.Telefone2);
+            leadInfo.set_Telemovel(jsonObject.Telemovel);
+            leadInfo.set_Pais(jsonObject.Localizacao.Pais);
+            leadInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
+            leadInfo.set_Morada(jsonObject.Localizacao.Morada);
+            leadInfo.set_NumContrib(jsonObject.NumContribuinte);
+            leadInfo.set_PessoaSingular(jsonObject.PessoaSingular);
+            leadInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal);
+
             if (jsonObject.TipoTerceiro != null)
+            {
                 leadInfo.set_TipoTerceiro(jsonObject.TipoTerceiro);
+            }
+
             if (jsonObject.TipoMercado != null)
+            {
                 leadInfo.set_TipoMercado(jsonObject.TipoMercado);
-            if (jsonObject.Telefone2 != null)
-                leadInfo.set_Telefone2(jsonObject.Telefone2);
-            if (jsonObject.EnderecoWeb != null)
-                leadInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
-            if (jsonObject.Morada2 != null)
-                leadInfo.set_Morada2(jsonObject.Morada2);
-            if (jsonObject.Zona != null)
-                leadInfo.set_Zona(jsonObject.Zona);
-            if (jsonObject.Idioma != null)
-                leadInfo.set_Idioma(jsonObject.Idioma);
-            if (jsonObject.NumContribuinte != null)
-                leadInfo.set_NumContrib(jsonObject.NumContribuinte);
+            }
+
+            if (jsonObject.Localizacao.Pais.Equals("PT"))
+            {
+                if (jsonObject.Localizacao.Distrito == null)
+                {
+                    leadInfo.set_Distrito(null);
+                    leadInfo.set_Localidade(null);
+                    leadInfo.set_CodPostalLocal(null);
+                }
+                else
+                {
+                    leadInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+                    leadInfo.set_Localidade(jsonObject.Localizacao.Localidade);
+                    leadInfo.set_CodPostalLocal(jsonObject.Localizacao.Localidade);
+                }
+            }
+            else
+            {
+                leadInfo.set_Distrito(null);
+                leadInfo.set_Localidade(null);
+                leadInfo.set_CodPostalLocal(null);
+            }
         }
 
         public static bool Update(string sessionId, string leadId, Lead jsonObject)
@@ -240,10 +242,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var leadInfo = leadsTable.Edita(leadId);
 
-            /*if (CheckPermissions(leadInfo, sessionId) == false)
+            if (CheckPermissions(leadInfo, sessionId) == false)
             {
                 return false;
-            }*/
+            }
 
             string clientId = null;
             bool convert2client = jsonObject.TipoTerceiro != null && jsonObject.TipoTerceiro.Equals(LeadInfo.CONVERT_TO_CLIENT_ID);
@@ -310,7 +312,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Nome = leadInfo.get_Nome(),
                 Email = leadInfo.get_Email(),
                 DataModificacao = leadInfo.get_DataUltAct(),
-                Telemovel = leadInfo.get_Telemovel(),
+                Telefone = leadInfo.get_Telemovel(),
                 Pais = leadInfo.get_Pais()
             };
         }
@@ -331,10 +333,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var leadInfo = leadsTable.Edita(leadId);
 
-            /*if (CheckPermissions(leadInfo, sessionId) == false)
+            if (CheckPermissions(leadInfo, sessionId) == false)
             {
                 return false;
-            }*/
+            }
 
             leadInfo.set_EmModoEdicao(true);
             leadInfo.set_Activo(false);

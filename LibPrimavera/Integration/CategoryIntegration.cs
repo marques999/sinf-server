@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Interop.StdBE900;
 
@@ -80,7 +81,24 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Reference GenerateReference(string categoryId)
         {
-            return new Reference(categoryId, PrimaveraEngine.Engine.Comercial.Familias.DaDescricao(categoryId));
+            if (string.IsNullOrEmpty(categoryId))
+            {
+                return null;
+            }
+
+            if (PrimaveraEngine.InitializeCompany() == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var categoriesTable = PrimaveraEngine.Engine.Comercial.Familias;
+
+            if (categoriesTable.Existe(categoryId) == false)
+            {
+                return null;
+            }
+
+            return new Reference(categoryId, categoriesTable.DaDescricao(categoryId));
         }
 
         public static Reference GenerateReference(StdBELista categoryInfo)

@@ -21,9 +21,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "dateCreated")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataCriacao
+        [JsonProperty(PropertyName = "entity")]
+        public new EntityReference Cliente
         {
             get;
             set;

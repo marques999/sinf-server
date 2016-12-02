@@ -12,30 +12,6 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ProductIntegration
     {
-        private static SqlColumn[] sqlProdutos =
-        {
-            new SqlColumn("ARTIGO.Artigo", null),
-            new SqlColumn("ARTIGO.Descricao", null),
-            new SqlColumn("ARTIGO.Iva", null),
-            new SqlColumn("ARTIGO.UnidadeVenda", null),	
-            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),
-            new SqlColumn("FAMILIAS.Descricao", "Familia"),
-            new SqlColumn("ARTIGO.STKActual", "Stock")
-        };
-
-        private static SqlColumn[] sqlColumnsFull =		
-         {		
-            new SqlColumn("ARTIGO.Artigo", null),		
-            new SqlColumn("ARTIGO.Descricao", null),		
-            new SqlColumn("ARTIGO.CodBarras", null),		           
-            new SqlColumn("ARTIGO.UnidadeVenda", null),			
-            new SqlColumn("ARTIGO.Desconto", null),		
-            new SqlColumn("ARTIGO.Iva", null),		
-            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),		
-            new SqlColumn("FAMILIAS.Descricao", "Familia"),		
-            new SqlColumn("ARTIGO.STKActual", "Stock")		
-        };
-
         private static List<ProductPrice> dummyPrices = new List<ProductPrice>
         {
             new ProductPrice(false, 0.0),
@@ -91,6 +67,29 @@ namespace FirstREST.LibPrimavera.Integration
             return lowestPrice == Double.MaxValue ? 0.0 : lowestPrice;
         }
 
+        private static SqlColumn[] sqlColumnsListing =
+        {
+            new SqlColumn("ARTIGO.Artigo", null),
+            new SqlColumn("ARTIGO.Descricao", null),
+            new SqlColumn("ARTIGO.UnidadeVenda", null),	
+            new SqlColumn("ARTIGO.STKActual", "Stock")
+        };
+
+        private static ProductListing GenerateListing(StdBELista productInfo)
+        {
+            var productId = TypeParser.String(productInfo.Valor("Artigo"));
+            var productUnit = TypeParser.String(productInfo.Valor("UnidadeVenda"));
+
+            return new ProductListing()
+            {
+                Unidade = productUnit,
+                Identificador = productId,
+                PrecoMedio = FindLowest(productId, productUnit),
+                Stock = TypeParser.Double(productInfo.Valor("Stock")),
+                Descricao = TypeParser.String(productInfo.Valor("Descricao"))
+            };
+        }
+
         public static List<ProductListing> List()
         {
             if (PrimaveraEngine.InitializeCompany() == false)
@@ -99,26 +98,11 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var productList = new List<ProductListing>();
-            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("ARTIGO")
-                .Columns(sqlProdutos)
-                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
+            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARTIGO").Columns(sqlColumnsListing));
 
             while (!productInfo.NoFim())
             {
-                var productId = TypeParser.String(productInfo.Valor("Artigo"));
-                var productUnit = TypeParser.String(productInfo.Valor("UnidadeVenda"));
-
-                productList.Add(new ProductListing()
-                {
-                    Identificador = productId,
-                    PrecoMedio = FindLowest(productId, productUnit),
-                    IVA = TypeParser.Double(productInfo.Valor("Iva")),
-                    Stock = TypeParser.Double(productInfo.Valor("Stock")),
-                    Descricao = TypeParser.String(productInfo.Valor("Descricao")),
-                    Categoria = CategoryIntegration.GenerateReference(productInfo)
-                });
-
+                productList.Add(GenerateListing(productInfo));
                 productInfo.Seguinte();
             }
 
@@ -134,6 +118,21 @@ namespace FirstREST.LibPrimavera.Integration
 
             return productList;
         }
+
+        private static SqlColumn[] sqlColumnsFull =		
+         {		
+            new SqlColumn("ARTIGO.Artigo", null),		
+            new SqlColumn("ARTIGO.Descricao", null),		
+            new SqlColumn("ARTIGO.CodBarras", null),		           
+            new SqlColumn("ARTIGO.UnidadeVenda", null),			
+            new SqlColumn("ARTIGO.Desconto", null),		
+            new SqlColumn("ARTIGO.Iva", null),		
+            new SqlColumn("ARTIGO.DataUltEntrada", null),		
+            new SqlColumn("ARTIGO.DataUltSaida", null),		
+            new SqlColumn("FAMILIAS.Familia", "IdFamilia"),		
+            new SqlColumn("FAMILIAS.Descricao", "Familia"),		
+            new SqlColumn("ARTIGO.STKActual", "Stock")		
+        };
 
         public static Product View(string productId)
         {
@@ -169,7 +168,9 @@ namespace FirstREST.LibPrimavera.Integration
                 Descricao = TypeParser.String(productInfo.Valor("Descricao")),
                 Identificador = TypeParser.String(productInfo.Valor("Artigo")),
                 CodigoBarras = TypeParser.String(productInfo.Valor("CodBarras")),
-                Categoria = CategoryIntegration.GenerateReference(productInfo)
+                Categoria = CategoryIntegration.GenerateReference(productInfo),
+                UltimaEntrada = TypeParser.Date(productInfo.Valor("DataUltEntrada")),
+                UltimaSaida = TypeParser.Date(productInfo.Valor("DataUltSaida"))
             };
         }
 
@@ -200,25 +201,12 @@ namespace FirstREST.LibPrimavera.Integration
             var productList = new List<ProductListing>();
             var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARTIGO")
-                .Columns(sqlProdutos)
-                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia")
+                .Columns(sqlColumnsListing)
                 .Where("ARTIGO.Familia", Comparison.Equals, categoryId));
 
             while (!productInfo.NoFim())
             {
-                var productId = TypeParser.String(productInfo.Valor("Artigo"));
-                var productUnit = TypeParser.String(productInfo.Valor("UnidadeVenda"));
-
-                productList.Add(new ProductListing()
-                {
-                    PrecoMedio = FindLowest(productId, productUnit),
-                    IVA = TypeParser.Double(productInfo.Valor("Iva")),
-                    Stock = TypeParser.Double(productInfo.Valor("Stock")),
-                    Descricao = TypeParser.String(productInfo.Valor("Descricao")),
-                    Identificador = TypeParser.String(productInfo.Valor("Artigo")),
-                    Categoria = CategoryIntegration.GenerateReference(productInfo)
-                });
-
+                productList.Add(GenerateListing(productInfo));
                 productInfo.Seguinte();
             }
 

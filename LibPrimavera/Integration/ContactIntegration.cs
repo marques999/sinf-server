@@ -12,55 +12,55 @@ namespace FirstREST.LibPrimavera.Integration
 {
     public class ContactIntegration
     {
+        private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)
+        {
+            /*var representativeId = contactInfo.get_CriadoPor();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }*/
+
+            return true;
+        }
+
         private static SqlColumn[] sqlColumnsListing =
         {
             new SqlColumn("Contacto", null),
             new SqlColumn("PrimeiroNome", null),
             new SqlColumn("UltimoNome", null),
-            new SqlColumn("DataUltContacto", null),
             new SqlColumn("Email", null),
-            new SqlColumn("Telemovel", null),
             new SqlColumn("Pais", null),
+            new SqlColumn("Telemovel", null),
+            new SqlColumn("DataUltContacto", null)
         };
 
-        private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)
-        {
-            var representativeId = contactInfo.get_CriadoPor();
-
-            if (representativeId != null && representativeId != sessionId)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static List<EntityListing> List(string sessionId)
+        public static List<ContactListing> List(string sessionId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var contactList = new List<EntityListing>();
+            var contactList = new List<ContactListing>();
             var contactInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumnsListing));
 
             while (!contactInfo.NoFim())
             {
-                contactList.Add(new EntityListing()
+                contactList.Add(new ContactListing()
                 {
                     Identificador = TypeParser.String(contactInfo.Valor("Contacto")),
                     Nome = TypeParser.String(contactInfo.Valor("PrimeiroNome")) + " " + contactInfo.Valor("UltimoNome"),
                     Email = TypeParser.String(contactInfo.Valor("Email")),
-                    DataModificacao = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
-                    Telemovel = TypeParser.String(contactInfo.Valor("Telemovel")),
                     Pais = TypeParser.String(contactInfo.Valor("Pais")),
+                    Telefone = TypeParser.String(contactInfo.Valor("Telemovel")),
+                    DataModificacao = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
                 });
 
                 contactInfo.Seguinte();
             }
 
-            contactList.Sort(delegate(EntityListing lhs, EntityListing rhs)
+            contactList.Sort(delegate(ContactListing lhs, ContactListing rhs)
             {
                 if (lhs.Nome == null || rhs.Nome == null)
                 {
@@ -87,6 +87,13 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("contacto", false);
             }
 
+            var contactInfo = contactsTable.Edita(contactId);
+
+            /*if (contactInfo.get_CriadoPor().Equals(sessionId) == false)
+            {
+                return null;
+            }*/
+
             return GenerateContact(contactsTable.Edita(contactId));
         }
 
@@ -95,9 +102,9 @@ namespace FirstREST.LibPrimavera.Integration
             return new ContactInfo()
             {
                 Identficador = contactInfo.get_Contacto(),
-                Responsavel = UserIntegration.Reference(contactInfo.get_CriadoPor()),
-                DataCriacao = contactInfo.get_DataUltContacto(),
+                Cliente = CustomerIntegration.Reference("SILVA"),
                 DataModificacao = contactInfo.get_DataUltContacto(),
+                Responsavel = UserIntegration.Reference(contactInfo.get_CriadoPor()),
                 Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
                 Titulo = contactInfo.get_Titulo(),
                 Email = contactInfo.get_Email(),
@@ -117,6 +124,11 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static EntityReference Reference(string contactId)
         {
+            if (string.IsNullOrEmpty(contactId))
+            {
+                return null;
+            }
+
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -134,29 +146,37 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
-            contactInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+            contactInfo.set_Nome(jsonObject.Nome);
+            contactInfo.set_Email(jsonObject.Email);
+            contactInfo.set_Titulo(jsonObject.Titulo);
+            contactInfo.set_Telefone(jsonObject.Telefone);
+            contactInfo.set_Telefone2(jsonObject.Telefone2);
+            contactInfo.set_Telemovel(jsonObject.Telemovel);
             contactInfo.set_Pais(jsonObject.Localizacao.Pais);
+            contactInfo.set_Morada(jsonObject.Localizacao.Morada);
+            contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal);
 
-            if (jsonObject.Nome != null)
-                contactInfo.set_Nome(jsonObject.Nome);
-            if (jsonObject.Titulo != null)
-                contactInfo.set_Titulo(jsonObject.Titulo);
-            if (jsonObject.Email != null)
-                contactInfo.set_Email(jsonObject.Email);
-            if (jsonObject.Telefone != null)
-                contactInfo.set_Telefone(jsonObject.Telefone);
-            if (jsonObject.Telefone2 != null)
-                contactInfo.set_Telefone2(jsonObject.Telefone2);
-            if (jsonObject.Telemovel != null)
-                contactInfo.set_Telemovel(jsonObject.Telemovel);
-            if (jsonObject.Localizacao.Morada != null)
-                contactInfo.set_Morada(jsonObject.Localizacao.Morada);
-            if (jsonObject.Localizacao.Localidade != null)
-                contactInfo.set_Localidade(jsonObject.Localizacao.Localidade);
-            if (jsonObject.Localizacao.CodigoPostal != null)
-                contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal);
-            if (jsonObject.Localizacao.Localidade != null)
-                contactInfo.set_CodPostalLocal(jsonObject.Localizacao.Localidade);
+            if (jsonObject.Localizacao.Pais.Equals("PT"))
+            {
+                if (jsonObject.Localizacao.Distrito == null)
+                {
+                    contactInfo.set_Distrito(null);
+                    contactInfo.set_Localidade(null);
+                    contactInfo.set_CodPostalLocal(null);
+                }
+                else
+                {
+                    contactInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+                    contactInfo.set_Localidade(jsonObject.Localizacao.Localidade);
+                    contactInfo.set_CodPostalLocal(jsonObject.Localizacao.Localidade);
+                }
+            }
+            else
+            {
+                contactInfo.set_Distrito(null);
+                contactInfo.set_Localidade(null);
+                contactInfo.set_CodPostalLocal(null);
+            }
         }
 
         public static ContactInfo Update(string sessionId, string contactId, Contact jsonObject)
@@ -181,13 +201,14 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             contactInfo.set_EmModoEdicao(true);
+            contactInfo.set_DataUltContacto(DateTime.Now);
             SetFields(contactInfo, jsonObject);
             contactsTable.Actualiza(contactInfo);
 
             return GenerateContact(contactInfo);
         }
 
-        public static EntityListing Insert(string sessionId, Contact jsonObject)
+        public static ContactListing Insert(string sessionId, Contact jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -205,18 +226,19 @@ namespace FirstREST.LibPrimavera.Integration
 
             contactInfo.set_Contacto(contactId);
             contactInfo.set_CriadoPor(sessionId);
+            contactInfo.set_DataUltContacto(DateTime.Now);
             contactInfo.set_ID(PrimaveraEngine.generateGUID());
             SetFields(contactInfo, jsonObject);
             contactsTable.Actualiza(contactInfo);
 
-            return new EntityListing()
+            return new ContactListing()
             {
                 Identificador = contactId,
                 Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
                 Email = contactInfo.get_Email(),
-                DataModificacao = contactInfo.get_DataUltContacto(),
-                Telemovel = contactInfo.get_Telemovel(),
-                Pais = contactInfo.get_Pais()
+                Pais = contactInfo.get_Pais(),
+                Telefone = contactInfo.get_Telemovel(),
+                DataModificacao = contactInfo.get_DataUltContacto()
             };
         }
 

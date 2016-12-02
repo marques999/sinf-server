@@ -2,13 +2,12 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class ProductListing
+    public class WarehouseProduct
     {
         /// <summary>
         /// Private access fields
         /// </summary>
 
-        private double _price;
         private double _stock;
 
         /// <summary>
@@ -29,26 +28,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "average")]
-        public double PrecoMedio
-        {
-            get
-            {
-                return _price;
-            }
-            set
-            {
-                if (value < 0.0)
-                {
-                    _price = 0.0;
-                }
-                else
-                {
-                    _price = value;
-                }
-            }
-        }
-
         [JsonProperty(PropertyName = "stock")]
         public double Stock
         {
@@ -67,13 +46,6 @@ namespace FirstREST.LibPrimavera.Model
                     _stock = value;
                 }
             }
-        }
-
-        [JsonProperty(PropertyName = "units")]
-        public string Unidade
-        {
-            get;
-            set;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(GcpBECliente customerInfo, string sessionId)
         {
-            if (customerInfo.get_Inactivo())
+            /*if (customerInfo.get_Inactivo())
             {
                 return false;
             }
@@ -24,24 +24,20 @@ namespace FirstREST.LibPrimavera.Integration
             if (representativeId != null && representativeId != sessionId)
             {
                 return false;
-            }
+            }*/
 
             return true;
         }
 
         private static SqlColumn[] sqlColumnsListing =
         {
-            new SqlColumn("Cliente", null),
-            new SqlColumn("Situacao", null),
             new SqlColumn("Nome", null),
-            new SqlColumn("NumContrib", null),
-            new SqlColumn("EnderecoWeb", null),
-            new SqlColumn("DataUltimaActualizacao", null),
-            new SqlColumn("EncomendasPendentes", null),
+            new SqlColumn("Cliente", null),        
+            new SqlColumn("Situacao", null),        
             new SqlColumn("TotalDeb", null),
+            new SqlColumn("EncomendasPendentes", null),
+            new SqlColumn("DataUltimaActualizacao", null),
             new SqlColumn("Fac_Tel", null),
-            new SqlColumn("Fac_Cp", null),
-            new SqlColumn("Fac_Mor", null),
             new SqlColumn("Pais", null),
         };
 
@@ -59,13 +55,14 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 queryResult.Add(new CustomerListing()
                 {
-                    Identificador = TypeParser.String(customerInfo.Valor("Cliente")),
                     Nome = TypeParser.String(customerInfo.Valor("Nome")),
+                    Identificador = TypeParser.String(customerInfo.Valor("Cliente")),
                     Estado = TypeParser.String(customerInfo.Valor("Situacao")),
                     Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
                     Pendentes = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
                     DataModificacao = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
-                    Pais = TypeParser.String(customerInfo.Valor("Pais")),
+                    Telefone = TypeParser.String(customerInfo.Valor("Fac_Tel")),
+                    Pais = TypeParser.String(customerInfo.Valor("Pais"))
                 });
 
                 customerInfo.Seguinte();
@@ -91,18 +88,20 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Situacao", null),	
             new SqlColumn("TotalDeb", null),			      	
             new SqlColumn("NumContrib", null),		
+            new SqlColumn("Telefone2", null),	
+            new SqlColumn("EncomendasPendentes", null),		
             new SqlColumn("DataCriacao", null),		
             new SqlColumn("DataUltimaActualizacao", null),
-            new SqlColumn("EncomendasPendentes", null),		
             new SqlColumn("EnderecoWeb", null),		      
-            new SqlColumn("PessoaSingular", null),		
-            new SqlColumn("Fac_Tel", null),	
-            new SqlColumn("Fac_Fax", null),		     	
+            new SqlColumn("PessoaSingular", null),	
+            new SqlColumn("Fac_Fax", null),			
+            new SqlColumn("Fac_Tel", null),	  	
             new SqlColumn("Fac_Cp", null),		
             new SqlColumn("Fac_Mor", null),		
-            new SqlColumn("Pais", null),		
-            new SqlColumn("Fac_Local", null),		
-            new SqlColumn("Distrito", null)
+            new SqlColumn("Fac_Local", null),
+            new SqlColumn("Pais", null),
+            new SqlColumn("Distrito", null),
+            new SqlColumn("Vendedor", null)
         };
 
         public static CustomerInfo View(string sessionId, string customerId)
@@ -124,7 +123,13 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumnsFull)
                 .Where("Cliente", Comparison.Equals, customerId));
 
+            var responsavelId = TypeParser.String(customerInfo.Valor("Vendedor"));
             var distritoId = TypeParser.String(customerInfo.Valor("Distrito"));
+
+            /*if (responsavelId.Equals(sessionId) == false)
+            {
+                return null;
+            }*/
 
             return new CustomerInfo()
             {
@@ -140,6 +145,8 @@ namespace FirstREST.LibPrimavera.Integration
                 Particular = TypeParser.Boolean(customerInfo.Valor("PessoaSingular")),
                 Telefone = TypeParser.String(customerInfo.Valor("Fac_Tel")),
                 Telefone2 = TypeParser.String(customerInfo.Valor("Fac_Fax")),
+                Telemovel = TypeParser.String(customerInfo.Valor("Telefone2")),
+                Responsavel = UserIntegration.Reference(responsavelId),
                 Localizacao = new Address
                 {
                     Pais = TypeParser.String(customerInfo.Valor("Pais")),
@@ -153,6 +160,11 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static EntityReference Reference(string customerId)
         {
+            if (string.IsNullOrEmpty(customerId))
+            {
+                return null;
+            }
+
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -170,30 +182,43 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetFields(GcpBECliente customerInfo, Customer jsonObject)
         {
+            customerInfo.set_Nome(jsonObject.Nome);
+            customerInfo.set_Fax(jsonObject.Telefone2);
+            customerInfo.set_Telefone(jsonObject.Telefone);
+            customerInfo.set_Telefone2(jsonObject.Telemovel);
             customerInfo.set_Pais(jsonObject.Localizacao.Pais);
-            customerInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+            customerInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
             customerInfo.set_PessoaSingular(jsonObject.Particular);
+            customerInfo.set_Morada(jsonObject.Localizacao.Morada);
+            customerInfo.set_NumContribuinte(jsonObject.NumContribuinte);
+            customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal);
 
-            if (jsonObject.Nome != null)
-                customerInfo.set_Nome(jsonObject.Nome);
             if (jsonObject.Situacao != null)
+            {
                 customerInfo.set_Situacao(jsonObject.Situacao);
-            if (jsonObject.NumContribuinte != null)
-                customerInfo.set_NumContribuinte(jsonObject.NumContribuinte);
-            if (jsonObject.Telefone != null)
-                customerInfo.set_Telefone(jsonObject.Telefone);
-            if (jsonObject.Telefone2 != null)
-                customerInfo.set_Telefone(jsonObject.Telefone2);
-            if (jsonObject.EnderecoWeb != null)
-                customerInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
-            if (jsonObject.Localizacao.CodigoPostal != null)
-                customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal);
-            if (jsonObject.Localizacao.Morada != null)
-                customerInfo.set_Morada(jsonObject.Localizacao.Morada);
-            if (jsonObject.Localizacao.Localidade != null)
-                customerInfo.set_Localidade(jsonObject.Localizacao.Localidade);
-            if (jsonObject.Localizacao.Localidade != null)
-                customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localizacao.Localidade);
+            }
+
+            if (jsonObject.Localizacao.Pais.Equals("PT"))
+            {
+                if (jsonObject.Localizacao.Distrito == null)
+                {
+                    customerInfo.set_Distrito(null);
+                    customerInfo.set_Localidade(null);
+                    customerInfo.set_LocalidadeCodigoPostal(null);
+                }
+                else
+                {
+                    customerInfo.set_Distrito(jsonObject.Localizacao.Distrito);
+                    customerInfo.set_Localidade(jsonObject.Localizacao.Localidade);
+                    customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localizacao.Localidade);
+                }
+            }
+            else
+            {
+                customerInfo.set_Distrito(null);
+                customerInfo.set_Localidade(null);
+                customerInfo.set_LocalidadeCodigoPostal(null);
+            }
         }
 
         public static CustomerInfo Update(string sessionId, string customerId, Customer jsonObject)
@@ -235,7 +260,9 @@ namespace FirstREST.LibPrimavera.Integration
                 EnderecoWeb = customerInfo.get_EnderecoWeb(),
                 Particular = customerInfo.get_PessoaSingular(),
                 Telefone = customerInfo.get_Telefone(),
-                Telefone2 = customerInfo.get_Telefone2(),
+                Telefone2 = customerInfo.get_Fax(),
+                Telemovel = customerInfo.get_Telefone2(),
+                Responsavel = UserIntegration.Reference(customerInfo.get_Vendedor()),
                 Localizacao = new Address
                 {
                     Pais = customerInfo.get_Pais(),
@@ -273,14 +300,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             return new CustomerListing()
             {
-                Identificador = customerInfo.get_Cliente(),
                 Nome = customerInfo.get_Nome(),
+                Pais = customerInfo.get_Pais(),
                 Estado = customerInfo.get_Situacao(),
+                Telefone = customerInfo.get_Telefone(),
+                Identificador = customerInfo.get_Cliente(),
                 Debito = customerInfo.get_DebitoContaCorrente(),
                 Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
                 DataModificacao = customerInfo.get_DataUltimaActualizacao(),
-                Pais = customerInfo.get_Pais(),
-                Distrito = customerInfo.get_Distrito()
             };
         }
 
@@ -300,10 +327,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var customerInfo = customersTable.Edita(customerId);
 
-            /*if (CheckPermissions(customerInfo, sessionId) == false)
+            if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return false;
-            }*/
+            }
 
             customerInfo.set_EmModoEdicao(true);
             customerInfo.set_Inactivo(true);

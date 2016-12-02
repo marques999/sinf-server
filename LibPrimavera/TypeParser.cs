@@ -29,11 +29,6 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        internal static string ToString(DateTime dateTime)
-        {
-            return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
-
         ///////////////////////////////////////////////////////////////////////
 
         internal static double Double(dynamic paramObject)
@@ -65,13 +60,11 @@ namespace FirstREST.LibPrimavera
 
         ///////////////////////////////////////////////////////////////////////
 
-        private static DateTime DefaultDate = DateTime.MinValue;
-
         internal static DateTime Date(dynamic paramObject)
         {
             if (object.Equals(paramObject, null))
             {
-                return DefaultDate;
+                return DateTime.Now;
             }
 
             var myType = (paramObject as object).GetType();
@@ -84,7 +77,7 @@ namespace FirstREST.LibPrimavera
             {
                 if (string.IsNullOrEmpty(paramObject))
                 {
-                    return DefaultDate;
+                    return DateTime.Now;
                 }
 
                 try
@@ -93,7 +86,7 @@ namespace FirstREST.LibPrimavera
                 }
                 catch (FormatException)
                 {
-                    return DefaultDate;
+                    return DateTime.Now;
                 }
             }
             else if (IsNumber(myType))
@@ -104,12 +97,12 @@ namespace FirstREST.LibPrimavera
                 }
                 catch (FormatException)
                 {
-                    return DefaultDate;
+                    return DateTime.Now;
                 }
             }
             else
             {
-                return DefaultDate;
+                return DateTime.Now;
             }
         }
 

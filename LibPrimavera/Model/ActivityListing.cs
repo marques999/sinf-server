@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class ActivityInfo : Activity
+    public class ActivityListing
     {
         [JsonProperty(PropertyName = "id")]
         public string Identificador
@@ -14,38 +14,52 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "owner")]
-        public string Responsavel
+        [JsonProperty(PropertyName = "name")]
+        public string Resumo
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "duration")]
-        public int Duracao
+        [JsonProperty(PropertyName = "status")]
+        public int Estado
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "type")]
+        public Reference Tipo
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "priority")]
+        public int Prioridade
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "entity")]
-        public new EntityReference Entidade
+        public EntityReference Entidade
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "dateCreated")]
+        [JsonProperty(PropertyName = "start")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataCriacao
+        public DateTime DataInicio
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "dateModified")]
+        [JsonProperty(PropertyName = "end")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataModificacao
+        public DateTime DataFim
         {
             get;
             set;

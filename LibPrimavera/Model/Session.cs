@@ -1,4 +1,6 @@
-﻿namespace FirstREST.LibPrimavera.Model
+﻿using Newtonsoft.Json;
+
+namespace FirstREST.LibPrimavera.Model
 {
     public class Session
     {
@@ -9,16 +11,18 @@
         public Session(string userName, string representativeId)
         {
             Username = userName;
-            ID = representativeId;
+            Identificador = representativeId;
         }
 
-        public string Username
+        [JsonProperty(PropertyName = "id")]
+        public string Identificador
         {
             get;
             set;
         }
 
-        public string ID
+        [JsonProperty(PropertyName = "username")]
+        public string Username
         {
             get;
             set;

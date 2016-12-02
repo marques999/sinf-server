@@ -1,7 +1,4 @@
-﻿using System;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
@@ -16,6 +13,13 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "thirdPartyType")]
         public string TipoTerceiro
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "email")]
+        public string Email
         {
             get;
             set;

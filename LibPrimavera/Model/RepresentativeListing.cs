@@ -4,7 +4,15 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class RepresentativeListing
     {
-    private double _comissao;
+        /// <summary>
+        /// Private access fields
+        /// </summary>
+
+        private double _comissao;
+
+        /// <summary>
+        /// Public access properties
+        /// </summary>
 
         [JsonProperty(PropertyName = "id")]
         public string Identificador

@@ -21,20 +21,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "email")]
-        public string Email
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "state")]
-        public string Distrito
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "country")]
         public string Pais
         {
@@ -42,8 +28,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "mobile")]
-        public string Telemovel
+        [JsonProperty(PropertyName = "phone")]
+        public string Telefone
         {
             get;
             set;

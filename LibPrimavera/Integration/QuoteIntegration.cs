@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Interop.GcpBE900;
 using Interop.StdBE900;
 
+using FirstREST.QueryBuilder;
+using FirstREST.QueryBuilder.Enums;
 using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration

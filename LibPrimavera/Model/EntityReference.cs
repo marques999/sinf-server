@@ -1,7 +1,4 @@
-﻿using System;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
 
 namespace FirstREST.LibPrimavera.Model
 {
@@ -15,7 +12,7 @@ namespace FirstREST.LibPrimavera.Model
         {
             Tipo = entityType.ToDescriptionString();
             Identificador = entityId;
-            Descricao = entityName;         
+            Descricao = entityName;
         }
 
         [JsonProperty(PropertyName = "id")]

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Data.SqlClient;
+using System.Collections.Generic;
 
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
@@ -81,7 +81,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static Reference Reference(string representativeId)
         {
-            if (representativeId == null)
+            if (string.IsNullOrEmpty(representativeId))
             {
                 return null;
             }
