@@ -122,7 +122,8 @@ namespace FirstREST.LibPrimavera.Integration
         private static SqlColumn[] sqlColumnsFull =		
          {		
             new SqlColumn("ARTIGO.Artigo", null),		
-            new SqlColumn("ARTIGO.Descricao", null),		
+            new SqlColumn("ARTIGO.Descricao", null),	
+            new SqlColumn("ARTIGO.Desconto", null),		
             new SqlColumn("ARTIGO.CodBarras", null),		           
             new SqlColumn("ARTIGO.UnidadeVenda", null),			
             new SqlColumn("ARTIGO.Desconto", null),		

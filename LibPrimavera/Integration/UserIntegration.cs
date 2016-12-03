@@ -95,7 +95,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (representativesTable.Existe(representativeId) == false)
             {
-                return null;
+                return new Reference(representativeId, representativeId);
             }
 
             return new Reference(representativeId, representativesTable.DaValorAtributo(representativeId, "Nome"));

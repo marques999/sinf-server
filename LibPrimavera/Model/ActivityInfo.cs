@@ -14,8 +14,22 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
+        [JsonProperty(PropertyName = "status")]
+        public int Estado
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "type")]
+        public new Reference Tipo
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "owner")]
-        public string Responsavel
+        public Reference Responsavel
         {
             get;
             set;

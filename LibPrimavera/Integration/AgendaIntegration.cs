@@ -14,7 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(CrmBEActividade activityInfo, string sessionId)
         {
-            /*if (activityInfo.get_Estado().Equals("0"))
+            /*if (activityInfo.get_Estado().Equals("1"))
             {
                 return false;
             }
@@ -36,9 +36,10 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("TAREFAS.Estado", null),
             new SqlColumn("TAREFAS.Prioridade", null),
             new SqlColumn("TAREFAS.TipoEntidadePrincipal", null),
-            new SqlColumn("TAREFAS.EntidadePrincipal", null),       
+            new SqlColumn("TAREFAS.EntidadePrincipal", null),  
+            new SqlColumn("TAREFAS.DataFim", null),     
             new SqlColumn("TAREFAS.DataInicio", null),
-            new SqlColumn("TAREFAS.DataFim", null),
+            new SqlColumn("TAREFAS.DataUltAct", null),
             new SqlColumn("TIPOSTAREFA.TipoActividade", null),
             new SqlColumn("TIPOSTAREFA.Descricao", "DescricaoActividade"),
         };
@@ -57,7 +58,8 @@ namespace FirstREST.LibPrimavera.Integration
                 Estado = TypeParser.Integer(queryResult.Valor("Estado")),
                 Identificador = TypeParser.String(queryResult.Valor("Id")),
                 DataInicio = TypeParser.Date(queryResult.Valor("DataInicio")),
-                Prioridade = TypeParser.Integer(queryResult.Valor("Prioridade"))
+                Prioridade = TypeParser.Integer(queryResult.Valor("Prioridade")),
+                DataModificacao = TypeParser.Date(queryResult.Valor("DataUltAct"))
             };
         }
 
@@ -87,7 +89,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumns)
                 .LeftJoin("TIPOSTAREFA", "Id", Comparison.Equals, "TAREFAS", "IdTipoActividade")
                 .Where(new WhereClause("Estado", Comparison.Equals, 0).AddClause(LogicOperator.Or, Comparison.Equals, null))
-                .Where(new WhereClause("DataFim", Comparison.GreaterOrEquals, DateTime.Now)));
+                .Where(new WhereClause("DataFim", Comparison.GreaterOrEquals, DateTime.Now.ToString("yyyy-MM-dd HH:mm"))));
         }
 
         public static List<ActivityListing> ListInactive(string sessionId)
@@ -97,7 +99,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumns)
                 .LeftJoin("TIPOSTAREFA", "Id", Comparison.Equals, "TAREFAS", "IdTipoActividade")
                 .Where(new WhereClause("Estado", Comparison.Equals, 1), 1)
-                .Where(new WhereClause("DataFim", Comparison.LessThan, DateTime.Now), 2));
+                .Where(new WhereClause("DataFim", Comparison.LessThan, DateTime.Now.ToString("yyyy-MM-dd HH:mm")), 2));
         }
 
         private static Reference TypeReference(StdBELista queryResult)
@@ -130,11 +132,11 @@ namespace FirstREST.LibPrimavera.Integration
 
             switch (entityType)
             {
-                case "X":
+                case "L":
                     return LeadIntegration.Reference(entityId);
                 case "C":
                     return CustomerIntegration.Reference(entityId);
-                case "O":
+                case "X":
                     return ContactIntegration.Reference(entityId);
             }
 
@@ -145,8 +147,7 @@ namespace FirstREST.LibPrimavera.Integration
         {
             activityInfo.set_Resumo(jsonObject.Resumo);
             activityInfo.set_Descricao(jsonObject.Descricao);
-            activityInfo.set_Estado(jsonObject.Estado.ToString());
-            activityInfo.set_IDTipoActividade(jsonObject.Tipo.ToString());
+            activityInfo.set_IDTipoActividade(jsonObject.Tipo);
             activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
 
             if (jsonObject.TipoEntidade == null)
@@ -198,19 +199,19 @@ namespace FirstREST.LibPrimavera.Integration
 
             return new ActivityInfo
             {
+                Resumo = activityInfo.get_Resumo(),
+                Duracao = activityInfo.get_Duracao(),
+                Identificador = activityInfo.get_ID(),
+                Descricao = activityInfo.get_Descricao(),
                 DataCriacao = activityInfo.get_DataCriacao(),
                 DataModificacao = activityInfo.get_DataUltAct(),
-                Descricao = activityInfo.get_Descricao(),
                 DataFim = activityInfo.get_DataFim(),
-                Entidade = EntityReference(entityId, entityType),
-                Identificador = activityInfo.get_ID(),
-                Responsavel = activityInfo.get_Utilizador(),
-                Prioridade = Convert.ToInt32(activityInfo.get_Prioridade()),
                 DataInicio = activityInfo.get_DataInicio(),
-                Duracao = activityInfo.get_Duracao(),
+                Entidade = EntityReference(entityId, entityType),
+                Prioridade = Convert.ToInt32(activityInfo.get_Prioridade()),
                 Estado = Convert.ToInt32(activityInfo.get_Estado()),
-                Resumo = activityInfo.get_Resumo(),
-                Tipo = TypeReference(activityInfo.get_IDTipoActividade())
+                Tipo = TypeReference(activityInfo.get_IDTipoActividade()),
+                Responsavel = UserIntegration.Reference(activityInfo.get_CriadoPor()),
             };
         }
 
@@ -237,6 +238,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             activityInfo.set_EmModoEdicao(true);
             SetFields(activityInfo, jsonObject);
+            activityInfo.set_Duracao(jsonObject.DataFim.Subtract(jsonObject.DataInicio).Minutes);
             activityInfo.set_DataUltAct(DateTime.Now);
             activitiesTable.Actualiza(activityInfo);
 
@@ -259,17 +261,20 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new EntityExistsException("actividade", true);
             }
 
+            System.Diagnostics.Debug.Print(jsonObject.DataInicio.ToString());
+
             activityInfo.set_ID(activityId);
-            activityInfo.set_Estado("1");
+            activityInfo.set_Estado("0");
             activityInfo.set_CriadoPor(sessionId);
             activityInfo.set_DataCriacao(DateTime.Now);
             activityInfo.set_DataUltAct(DateTime.Now);
             SetFields(activityInfo, jsonObject);
+            activityInfo.set_Duracao(jsonObject.DataFim.Subtract(jsonObject.DataInicio).Minutes);
             activityInfo = activitiesTable.PreencheDadosRelacionados(activityInfo);
             activitiesTable.Actualiza(activityInfo);
 
-            var entityId = activityInfo.get_TipoEntidadePrincipal();
-            var entityType = activityInfo.get_EntidadePrincipal();
+            var entityId = activityInfo.get_EntidadePrincipal();
+            var entityType = activityInfo.get_TipoEntidadePrincipal();
 
             return new ActivityListing
             {
@@ -277,6 +282,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Identificador = activityInfo.get_ID(),
                 DataFim = activityInfo.get_DataFim(),
                 DataInicio = activityInfo.get_DataInicio(),
+                DataModificacao = activityInfo.get_DataUltAct(),
                 Entidade = EntityReference(entityId, entityType),
                 Estado = Convert.ToInt32(activityInfo.get_Estado()),
                 Prioridade = Convert.ToInt32(activityInfo.get_Prioridade()),
@@ -284,7 +290,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        public static bool Delete(string sessionId, string activityId)
+        public static ActivityInfo Delete(string sessionId, string activityId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -302,15 +308,15 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (CheckPermissions(activityInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             activityInfo.set_EmModoEdicao(true);
-            activityInfo.set_Estado("0");
+            activityInfo.set_Estado("1");
             activityInfo.set_DataUltAct(DateTime.Now);
             activitiesTable.Actualiza(activityInfo);
 
-            return true;
+            return GenerateActivity(activityInfo);
         }
     }
 }

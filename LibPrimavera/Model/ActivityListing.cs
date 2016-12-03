@@ -64,5 +64,13 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
+
+        [JsonProperty(PropertyName = "dateModified")]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime DataModificacao
+        {
+            get;
+            set;
+        }
     }
 }

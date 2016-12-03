@@ -21,15 +21,15 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "status")]
-        public int Estado
+        [JsonProperty(PropertyName = "location")]
+        public string Local
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "type")]
-        public Reference Tipo
+        public string Tipo
         {
             get;
             set;
@@ -49,7 +49,7 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "entityType")]
+        [JsonProperty(PropertyName = "source")]
         public string TipoEntidade
         {
             get;

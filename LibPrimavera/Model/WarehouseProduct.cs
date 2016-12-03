@@ -2,7 +2,7 @@
 
 namespace FirstREST.LibPrimavera.Model
 {
-    public class WarehouseProduct
+    public class WarehouseProduct : WarehouseListing
     {
         /// <summary>
         /// Private access fields
@@ -13,20 +13,6 @@ namespace FirstREST.LibPrimavera.Model
         /// <summary>
         /// Public access properties
         /// </summary>
-
-        [JsonProperty(PropertyName = "id")]
-        public string Identificador
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "name")]
-        public string Descricao
-        {
-            get;
-            set;
-        }
 
         [JsonProperty(PropertyName = "stock")]
         public double Stock

@@ -8,9 +8,9 @@ namespace FirstREST.LibPrimavera.Model
         Unknown = -1,
         [Description("C")]
         Customer,
-        [Description("X")]
+        [Description("L")]
         Lead,
-        [Description("O")]
+        [Description("X")]
         Contact
     }
 }

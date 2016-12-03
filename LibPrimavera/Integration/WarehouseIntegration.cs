@@ -103,8 +103,13 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static SqlColumn[] sqlColumnsAggregate =
         {
-            new SqlColumn("ARMAZENS.Armazem", null),
-            new SqlColumn("MAX(ARMAZENS.Descricao)", null),
+            new SqlColumn("MAX(ARMAZENS.Cp)", "Cp"),     	
+            new SqlColumn("MAX(ARMAZENS.Pais)", "Pais"),
+            new SqlColumn("ARMAZENS.Armazem", "Armazem"),
+            new SqlColumn("MAX(ARMAZENS.Morada)", "Morada"),    	
+            new SqlColumn("MAX(ARMAZENS.Distrito)", "Distrito"),
+            new SqlColumn("MAX(ARMAZENS.Localidade)", "Localidade"),
+            new SqlColumn("MAX(ARMAZENS.Descricao)", "Descricao"),
             new SqlColumn("SUM(ARTIGOARMAZEM.StkActual)", "Stock")
         };
 
@@ -127,6 +132,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 warehouseList.Add(new WarehouseProduct
                 {
+                    Localizacao = GetAddress(warehouseInfo),
                     Stock = TypeParser.Double(warehouseInfo.Valor("Stock")),
                     Descricao = TypeParser.String(warehouseInfo.Valor("Descricao")),
                     Identificador = TypeParser.String(warehouseInfo.Valor("Armazem"))

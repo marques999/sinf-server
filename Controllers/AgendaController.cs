@@ -138,13 +138,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (AgendaIntegration.Delete(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id)))
+                    var operationResult = AgendaIntegration.Delete(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
