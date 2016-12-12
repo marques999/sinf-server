@@ -64,7 +64,7 @@ namespace FirstREST.LibPrimavera
         {
             if (object.Equals(paramObject, null))
             {
-                return DateTime.Now;
+                return DateTime.MinValue;
             }
 
             var myType = (paramObject as object).GetType();
@@ -77,7 +77,7 @@ namespace FirstREST.LibPrimavera
             {
                 if (string.IsNullOrEmpty(paramObject))
                 {
-                    return DateTime.Now;
+                    return DateTime.MinValue;
                 }
 
                 try
@@ -86,7 +86,7 @@ namespace FirstREST.LibPrimavera
                 }
                 catch (FormatException)
                 {
-                    return DateTime.Now;
+                    return DateTime.MinValue;
                 }
             }
             else if (IsNumber(myType))
@@ -97,12 +97,12 @@ namespace FirstREST.LibPrimavera
                 }
                 catch (FormatException)
                 {
-                    return DateTime.Now;
+                    return DateTime.MinValue;
                 }
             }
             else
             {
-                return DateTime.Now;
+                return DateTime.MinValue;
             }
         }
 

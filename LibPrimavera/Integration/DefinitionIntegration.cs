@@ -28,6 +28,13 @@ namespace FirstREST.LibPrimavera.Integration
                     new SqlColumn("Descricao", null),          
                 } 
             },
+                        {
+                DefinitionType.Campaign, new SqlColumn[]
+                {
+                    new SqlColumn("Campanha", null),
+                    new SqlColumn("Descricao", null),          
+                } 
+            },
             {
                 DefinitionType.ActivityType, new SqlColumn[]
                 {
@@ -61,12 +68,13 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static Dictionary<DefinitionType, String> definitionTables = new Dictionary<DefinitionType, String>
         {   
-            { DefinitionType.ActivityType, "TiposTarefa" },
-            { DefinitionType.ThirdParty, "TipoTerceiros" },
-            { DefinitionType.Title, "TitulosAcademicos" },
+            { DefinitionType.Zone, "Zonas" },
             { DefinitionType.Country, "Paises" },
             { DefinitionType.Language, "Idiomas" },
-            { DefinitionType.Zone, "Zonas" }
+            { DefinitionType.Campaign, "Campanhas" },
+            { DefinitionType.Title, "TitulosAcademicos" },
+            { DefinitionType.ActivityType, "TiposTarefa" },
+            { DefinitionType.ThirdParty, "TipoTerceiros" },
         };
 
         public static String GetTypeIdName(DefinitionType definitionType)
@@ -109,6 +117,28 @@ namespace FirstREST.LibPrimavera.Integration
             while (!queryObject.NoFim())
             {
                 queryResult.Add(GenerateType(queryObject, DefinitionType.ThirdParty));
+                queryObject.Seguinte();
+            }
+
+            return queryResult;
+        }
+
+        public static List<Reference> ListCampaigns()
+        {
+            if (PrimaveraEngine.InitializeCompany() == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var queryResult = new List<Reference>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable(definitionTables[DefinitionType.Campaign])
+                .Columns(definitionColumns[DefinitionType.Campaign])
+                .Where("Activa", Comparison.Equals, 1));
+
+            while (!queryObject.NoFim())
+            {
+                queryResult.Add(GenerateType(queryObject, DefinitionType.Campaign));
                 queryObject.Seguinte();
             }
 

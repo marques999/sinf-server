@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
@@ -20,6 +23,14 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "pending")]
         public double Pendentes
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "dateCreated")]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime DataCriacao
         {
             get;
             set;

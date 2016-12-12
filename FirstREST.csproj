@@ -254,6 +254,8 @@
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ProposalLineController.cs" />
+    <Compile Include="Controllers\ProposalsController.cs" />
     <Compile Include="Controllers\QuotesController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Controllers\WarehousesController.cs" />
@@ -267,6 +269,8 @@
     <Compile Include="LibPrimavera\Integration\CustomerIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\AgendaIntegration.cs" />
     <Compile Include="LibPrimavera\Integration\DefinitionIntegration.cs" />
+    <Compile Include="LibPrimavera\Integration\ProposalLinesIntegration.cs" />
+    <Compile Include="LibPrimavera\Integration\ProposalsIntegration.cs" />
     <Compile Include="LibPrimavera\Model\ActivityInfo.cs" />
     <Compile Include="LibPrimavera\Model\ActivityListing.cs" />
     <Compile Include="LibPrimavera\Model\ActivityType.cs" />
@@ -285,7 +289,11 @@
     <Compile Include="LibPrimavera\Model\OrderInfo.cs" />
     <Compile Include="LibPrimavera\Model\ProductListing.cs" />
     <Compile Include="LibPrimavera\Model\ProductPrice.cs" />
+    <Compile Include="LibPrimavera\Model\Proposals.cs" />
+    <Compile Include="LibPrimavera\Model\ProposalsLine.cs" />
+    <Compile Include="LibPrimavera\Model\QuoteConstants.cs" />
     <Compile Include="LibPrimavera\Model\QuoteInfo.cs" />
+    <Compile Include="LibPrimavera\Model\QuoteListing.cs" />
     <Compile Include="LibPrimavera\Model\Representative.cs" />
     <Compile Include="LibPrimavera\Model\Session.cs" />
     <Compile Include="LibPrimavera\Model\RepresentativeListing.cs" />

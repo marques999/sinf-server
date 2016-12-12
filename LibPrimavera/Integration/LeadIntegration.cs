@@ -18,10 +18,10 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Nome", null),
             new SqlColumn("Email", null),
             new SqlColumn("Activo", null),
-            new SqlColumn("TipoTerceiro", null),       
+            new SqlColumn("TipoTerceiro", null),    
+            new SqlColumn("DataCriacao", null), 
             new SqlColumn("DataUltAct", null),
-            new SqlColumn("Telemovel", null),
-            new SqlColumn("Pais", null)            
+            new SqlColumn("Telemovel", null)
         };
 
         private static LeadListing GenerateListing(StdBELista queryObject)
@@ -33,9 +33,9 @@ namespace FirstREST.LibPrimavera.Integration
                 Email = TypeParser.String(queryObject.Valor("Email")),
                 Activo = TypeParser.Boolean(queryObject.Valor("Activo")),
                 TipoTerceiro = TypeParser.String(queryObject.Valor("TipoTerceiro")),
+                DataCriacao = TypeParser.Date(queryObject.Valor("DataCriacao")),
                 DataModificacao = TypeParser.Date(queryObject.Valor("DataUltAct")),
-                Telefone = TypeParser.String(queryObject.Valor("Telemovel")),
-                Pais = TypeParser.String(queryObject.Valor("Pais"))
+                Telefone = TypeParser.String(queryObject.Valor("Telemovel"))
             };
         }
 
@@ -313,7 +313,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Email = leadInfo.get_Email(),
                 DataModificacao = leadInfo.get_DataUltAct(),
                 Telefone = leadInfo.get_Telemovel(),
-                Pais = leadInfo.get_Pais()
+                DataCriacao = leadInfo.get_DataCriacao()
             };
         }
 

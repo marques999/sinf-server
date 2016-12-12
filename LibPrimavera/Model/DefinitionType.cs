@@ -10,6 +10,8 @@ namespace FirstREST.LibPrimavera.Model
         Language,
         [Description("Titulo")]
         Title,
+        [Description("Campanha")]
+        Campaign,
         [Description("TipoActividade")]
         ActivityType,
         [Description("TipoTerceiro")]

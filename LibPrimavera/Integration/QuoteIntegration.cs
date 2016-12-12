@@ -6,12 +6,43 @@ using Interop.StdBE900;
 
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
+
 using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration
 {
     public class QuoteIntegration
     {
+        private static SqlColumn[] sqlProductsColumns =
+        {
+            new SqlColumn("LinhasDoc.Artigo", null),
+            new SqlColumn("LinhasDoc.Descricao", null),
+            new SqlColumn("LinhasDoc.Quantidade", null),
+            new SqlColumn("LinhasDoc.Unidade", null),
+            new SqlColumn("LinhasDoc.PrecUnit", null),
+            new SqlColumn("LinhasDoc.Desconto1", null),
+            new SqlColumn("LinhasDoc.TotalILiquido", null),
+            new SqlColumn("LinhasDoc.PrecoLiquido", null)
+        };
+
+        private static SqlColumn[] sqlQuoteColumns =
+        {
+            new SqlColumn("CabecDoc.Id", null),
+            new SqlColumn("CabecDoc.TipoDoc", null),
+            new SqlColumn("CabecDoc.NumDoc", null),
+            new SqlColumn("CabecDoc.Responsavel", null),
+            new SqlColumn("CabecDoc.Entidade", null),
+            new SqlColumn("CabecDoc.Nome", null),
+            new SqlColumn("CabecDoc.Data", null),
+            new SqlColumn("CabecDoc.IdOportunidade", null),
+            new SqlColumn("CabecDoc.TotalMerc", null),
+            new SqlColumn("CabecDoc.Morada", null),
+            new SqlColumn("CabecDoc.CodPostal", null),
+            new SqlColumn("CabecDoc.Localidade", null),
+            new SqlColumn("CabecDoc.Distrito", null),
+            new SqlColumn("CabecDoc.Pais", null)
+        };
+
         private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
         {
             if (opportunityInfo.get_Anulado())
@@ -29,26 +60,36 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static List<Quote> List(string quoteId)
+        public static List<QuoteListing> List()
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var quotesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CabecDoc")
+                .Columns(sqlQuoteColumns)
+                .Where("TipoDoc", Comparison.Equals, "ECL"));
 
-            if (quotesTable.ExisteID(quoteId) == false)
+            if (queryObject.Vazia())
             {
                 throw new NotFoundException("encomenda", true);
             }
 
-            var queryResult = new List<Quote>();
-            var queryObject = PrimaveraEngine.Engine.CRM.OportunidadesVenda.listaDocumentos(quoteId);
+            var queryResult = new List<QuoteListing>();
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(new Quote());
+                queryResult.Add(new QuoteListing
+                {
+                    NumEncomenda = TypeParser.Integer(queryObject.Valor("NumDoc")),
+                    Cliente = TypeParser.String(queryObject.Valor("Entidade")),
+                    NomeCliente = TypeParser.String(queryObject.Valor("Nome")),
+                    Total = TypeParser.Double(queryObject.Valor("TotalMerc")),
+                    DataEncomenda = TypeParser.Date(queryObject.Valor("Data"))
+                });
+
                 queryObject.Seguinte();
             }
 
@@ -62,51 +103,107 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var quotesTable = PrimaveraEngine.Engine.Comercial.Vendas;
+            var quoteInfo = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CabecDoc")
+                .Columns(sqlQuoteColumns)
+                .Where("NumDoc", Comparison.Equals, quoteId));
 
-            if (quotesTable.ExisteID(quoteId) == false)
+            if (quoteInfo.Vazia())
             {
-                return null;
+                throw new NotFoundException("encomenda", true);
             }
 
-            var quoteInfo = quotesTable.EditaID(quoteId);
+            var quoteType = TypeParser.String(quoteInfo.Valor("TipoDoc"));
+            var representativeId = TypeParser.String(quoteInfo.Valor("Responsavel"));
 
-            if (quoteInfo.get_Responsavel() != sessionId)
+            if (quoteType.Equals("ECL") == false || representativeId != sessionId)
             {
-                return null;
+                throw new NotFoundException("encomenda", true);
             }
 
-            var quoteProducts = new List<OrderInfo>();
+            List<OrderInfo> quoteProducts = new List<OrderInfo>();
 
-            quoteProducts.Add(new OrderInfo
-             {
-                 Quantidade = 2,
-                 Preco = 3.0,
-                 Desconto = 0.5,
-                 Produto = new Reference("1", "Produto de Merda")
-             });
+            var productsInfo = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("LinhasDoc")
+                .Columns(sqlProductsColumns)
+                .Where("IdCabecDoc", Comparison.Equals, TypeParser.String(quoteInfo.Valor("Id"))));
+
+            while (!productsInfo.NoFim())
+            {
+                quoteProducts.Add(new OrderInfo
+                {
+                    Quantidade = TypeParser.Integer(productsInfo.Valor("Quantidade")),
+                    Preco = TypeParser.Double(productsInfo.Valor("PrecUnit")),
+                    Desconto = TypeParser.Double(productsInfo.Valor("Desconto1")),
+                    ResLiquido = TypeParser.Double(productsInfo.Valor("TotalILiquido")),
+                    Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")), TypeParser.String(productsInfo.Valor("Descricao")))
+                });
+
+                productsInfo.Seguinte();
+            }
 
             return new QuoteInfo
             {
-                Identificador = quoteInfo.get_ID(),
-                Descricao = quoteInfo.get_Nome(),
-                Notas = quoteInfo.get_Observacoes(),
-                OpportunityId = quoteInfo.get_IdOportunidade(),
+                NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
+                TipoEntidade = TypeParser.String(quoteInfo.Valor("Entidade")),
+                Entidade = TypeParser.String(quoteInfo.Valor("Nome")),
+                EnderecoExpedicao = new Address
+                {
+                    Morada = TypeParser.String(quoteInfo.Valor("Morada")),
+                    CodigoPostal = TypeParser.String(quoteInfo.Valor("CodPostal")),
+                    Localidade = TypeParser.String(quoteInfo.Valor("Localidade")),
+                    Distrito = TypeParser.String(quoteInfo.Valor("Distrito")),
+                    Pais = TypeParser.String(quoteInfo.Valor("Pais"))
+                },
+                DataEncomenda = TypeParser.Date(quoteInfo.Valor("Data")),
+                Oportunidade = TypeParser.String(quoteInfo.Valor("IdOportunidade")),
+                Total = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
                 Produtos = quoteProducts
             };
         }
 
-        private static void SetFields(GcpBEDocumentoVenda quoteInfo, Quote jsonObject)
+        private static void SetOptionalFields(GcpBEDocumentoVenda quoteInfo, QuoteInfo jsonObject)
         {
-            if (jsonObject.Descricao != null)
-                quoteInfo.set_Nome(jsonObject.Descricao);
-            if (jsonObject.Notas != null)
-                quoteInfo.set_Observacoes(jsonObject.Notas);
-            if (jsonObject.OpportunityId != null)
-                quoteInfo.set_IdOportunidade(jsonObject.OpportunityId);
+            quoteInfo.set_Entidade(jsonObject.Entidade);
+            quoteInfo.set_EntidadeFac(jsonObject.Entidade);
+            quoteInfo.set_Nome(jsonObject.TipoEntidade);
+
+            if (jsonObject.EnderecoExpedicao != null)
+            {
+                quoteInfo.set_Pais(jsonObject.EnderecoExpedicao.Pais);
+                quoteInfo.set_Morada(jsonObject.EnderecoExpedicao.Morada);
+                quoteInfo.set_CodigoPostal(jsonObject.EnderecoExpedicao.CodigoPostal);
+
+                if (jsonObject.EnderecoExpedicao.Pais.Equals("PT"))
+                {
+                    if (jsonObject.EnderecoExpedicao.Distrito != null)
+                    {
+                        quoteInfo.set_Distrito(jsonObject.EnderecoExpedicao.Distrito);
+                        quoteInfo.set_Localidade(jsonObject.EnderecoExpedicao.Localidade);
+                        quoteInfo.set_LocalidadeCodigoPostal(jsonObject.EnderecoExpedicao.Localidade);
+                    }
+                }
+            }
+
+            if (jsonObject.EnderecoFacturacao != null)
+            {
+                quoteInfo.set_PaisFac(jsonObject.EnderecoFacturacao.Pais);
+                quoteInfo.set_MoradaFac(jsonObject.EnderecoFacturacao.Morada);
+                quoteInfo.set_CodigoPostalFac(jsonObject.EnderecoFacturacao.CodigoPostal);
+
+                if (jsonObject.EnderecoFacturacao.Pais.Equals("PT"))
+                {
+                    if (jsonObject.EnderecoFacturacao.Distrito != null)
+                    {
+                        quoteInfo.set_DistritoFac(jsonObject.EnderecoFacturacao.Distrito);
+                        quoteInfo.set_LocalidadeFac(jsonObject.EnderecoFacturacao.Localidade);
+                        quoteInfo.set_LocalidadeCodigoPostalFac(jsonObject.EnderecoFacturacao.Localidade);
+                    }
+                }
+            }
         }
 
-        public static bool Update(string sessionId, string quoteId, Quote jsonObject)
+        public static QuoteInfo Update(string sessionId, string quoteId, QuoteInfo jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -115,27 +212,88 @@ namespace FirstREST.LibPrimavera.Integration
 
             var quotesTable = PrimaveraEngine.Engine.Comercial.Vendas;
 
-            if (quotesTable.ExisteID(quoteId) == false)
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CabecDoc")
+                .Columns(new SqlColumn[] { new SqlColumn("CabecDoc.Id", null) })
+                .Where("NumDoc", Comparison.Equals, quoteId));
+
+            if (queryObject.Vazia())
             {
                 throw new NotFoundException("encomenda", true);
             }
 
-            var quoteInfo = quotesTable.EditaID(quoteId);
-
-            if (CheckPermissions(quoteInfo, sessionId) == false)
+            /*if (CheckPermissions(quoteInfo, sessionId) == false)
             {
                 return false;
+            }*/
+
+            var quoteInfo = quotesTable.EditaID(quoteId);
+
+            try
+            {
+                quoteInfo.set_EmModoEdicao(true);
+                quoteInfo.set_DataUltimaActualizacao(DateTime.Now);
+                SetOptionalFields(quoteInfo, jsonObject);
+                PrimaveraEngine.Engine.IniciaTransaccao();
+                quotesTable.Actualiza(quoteInfo);
+                PrimaveraEngine.Engine.TerminaTransaccao();
+            }
+            catch (Exception ex)
+            {
+                PrimaveraEngine.Engine.DesfazTransaccao();
+                throw ex;
             }
 
-            quoteInfo.set_EmModoEdicao(true);
-            quoteInfo.set_DataUltimaActualizacao(DateTime.Now);
-            SetFields(quoteInfo, jsonObject);
-            quotesTable.Actualiza(quoteInfo);
-
-            return true;
+            return generateQuote(quoteInfo, null);
         }
 
-        public static bool Insert(string sessionId, Quote jsonObject)
+        public static void SetDefaultQuotesInfo(string sessionId, GcpBEDocumentoVenda quoteInfo)
+        {
+            quoteInfo.set_Seccao(QuotesConstants.seccao);
+            quoteInfo.set_Cambio(QuotesConstants.cambio);
+            quoteInfo.set_CambioMAlt(QuotesConstants.cambioMAlt);
+            quoteInfo.set_CambioMBase(QuotesConstants.cambioMBase);
+            quoteInfo.set_CondPag(QuotesConstants.condPag); //Para alterar
+            quoteInfo.set_Serie(QuotesConstants.serie);
+            quoteInfo.set_Tipodoc(QuotesConstants.tipoDoc);
+            quoteInfo.set_Responsavel(sessionId);
+            quoteInfo.set_TipoEntidade(QuotesConstants.tipoEntidade);
+            quoteInfo.set_DataDoc(System.DateTime.Now);
+            quoteInfo.set_DataVenc(System.DateTime.Now);
+
+        }
+
+        private static QuoteInfo generateQuote(GcpBEDocumentoVenda quoteInfo, List<OrderInfo> productsInfo)
+        {
+            return new QuoteInfo
+            {
+                NumEncomenda = Convert.ToString(quoteInfo.get_NumDoc()),
+                TipoEntidade = quoteInfo.get_Entidade(),
+                Entidade = quoteInfo.get_Nome(),
+                EnderecoExpedicao = new Address
+                {
+                    Morada = quoteInfo.get_Morada(),
+                    CodigoPostal = quoteInfo.get_CodigoPostal(),
+                    Localidade = quoteInfo.get_Localidade(),
+                    Distrito = quoteInfo.get_Distrito(),
+                    Pais = quoteInfo.get_Pais()
+                },
+                EnderecoFacturacao = new Address
+                {
+                    Morada = quoteInfo.get_MoradaFac(),
+                    CodigoPostal = quoteInfo.get_CodigoPostalFac(),
+                    Localidade = quoteInfo.get_LocalidadeFac(),
+                    Distrito = quoteInfo.get_DistritoFac(),
+                    Pais = quoteInfo.get_PaisFac()
+                },
+                DataEncomenda = quoteInfo.get_DataDoc(),
+                Oportunidade = OpportunityIntegration.Reference(quoteInfo.get_IdOportunidade()),
+                Total = quoteInfo.get_TotalMerc(),
+                Produtos = productsInfo
+            };
+        }
+
+        public static QuoteInfo Insert(string sessionId, QuoteInfo jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -143,28 +301,36 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var quoteInfo = new GcpBEDocumentoVenda();
-            var quoteId = new HashGenerator().EncodeLong(DateTime.Now.Ticks);
-            var quotesTable = PrimaveraEngine.Engine.Comercial.Vendas;
 
-            if (quotesTable.ExisteID(quoteId))
+            try
             {
-                throw new EntityExistsException("encomenda", true);
+                SetDefaultQuotesInfo(sessionId, quoteInfo);
+                SetOptionalFields(quoteInfo, jsonObject);
+                System.Diagnostics.Debug.Print(System.DateTime.Now + "");
+                PrimaveraEngine.Engine.IniciaTransaccao();
+                PrimaveraEngine.Engine.Comercial.Vendas.Actualiza(quoteInfo);
+
+                if (jsonObject.Produtos != null)
+                {
+                    foreach (var produto in jsonObject.Produtos)
+                    {
+                        PrimaveraEngine.Engine.Comercial.Vendas.AdicionaLinha(quoteInfo, produto.Produto.Identificador, produto.Quantidade, "", "", produto.Preco, produto.Desconto);
+                    }
+                }
+
+                PrimaveraEngine.Engine.TerminaTransaccao();
+                System.Diagnostics.Debug.Print(System.DateTime.Now + "");
+            }
+            catch (Exception ex)
+            {
+                PrimaveraEngine.Engine.DesfazTransaccao();
+                throw ex;
             }
 
-            var serverTime = DateTime.Now;
-
-            quoteInfo.set_ID(quoteId);
-            quoteInfo.set_Responsavel(sessionId);
-            quoteInfo.set_DataDoc(serverTime);
-            quoteInfo.set_DataUltimaActualizacao(serverTime);
-            SetFields(quoteInfo, jsonObject);
-            quoteInfo = quotesTable.PreencheDadosRelacionados(quoteInfo);
-            quotesTable.Actualiza(quoteInfo);
-
-            return true;
+            return generateQuote(quoteInfo, null);
         }
 
-        public static bool Delete(string sessionId, string quoteId)
+        public static QuoteInfo Delete(string sessionId, string quoteId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -182,14 +348,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (CheckPermissions(quoteInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             quoteInfo.set_EmModoEdicao(true);
             quoteInfo.set_Anulado(true);
             quotesTable.Actualiza(quoteInfo);
 
-            return true;
+            return generateQuote(quoteInfo, null);
         }
     }
 }

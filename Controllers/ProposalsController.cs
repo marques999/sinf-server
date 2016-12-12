@@ -1,27 +1,26 @@
-﻿using System;
+﻿using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Integration;
+using FirstREST.LibPrimavera.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
-using System.Text;
-
-using FirstREST.LibPrimavera;
-using FirstREST.LibPrimavera.Model;
-using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
-    public class CustomersController : ApiController
+    public class ProposalsController : ApiController
     {
-        // GET api/customers?token={$token}/
-        // FEATURE: Listar clientes
-        public HttpResponseMessage Get([FromUri] string token)
+        // GET: api/proposals/{$proposalsId}/{$proposalNumber}
+        public HttpResponseMessage Get(string id, short sid)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, CustomerIntegration.List(Authentication.GetRepresentative(token)));
+                    return Request.CreateResponse(HttpStatusCode.OK, ProposalsIntegration.View(Authentication.GetRepresentative(null), id, sid));
                 }
                 catch (Exception ex)
                 {
@@ -34,15 +33,35 @@ namespace FirstREST.Controllers
             }
         }
 
-        // GET api/customers/{$id}?token={$token}/
-        // FEATURE: Visualizar cliente
-        public HttpResponseMessage Get(string id, [FromUri] string token)
+        // GET: api/proposals/{$proposalsId}
+        public HttpResponseMessage Get(string id)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.View(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+                    return Request.CreateResponse(HttpStatusCode.OK, ProposalsIntegration.List(Authentication.GetRepresentative(null), id));
+                }
+                catch (Exception ex)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+                }
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.Forbidden);
+            }
+        }
+
+        // POST: api/proposals
+        public HttpResponseMessage Post([FromBody] Proposals jsonObject)
+        {
+
+            if (Authentication.VerifyToken("?"))
+            {
+                try
+                {
+                    var operationResult = ProposalsIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -64,15 +83,14 @@ namespace FirstREST.Controllers
             }
         }
 
-        // POST api/customers?token={$token}/
-        // FEATURE: Adicionar cliente
-        public HttpResponseMessage Post([FromBody] Customer jsonObject, [FromUri] string token)
+        // PUT: api/proposals/{$proposalsId}
+        public HttpResponseMessage Put(string id, [FromBody] Proposals jsonObject)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.Insert(Authentication.GetRepresentative(token), jsonObject);
+                    var operationResult = ProposalsIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
 
                     if (operationResult == null)
                     {
@@ -94,23 +112,21 @@ namespace FirstREST.Controllers
             }
         }
 
-        // PUT api/customers/{$id}?token={$token}/
-        // FEATURE: Modificar cliente existente
-        public HttpResponseMessage Put(string id, [FromBody] Customer jsonObject, [FromUri] string token)
+        // DELETE: api/proposals/{$proposalsId}/{$proposalNumber}
+        // FEATURE : apagar uma proposta
+        public HttpResponseMessage Delete(string id, short sid)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.Update(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)), jsonObject);
-
-                    if (operationResult == null)
+                    if (ProposalsIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), sid))
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
                 catch (Exception ex)
@@ -124,23 +140,21 @@ namespace FirstREST.Controllers
             }
         }
 
-        // DELETE api/customers/{$id}?token={$token}/
-        // FEATURE: Remover cliente existente
-        public HttpResponseMessage Delete(string id, [FromUri] string token)
+        // DELETE: api/proposals/{$proposalsId}
+        // FEATURE : apagar todas as propostas
+        public HttpResponseMessage Delete(string id)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    var operationResult = CustomerIntegration.Delete(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
-                    
-                    if (operationResult == null)
+                    if (ProposalsIntegration.DeleteAll(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                 }
                 catch (Exception ex)

@@ -37,7 +37,11 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CABECOPORTUNIDADESVENDA.MotivoPerda", null),
             new SqlColumn("CABECOPORTUNIDADESVENDA.Oportunidade", null),
             new SqlColumn("CABECOPORTUNIDADESVENDA.Moeda", null),
-            new SqlColumn("CABECOPORTUNIDADESVENDA.Resumo", null)
+            new SqlColumn("CABECOPORTUNIDADESVENDA.Resumo", null),
+            new SqlColumn("CABECOPORTUNIDADESVENDA.Zona", null),
+            new SqlColumn("CABECOPORTUNIDADESVENDA.EstadoVenda", null),
+            new SqlColumn("CABECOPORTUNIDADESVENDA.TipoEntidade", null),
+            new SqlColumn("CABECOPORTUNIDADESVENDA.ValorTotalOV", null),
         };
 
         private static Opportunity GenerateListing(StdBELista opportunityInfo)
@@ -50,8 +54,8 @@ namespace FirstREST.LibPrimavera.Integration
                 ExpirationDate = TypeParser.Date(opportunityInfo.Valor("DataExpiracao")),
                 RealDateOrdered = TypeParser.Date(opportunityInfo.Valor("DataRealEncomenda")),
                 Description = TypeParser.String(opportunityInfo.Valor("Descricao")),
-                MarginOV = (float)TypeParser.Double(opportunityInfo.Valor("MargemOV")),
-                ProposedValueOV = (float)TypeParser.Double(opportunityInfo.Valor("MargemPercOV")),
+                MarginOV = TypeParser.Double(opportunityInfo.Valor("MargemOV")),
+                ProposedValueOV = TypeParser.Double(opportunityInfo.Valor("MargemPercOV")),
                 Origin = TypeParser.String(opportunityInfo.Valor("Origem")),
                 Seller = TypeParser.String(opportunityInfo.Valor("Vendedor")),
                 CreatedBy = TypeParser.String(opportunityInfo.Valor("CriadoPor")),
@@ -61,8 +65,17 @@ namespace FirstREST.LibPrimavera.Integration
                 OpportunityId = TypeParser.String(opportunityInfo.Valor("Oportunidade")),
                 Currency = TypeParser.String(opportunityInfo.Valor("Moeda")),
                 Identificador = TypeParser.String(opportunityInfo.Valor("ID")),
-                Brief = TypeParser.String(opportunityInfo.Valor("Resumo"))
+                Brief = TypeParser.String(opportunityInfo.Valor("Resumo")),
+                Zone = TypeParser.String(opportunityInfo.Valor("Zona")),
+                Status = opportunityInfo.Valor("EstadoVenda"),
+                EntityType = TypeParser.String(opportunityInfo.Valor("TipoEntidade")),
+                TotalValueOV = TypeParser.Double(opportunityInfo.Valor("ValorTotalOV"))
             };
+        }
+
+        public static Reference Reference(string opportunityId)
+        {
+            return new Reference(opportunityId, PrimaveraEngine.Engine.CRM.OportunidadesVenda.DaValorAtributo(opportunityId, "Descricao"));
         }
 
         private static OpportunityInfo GenerateOpportunity(CrmBEOportunidadeVenda opportunityInfo)
@@ -76,8 +89,8 @@ namespace FirstREST.LibPrimavera.Integration
                 ExpirationDate = opportunityInfo.get_DataExpiracao(),
                 RealDateOrdered = opportunityInfo.get_DataRealEncomenda(),
                 Description = opportunityInfo.get_Descricao(),
-                MarginOV = (float)opportunityInfo.get_MargemOV(),
-                ProposedValueOV = (float)opportunityInfo.get_ValorPropostoOV(),
+                MarginOV = opportunityInfo.get_MargemOV(),
+                ProposedValueOV = opportunityInfo.get_ValorPropostoOV(),
                 Origin = opportunityInfo.get_Origem(),
                 Seller = opportunityInfo.get_Vendedor(),
                 CreatedBy = opportunityInfo.get_CriadoPor(),
@@ -86,7 +99,12 @@ namespace FirstREST.LibPrimavera.Integration
                 LossMotive = opportunityInfo.get_MotivoPerda(),
                 OpportunityId = opportunityInfo.get_Oportunidade(),
                 Currency = opportunityInfo.get_Moeda(),
-                Brief = opportunityInfo.get_Resumo()
+                Brief = opportunityInfo.get_Resumo(),
+                Zone = opportunityInfo.get_Zona(),
+                Status = opportunityInfo.get_EstadoVenda(),
+                EntityType = opportunityInfo.get_TipoEntidade(),
+                TotalValueOV = opportunityInfo.get_ValorTotalOV(),
+                Identificador = opportunityInfo.get_ID()
             };
         }
 
@@ -129,7 +147,7 @@ namespace FirstREST.LibPrimavera.Integration
             return queryResult;
         }
 
-        public static OpportunityInfo View(string sessionId, string opportunityId)
+        public static Opportunity View(string sessionId, string opportunityId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -138,19 +156,53 @@ namespace FirstREST.LibPrimavera.Integration
 
             var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
 
-            if (opportunitiesTable.Existe(opportunityId) == false)
+            
+            var queryResult = new List<Opportunity>();
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CABECOPORTUNIDADESVENDA")
+                .Columns(sqlColumnsListing)
+                .Where("ID", Comparison.Equals, opportunityId));
+
+            if (queryObject == null)
             {
                 throw new NotFoundException("oportunidade", true);
             }
 
-            var opportunityInfo = opportunitiesTable.Edita(opportunityId);
+            while (!queryObject.NoFim())
+            {
+                   return new Opportunity()
+                        {
+                            Entity = TypeParser.String(queryObject.Valor("Entidade")),
+                            Campaign = TypeParser.String(queryObject.Valor("Campanha")),
+                            SellCycle = TypeParser.String(queryObject.Valor("CicloVenda")),
+                            ExpirationDate = TypeParser.Date(queryObject.Valor("DataExpiracao")),
+                            RealDateOrdered = TypeParser.Date(queryObject.Valor("DataRealEncomenda")),
+                            Description = TypeParser.String(queryObject.Valor("Descricao")),
+                            MarginOV = TypeParser.Double(queryObject.Valor("MargemOV")),
+                            ProposedValueOV = TypeParser.Double(queryObject.Valor("MargemPercOV")),
+                            Origin = TypeParser.String(queryObject.Valor("Origem")),
+                            Seller = TypeParser.String(queryObject.Valor("Vendedor")),
+                            CreatedBy = TypeParser.String(queryObject.Valor("CriadoPor")),
+                            RealBillingDate = TypeParser.Date(queryObject.Valor("DataRealFacturacao")),
+                            ClosureDate = TypeParser.Date(queryObject.Valor("DataFecho")),
+                            LossMotive = TypeParser.String(queryObject.Valor("MotivoPerda")),
+                            OpportunityId = TypeParser.String(queryObject.Valor("Oportunidade")),
+                            Currency = TypeParser.String(queryObject.Valor("Moeda")),
+                            Identificador = TypeParser.String(queryObject.Valor("ID")),
+                            Brief = TypeParser.String(queryObject.Valor("Resumo")),
+                            Zone = TypeParser.String(queryObject.Valor("Zona")),
+                            Status = queryObject.Valor("EstadoVenda"),
+                            EntityType = TypeParser.String(queryObject.Valor("TipoEntidade")),
+                            TotalValueOV = TypeParser.Double(queryObject.Valor("ValorTotalOV"))
+                };
+            }
 
             /*if (opportunityInfo.get_Vendedor() != sessionId)
             {
                 return null;
             }*/
 
-            return GenerateOpportunity(opportunityInfo);
+            return null;
         }
 
         private static void SetFields(CrmBEOportunidadeVenda opportunityInfo, Opportunity jsonObject)
@@ -167,15 +219,17 @@ namespace FirstREST.LibPrimavera.Integration
             opportunityInfo.set_ValorEncomendaOV(jsonObject.OrderValueOV);
             opportunityInfo.set_ValorPropostoOV(jsonObject.ProposedValueOV);
             opportunityInfo.set_Zona(jsonObject.Zone);
+            opportunityInfo.set_EstadoVenda(jsonObject.Status);
             opportunityInfo.set_Vendedor(jsonObject.Seller);
             opportunityInfo.set_CriadoPor(jsonObject.CreatedBy);
             opportunityInfo.set_DataRealFacturacao(jsonObject.RealBillingDate);
             opportunityInfo.set_DataFecho(jsonObject.ClosureDate);
             opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
-            opportunityInfo.set_Oportunidade(jsonObject.OpportunityId);
+            //opportunityInfo.set_Oportunidade(jsonObject.OpportunityId);
             opportunityInfo.set_Moeda(jsonObject.Currency);
             opportunityInfo.set_Resumo(jsonObject.Brief);
             opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
+            opportunityInfo.set_ValorTotalOV(jsonObject.TotalValueOV);
         }
 
         public static OpportunityInfo Update(string sessionId, string opportunityId, Opportunity jsonObject)
@@ -192,7 +246,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("oportunidade", true);
             }
 
-            var opportunityInfo = opportunitiesTable.Edita(opportunityId);
+            var opportunityInfo = opportunitiesTable.Edita(jsonObject.OpportunityId);
 
             /*if (CheckPermissions(opportunityInfo, sessionId) == false)
             {
@@ -201,7 +255,6 @@ namespace FirstREST.LibPrimavera.Integration
 
             opportunityInfo.set_EmModoEdicao(true);
             SetFields(opportunityInfo, jsonObject);
-            opportunityInfo.set_CriadoPor(sessionId);
             opportunityInfo.set_DataCriacao(DateTime.Now);
             opportunitiesTable.Actualiza(opportunityInfo);
 
@@ -226,6 +279,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             SetFields(opportunityInfo, jsonObject);
             opportunityInfo.set_CriadoPor(sessionId);
+            opportunityInfo.set_Oportunidade(opportunityId);
             opportunityInfo.set_DataCriacao(DateTime.Now);
             opportunitiesTable.Actualiza(opportunityInfo);
 

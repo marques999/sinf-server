@@ -11,13 +11,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "status")]
-        public string Situacao
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "particular")]
         public bool Particular
         {

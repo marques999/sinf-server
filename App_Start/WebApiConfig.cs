@@ -16,6 +16,25 @@ namespace FirstREST
                     id = RouteParameter.Optional
                 }
             );
+            config.Routes.MapHttpRoute(
+                name: "DefaultApiTwoParams",
+                routeTemplate: "api/{controller}/{id}/{sid}",
+                defaults: new
+                {
+                    id = RouteParameter.Optional,
+                    sid = RouteParameter.Optional
+                }
+            );
+            config.Routes.MapHttpRoute(
+                name: "DefaultApiThreeParams",
+                routeTemplate: "api/{controller}/{id}/{sid}/{tid}",
+                defaults: new
+                {
+                    id = RouteParameter.Optional,
+                    sid = RouteParameter.Optional,
+                    tid = RouteParameter.Optional
+                }
+            );
         }
     }
 }

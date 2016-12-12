@@ -66,15 +66,22 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
+        [JsonProperty(PropertyName = "status")]
+        public short Status
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "marginOV")]
-        public float MarginOV
+        public double MarginOV
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "marginPercOV")]
-        public float MarginPercOV
+        public double MarginPercOV
         {
             get;
             set;
@@ -88,14 +95,14 @@ namespace FirstREST.LibPrimavera.Model
         }
 
         [JsonProperty(PropertyName = "orderValueOV")]
-        public float OrderValueOV
+        public double OrderValueOV
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "proposedValueOV")]
-        public float ProposedValueOV
+        public double ProposedValueOV
         {
             get;
             set;
@@ -168,6 +175,13 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "entityType")]
         public string EntityType
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "totalValueOV")]
+        public double TotalValueOV
         {
             get;
             set;

@@ -36,9 +36,9 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Situacao", null),        
             new SqlColumn("TotalDeb", null),
             new SqlColumn("EncomendasPendentes", null),
+            new SqlColumn("DataCriacao", null),
             new SqlColumn("DataUltimaActualizacao", null),
-            new SqlColumn("Fac_Tel", null),
-            new SqlColumn("Pais", null),
+            new SqlColumn("Fac_Tel", null)
         };
 
         public static List<CustomerListing> List(string sessionId)
@@ -60,9 +60,9 @@ namespace FirstREST.LibPrimavera.Integration
                     Estado = TypeParser.String(customerInfo.Valor("Situacao")),
                     Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
                     Pendentes = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
+                    DataCriacao = TypeParser.Date(customerInfo.Valor("DataCriacao")),
                     DataModificacao = TypeParser.Date(customerInfo.Valor("DataUltimaActualizacao")),
-                    Telefone = TypeParser.String(customerInfo.Valor("Fac_Tel")),
-                    Pais = TypeParser.String(customerInfo.Valor("Pais"))
+                    Telefone = TypeParser.String(customerInfo.Valor("Fac_Tel"))
                 });
 
                 customerInfo.Seguinte();
@@ -111,17 +111,15 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
-
-            if (customersTable.Existe(customerId) == false)
-            {
-                throw new NotFoundException("cliente", false);
-            }
-
             var customerInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CLIENTES")
                 .Columns(sqlColumnsFull)
                 .Where("Cliente", Comparison.Equals, customerId));
+
+            if (customerInfo.Vazia())
+            {
+                throw new NotFoundException("cliente", false);
+            }
 
             var responsavelId = TypeParser.String(customerInfo.Valor("Vendedor"));
             var distritoId = TypeParser.String(customerInfo.Valor("Distrito"));
@@ -135,7 +133,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 Identificador = TypeParser.String(customerInfo.Valor("Cliente")),
                 Nome = TypeParser.String(customerInfo.Valor("Nome")),
-                Situacao = TypeParser.String(customerInfo.Valor("Situacao")),
+                Estado = TypeParser.String(customerInfo.Valor("Situacao")),
                 Debito = TypeParser.Double(customerInfo.Valor("TotalDeb")),
                 NumContribuinte = TypeParser.String(customerInfo.Valor("NumContrib")),
                 Pendentes = TypeParser.Double(customerInfo.Valor("EncomendasPendentes")),
@@ -193,32 +191,44 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_NumContribuinte(jsonObject.NumContribuinte);
             customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal);
 
-            if (jsonObject.Situacao != null)
-            {
-                customerInfo.set_Situacao(jsonObject.Situacao);
-            }
-
             if (jsonObject.Localizacao.Pais.Equals("PT"))
             {
-                if (jsonObject.Localizacao.Distrito == null)
-                {
-                    customerInfo.set_Distrito(null);
-                    customerInfo.set_Localidade(null);
-                    customerInfo.set_LocalidadeCodigoPostal(null);
-                }
-                else
+                if (jsonObject.Localizacao.Distrito != null)
                 {
                     customerInfo.set_Distrito(jsonObject.Localizacao.Distrito);
                     customerInfo.set_Localidade(jsonObject.Localizacao.Localidade);
                     customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localizacao.Localidade);
                 }
             }
-            else
+        }
+
+        private static CustomerInfo generateCustomer(GcpBECliente customerInfo)
+        {
+            return new CustomerInfo()
             {
-                customerInfo.set_Distrito(null);
-                customerInfo.set_Localidade(null);
-                customerInfo.set_LocalidadeCodigoPostal(null);
-            }
+                Identificador = customerInfo.get_Cliente(),
+                Nome = customerInfo.get_Nome(),
+                Estado = customerInfo.get_Situacao(),
+                Debito = customerInfo.get_DebitoContaCorrente(),
+                NumContribuinte = customerInfo.get_NumContribuinte(),
+                Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
+                DataCriacao = customerInfo.get_DataCriacao(),
+                DataModificacao = customerInfo.get_DataUltimaActualizacao(),
+                EnderecoWeb = customerInfo.get_EnderecoWeb(),
+                Particular = customerInfo.get_PessoaSingular(),
+                Telefone = customerInfo.get_Telefone(),
+                Telefone2 = customerInfo.get_Fax(),
+                Telemovel = customerInfo.get_Telefone2(),
+                Responsavel = UserIntegration.Reference(customerInfo.get_Vendedor()),
+                Localizacao = new Address
+                {
+                    Pais = customerInfo.get_Pais(),
+                    Morada = customerInfo.get_Morada(),
+                    Localidade = customerInfo.get_Localidade(),
+                    CodigoPostal = customerInfo.get_CodigoPostal(),
+                    Distrito = LocationIntegration.DistritoReference(customerInfo.get_Distrito())
+                }
+            };
         }
 
         public static CustomerInfo Update(string sessionId, string customerId, Customer jsonObject)
@@ -247,31 +257,7 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_DataUltimaActualizacao(DateTime.Now);
             customersTable.Actualiza(customerInfo);
 
-            return new CustomerInfo()
-            {
-                Identificador = customerInfo.get_Cliente(),
-                Nome = customerInfo.get_Nome(),
-                Situacao = customerInfo.get_Situacao(),
-                Debito = customerInfo.get_DebitoContaCorrente(),
-                NumContribuinte = customerInfo.get_NumContribuinte(),
-                Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
-                DataCriacao = customerInfo.get_DataCriacao(),
-                DataModificacao = customerInfo.get_DataUltimaActualizacao(),
-                EnderecoWeb = customerInfo.get_EnderecoWeb(),
-                Particular = customerInfo.get_PessoaSingular(),
-                Telefone = customerInfo.get_Telefone(),
-                Telefone2 = customerInfo.get_Fax(),
-                Telemovel = customerInfo.get_Telefone2(),
-                Responsavel = UserIntegration.Reference(customerInfo.get_Vendedor()),
-                Localizacao = new Address
-                {
-                    Pais = customerInfo.get_Pais(),
-                    Morada = customerInfo.get_Morada(),
-                    Localidade = customerInfo.get_Localidade(),
-                    CodigoPostal = customerInfo.get_CodigoPostal(),
-                    Distrito = LocationIntegration.DistritoReference(customerInfo.get_Distrito())
-                }
-            };
+            return generateCustomer(customerInfo);
         }
 
         public static CustomerListing Insert(string sessionId, Customer jsonObject)
@@ -293,6 +279,8 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_Cliente(customerId);
             SetFields(customerInfo, jsonObject);
             customerInfo.set_Moeda("EUR");
+            customerInfo.set_Situacao("ACTIVO");
+            customerInfo.set_Inactivo(false);
             customerInfo.set_Vendedor(sessionId);
             customerInfo.set_DataCriacao(DateTime.Now);
             customerInfo.set_DataUltimaActualizacao(DateTime.Now);
@@ -301,7 +289,7 @@ namespace FirstREST.LibPrimavera.Integration
             return new CustomerListing()
             {
                 Nome = customerInfo.get_Nome(),
-                Pais = customerInfo.get_Pais(),
+                DataCriacao = customerInfo.get_DataCriacao(),
                 Estado = customerInfo.get_Situacao(),
                 Telefone = customerInfo.get_Telefone(),
                 Identificador = customerInfo.get_Cliente(),
@@ -311,7 +299,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        public static bool Delete(string sessionId, string customerId)
+        public static CustomerInfo Delete(string sessionId, string customerId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -329,15 +317,15 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (CheckPermissions(customerInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             customerInfo.set_EmModoEdicao(true);
-            customerInfo.set_Inactivo(true);
+            customerInfo.set_Situacao("INACTIVO");
             customerInfo.set_DataUltimaActualizacao(DateTime.Now);
             customersTable.Actualiza(customerInfo);
 
-            return true;
+            return generateCustomer(customerInfo);
         }
     }
 }

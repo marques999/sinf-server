@@ -4,7 +4,7 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class OrderInfo : Order
     {
-        [JsonProperty(PropertyName = "products")]
+        [JsonProperty(PropertyName = "product")]
         public new Reference Produto
         {
             get;

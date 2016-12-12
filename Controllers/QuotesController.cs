@@ -20,7 +20,7 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.List(Authentication.GetRepresentative(null)));
+                    return Request.CreateResponse(HttpStatusCode.OK, QuoteIntegration.List());
                 }
                 catch (Exception ex)
                 {
@@ -41,15 +41,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    var queryResult = QuoteIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+                    var operationResult = QuoteIntegration.View(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
 
-                    if (queryResult == null)
+                    if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, queryResult);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -65,19 +65,21 @@ namespace FirstREST.Controllers
 
         // POST api/quotes/
         // FEATURE: Adicionar encomenda
-        public HttpResponseMessage Post([FromBody] Quote jsonObject)
+        public HttpResponseMessage Post([FromBody] QuoteInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (QuoteIntegration.Insert(Authentication.GetRepresentative(null), jsonObject))
+                    var operationResult = QuoteIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
+                   
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -93,19 +95,21 @@ namespace FirstREST.Controllers
 
         // PUT api/quotes/{$quoteId}/
         // FEATURE: Modificar encomenda existente
-        public HttpResponseMessage Put(string id, [FromBody] Quote jsonObject)
+        public HttpResponseMessage Put(string id, [FromBody] QuoteInfo jsonObject)
         {
             if (Authentication.VerifyToken("?"))
             {
                 try
                 {
-                    if (QuoteIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject))
+                    var operationResult = QuoteIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
+                    
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
@@ -127,13 +131,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (QuoteIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
+                    var operationResult = QuoteIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

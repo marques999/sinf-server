@@ -52,7 +52,6 @@ namespace FirstREST.LibPrimavera.Integration
                     Identificador = TypeParser.String(contactInfo.Valor("Contacto")),
                     Nome = TypeParser.String(contactInfo.Valor("PrimeiroNome")) + " " + contactInfo.Valor("UltimoNome"),
                     Email = TypeParser.String(contactInfo.Valor("Email")),
-                    Pais = TypeParser.String(contactInfo.Valor("Pais")),
                     Telefone = TypeParser.String(contactInfo.Valor("Telemovel")),
                     DataModificacao = TypeParser.Date(contactInfo.Valor("DataUltContacto")),
                 });
@@ -229,6 +228,7 @@ namespace FirstREST.LibPrimavera.Integration
             contactInfo.set_DataUltContacto(DateTime.Now);
             contactInfo.set_ID(PrimaveraEngine.generateGUID());
             SetFields(contactInfo, jsonObject);
+            // falta associar contacto a um cliente
             contactsTable.Actualiza(contactInfo);
 
             return new ContactListing()
@@ -236,7 +236,6 @@ namespace FirstREST.LibPrimavera.Integration
                 Identificador = contactId,
                 Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
                 Email = contactInfo.get_Email(),
-                Pais = contactInfo.get_Pais(),
                 Telefone = contactInfo.get_Telemovel(),
                 DataModificacao = contactInfo.get_DataUltContacto()
             };

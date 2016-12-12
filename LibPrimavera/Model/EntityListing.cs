@@ -21,13 +21,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "country")]
-        public string Pais
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "phone")]
         public string Telefone
         {

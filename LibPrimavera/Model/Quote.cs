@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
@@ -13,8 +15,36 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
+        [JsonProperty(PropertyName = "notes")]
+        public string Notas
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "entity")]
+        public string Entidade
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "source")]
+        public string TipoEntidade
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "opportunity")]
-        public string OpportunityId
+        public string Oportunidade
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "total")]
+        public double Total
         {
             get;
             set;
@@ -27,22 +57,9 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "notes")]
-        public string Notas
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "billingAddress")]
-        public Address BillingAddress
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "shippingAddress")]
-        public Address ShippingAddress
+        [JsonProperty(PropertyName = "date")]
+        [JsonConverter(typeof(IsoDateTimeConverter))]
+        public DateTime DataEncomenda
         {
             get;
             set;

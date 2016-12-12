@@ -32,6 +32,10 @@ namespace FirstREST.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListActivityTypes());
                 }
+                else if (type2get.Equals("campanhas"))
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListCampaigns());
+                }
                 else if (definitionMapping.ContainsKey(type2get))
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, DefinitionsIntegration.ListTypes(definitionMapping[type2get]));
