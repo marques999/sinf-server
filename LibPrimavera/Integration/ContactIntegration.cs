@@ -14,13 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)
         {
-            /*var representativeId = contactInfo.get_CriadoPor();
-
-            if (representativeId != null && representativeId != sessionId)
-            {
-                return false;
-            }*/
-
+            //return contactInfo.get_CriadoPor() == null || contactInfo.get_CriadoPor().Equals(sessionId);
             return true;
         }
 
@@ -44,6 +38,11 @@ namespace FirstREST.LibPrimavera.Integration
 
             var contactList = new List<ContactListing>();
             var contactInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CONTACTOS").Columns(sqlColumnsListing));
+
+            if (contactInfo == null || contactInfo.Vazia())
+            {
+                return contactList;
+            }
 
             while (!contactInfo.NoFim())
             {
@@ -126,11 +125,6 @@ namespace FirstREST.LibPrimavera.Integration
             if (string.IsNullOrEmpty(contactId))
             {
                 return null;
-            }
-
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
             }
 
             var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;

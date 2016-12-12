@@ -31,7 +31,7 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static Proposals GenerateListing(StdBELista proposalInfo, string id)
         {
-            var queryRes = ProposalLinesIntegration.List(id, proposalInfo.Valor("NumProposta"));
+            var proposalsLines = ProposalLinesIntegration.List(id, proposalInfo.Valor("NumProposta"));
 
             return new Proposals()
             {
@@ -48,7 +48,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Observations = TypeParser.String(proposalInfo.Valor("Observacoes")),
                 EntityDiscount = TypeParser.Double(proposalInfo.Valor("DescontoEntidade")),
                 Totalize = proposalInfo.Valor("NaoTotalizadora"),
-                ProposalsLines = queryRes
+                ProposalsLines = proposalsLines
             };
         }
 
@@ -89,37 +89,43 @@ namespace FirstREST.LibPrimavera.Integration
             return true;
         }
 
-        public static List<Proposals> List(string sessionId, string id)
+        public static List<Proposals> List(string sessionId, string opportunityId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Proposals>();
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("PROPOSTASOPV")
                 .Columns(sqlColumnsListing)
-                .Where("IdOportunidade", Comparison.Equals, id));
+                .Where("IdOportunidade", Comparison.Equals, opportunityId));
+
+            if (queryObject == null || queryObject.Vazia())
+            {
+                throw new NotFoundException("oportunidade", true);
+            }
+
+            var queryResult = new List<Proposals>();
 
             while (!queryObject.NoFim())
             {
-                queryResult.Add(GenerateListing(queryObject, id));
+                queryResult.Add(GenerateListing(queryObject, opportunityId));
                 queryObject.Seguinte();
             }
 
             return queryResult;
         }
 
-        public static Proposals View(string sessionID, string oppId, short numProposal)
+        public static Proposals View(string sessionId, string opportunityId, short proposalNumber)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
 
-            var proposalsTable = PrimaveraEngine.Engine.CRM.PropostasOPV.Edita(oppId, numProposal);
-            var queryRes = ProposalLinesIntegration.List(oppId, numProposal);
+            var proposalsTable = PrimaveraEngine.Engine.CRM.PropostasOPV.Edita(opportunityId, proposalNumber);
+            var queryRes = ProposalLinesIntegration.List(opportunityId, proposalNumber);
 
             //var linhax = opportunityInfo.get_Linhas().Edita(opportunityInfo);
 

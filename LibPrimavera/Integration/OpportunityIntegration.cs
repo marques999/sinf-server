@@ -132,19 +132,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Opportunity>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var opportunityList = new List<Opportunity>();
+            var opportunityInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CABECOPORTUNIDADESVENDA")
                 .Columns(sqlColumnsListing)
                 .Where("Descricao", Comparison.NotEquals, "DELETED"));
 
-            while (!queryObject.NoFim())
+            if (opportunityInfo == null || opportunityInfo.Vazia())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                return opportunityList;
             }
 
-            return queryResult;
+            while (!opportunityInfo.NoFim())
+            {
+                opportunityList.Add(GenerateListing(opportunityInfo));
+                opportunityInfo.Seguinte();
+            }
+
+            return opportunityList;
         }
 
         public static Opportunity View(string sessionId, string opportunityId)
@@ -154,55 +159,46 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var opportunitiesTable = PrimaveraEngine.Engine.CRM.OportunidadesVenda;
-
-            
-            var queryResult = new List<Opportunity>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var opportunityInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CABECOPORTUNIDADESVENDA")
                 .Columns(sqlColumnsListing)
                 .Where("ID", Comparison.Equals, opportunityId));
 
-            if (queryObject == null)
+            if (opportunityInfo == null || opportunityInfo.Vazia())
             {
                 throw new NotFoundException("oportunidade", true);
             }
 
-            while (!queryObject.NoFim())
-            {
-                   return new Opportunity()
-                        {
-                            Entity = TypeParser.String(queryObject.Valor("Entidade")),
-                            Campaign = TypeParser.String(queryObject.Valor("Campanha")),
-                            SellCycle = TypeParser.String(queryObject.Valor("CicloVenda")),
-                            ExpirationDate = TypeParser.Date(queryObject.Valor("DataExpiracao")),
-                            RealDateOrdered = TypeParser.Date(queryObject.Valor("DataRealEncomenda")),
-                            Description = TypeParser.String(queryObject.Valor("Descricao")),
-                            MarginOV = TypeParser.Double(queryObject.Valor("MargemOV")),
-                            ProposedValueOV = TypeParser.Double(queryObject.Valor("MargemPercOV")),
-                            Origin = TypeParser.String(queryObject.Valor("Origem")),
-                            Seller = TypeParser.String(queryObject.Valor("Vendedor")),
-                            CreatedBy = TypeParser.String(queryObject.Valor("CriadoPor")),
-                            RealBillingDate = TypeParser.Date(queryObject.Valor("DataRealFacturacao")),
-                            ClosureDate = TypeParser.Date(queryObject.Valor("DataFecho")),
-                            LossMotive = TypeParser.String(queryObject.Valor("MotivoPerda")),
-                            OpportunityId = TypeParser.String(queryObject.Valor("Oportunidade")),
-                            Currency = TypeParser.String(queryObject.Valor("Moeda")),
-                            Identificador = TypeParser.String(queryObject.Valor("ID")),
-                            Brief = TypeParser.String(queryObject.Valor("Resumo")),
-                            Zone = TypeParser.String(queryObject.Valor("Zona")),
-                            Status = queryObject.Valor("EstadoVenda"),
-                            EntityType = TypeParser.String(queryObject.Valor("TipoEntidade")),
-                            TotalValueOV = TypeParser.Double(queryObject.Valor("ValorTotalOV"))
-                };
-            }
-
             /*if (opportunityInfo.get_Vendedor() != sessionId)
-            {
-                return null;
-            }*/
+             {
+                 return null;
+             }*/
 
-            return null;
+            return new Opportunity()
+            {
+                Entity = TypeParser.String(opportunityInfo.Valor("Entidade")),
+                Campaign = TypeParser.String(opportunityInfo.Valor("Campanha")),
+                SellCycle = TypeParser.String(opportunityInfo.Valor("CicloVenda")),
+                ExpirationDate = TypeParser.Date(opportunityInfo.Valor("DataExpiracao")),
+                RealDateOrdered = TypeParser.Date(opportunityInfo.Valor("DataRealEncomenda")),
+                Description = TypeParser.String(opportunityInfo.Valor("Descricao")),
+                MarginOV = TypeParser.Double(opportunityInfo.Valor("MargemOV")),
+                ProposedValueOV = TypeParser.Double(opportunityInfo.Valor("MargemPercOV")),
+                Origin = TypeParser.String(opportunityInfo.Valor("Origem")),
+                Seller = TypeParser.String(opportunityInfo.Valor("Vendedor")),
+                CreatedBy = TypeParser.String(opportunityInfo.Valor("CriadoPor")),
+                RealBillingDate = TypeParser.Date(opportunityInfo.Valor("DataRealFacturacao")),
+                ClosureDate = TypeParser.Date(opportunityInfo.Valor("DataFecho")),
+                LossMotive = TypeParser.String(opportunityInfo.Valor("MotivoPerda")),
+                OpportunityId = TypeParser.String(opportunityInfo.Valor("Oportunidade")),
+                Currency = TypeParser.String(opportunityInfo.Valor("Moeda")),
+                Identificador = TypeParser.String(opportunityInfo.Valor("ID")),
+                Brief = TypeParser.String(opportunityInfo.Valor("Resumo")),
+                Zone = TypeParser.String(opportunityInfo.Valor("Zona")),
+                Status = opportunityInfo.Valor("EstadoVenda"),
+                EntityType = TypeParser.String(opportunityInfo.Valor("TipoEntidade")),
+                TotalValueOV = TypeParser.Double(opportunityInfo.Valor("ValorTotalOV"))
+            };
         }
 
         private static void SetFields(CrmBEOportunidadeVenda opportunityInfo, Opportunity jsonObject)

@@ -39,6 +39,11 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlDistrito)
                 .Where(fieldDistrito, Comparison.GreaterThan, 0));
 
+            if (distritoInfo == null || distritoInfo.Vazia())
+            {
+                return distritoList;
+            }
+
             while (!distritoInfo.NoFim())
             {
                 distritoList.Add(new Reference()
@@ -67,6 +72,11 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where(fieldDistrito, Comparison.Equals, paramId)
                 .Where(fieldConcelho, Comparison.GreaterThan, 0));
 
+            if (concelhoInfo == null || concelhoInfo.Vazia())
+            {
+                return concelhoList;
+            }
+
             while (!concelhoInfo.NoFim())
             {
                 concelhoList.Add(new Reference()
@@ -87,7 +97,6 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("DISTRITOS")
                 .Columns(fieldDescricao)
                 .Where(fieldDistrito, Comparison.Equals, distritoId));
-
             return sqlQuery.Vazia() ? distritoId : TypeParser.String(sqlQuery.Valor(fieldDescricao));
         }
 

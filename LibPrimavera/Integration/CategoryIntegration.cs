@@ -86,11 +86,6 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
             var categoriesTable = PrimaveraEngine.Engine.Comercial.Familias;
 
             if (categoriesTable.Existe(categoryId) == false)

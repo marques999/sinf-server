@@ -25,13 +25,8 @@ namespace FirstREST.LibPrimavera
         private Regex guardsRegex;
         private Regex sepsRegex;
 
-#if CORE
-        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
-        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
-#else
         private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
         private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
-#endif
 
         public HashGenerator()
             : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
@@ -158,11 +153,7 @@ namespace FirstREST.LibPrimavera
                 }
             }
 
-#if CORE
-            sepsRegex = new Regex(string.Concat("[", seps, "]"));
-#else
             sepsRegex = new Regex(string.Concat("[", seps, "]"), RegexOptions.Compiled);
-#endif
             alphabet = ConsistentShuffle(alphabet, salt);
         }
 
@@ -181,11 +172,7 @@ namespace FirstREST.LibPrimavera
                 alphabet = alphabet.Substring(guardCount);
             }
 
-#if CORE
-            guardsRegex = new Regex(string.Concat("[", guards, "]"));
-#else
             guardsRegex = new Regex(string.Concat("[", guards, "]"), RegexOptions.Compiled);
-#endif
         }
 
         private string GenerateHashFrom(long[] numbers)

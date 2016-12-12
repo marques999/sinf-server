@@ -103,7 +103,7 @@ namespace FirstREST.LibPrimavera.Model
         public List<ProposalsLine> ProposalsLines
         {
             get;
-            set;        
+            set;
         }
     }
 }

@@ -32,6 +32,11 @@ namespace FirstREST.LibPrimavera.Integration
             var representativeList = new List<RepresentativeListing>();
             var representativeInfo = PrimaveraEngine.Consulta(new SqlBuilder().Columns(sqlVendedor).FromTable("VENDEDORES"));
 
+            if (representativeInfo == null || representativeInfo.Vazia())
+            {
+                return representativeList;
+            }
+
             while (!representativeInfo.NoFim())
             {
                 representativeList.Add(new RepresentativeListing
@@ -84,11 +89,6 @@ namespace FirstREST.LibPrimavera.Integration
             if (string.IsNullOrEmpty(representativeId))
             {
                 return null;
-            }
-
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
             }
 
             var representativesTable = PrimaveraEngine.Engine.Comercial.Vendedores;

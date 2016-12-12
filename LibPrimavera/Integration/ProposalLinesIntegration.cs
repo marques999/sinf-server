@@ -109,20 +109,26 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var formattedId = id.Replace("%7B", "{").Replace("%7D", "}");
-            var queryResult = new List<ProposalsLine>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var lineInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("LINHASPROPOSTASOPV")
                 .Columns(sqlColumnsListing)
                 .Where("IdOportunidade", Comparison.Equals, formattedId)
                 .Where("NumProposta", Comparison.Equals, proposalNumber));
 
-            while (!queryObject.NoFim())
+            if (lineInfo == null || lineInfo.Vazia())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                throw new NotFoundException("proposta", true);
             }
 
-            return queryResult;
+            var lineList = new List<ProposalsLine>();
+
+            while (!lineInfo.NoFim())
+            {
+                lineList.Add(GenerateListing(lineInfo));
+                lineInfo.Seguinte();
+            }
+
+            return lineList;
         }
 
         public static ProposalsLine View(string opportunityId, short numProposal, short line)

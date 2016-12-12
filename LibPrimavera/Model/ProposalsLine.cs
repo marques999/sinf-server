@@ -34,7 +34,7 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-        
+
         [JsonProperty(PropertyName = "description")]
         public string Description
         {
@@ -55,7 +55,6 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-
 
         [JsonProperty(PropertyName = "factorConv")]
         public double FactorConv

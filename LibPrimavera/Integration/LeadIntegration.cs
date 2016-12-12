@@ -78,20 +78,25 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<LeadListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var leadList = new List<LeadListing>();
+            var leadInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
                 .Columns(sqlColumnsListing)
                 .Where("PotencialCliente", Comparison.Equals, "TRUE")
                 .Where(new WhereClause("Vendedor", Comparison.Equals, sellsForceId).AddClause(LogicOperator.Or, Comparison.Equals, null)));
 
-            while (!queryObject.NoFim())
+            if (leadInfo == null || leadInfo.Vazia())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                return leadList;
             }
 
-            queryResult.Sort(delegate(LeadListing lhs, LeadListing rhs)
+            while (!leadInfo.NoFim())
+            {
+                leadList.Add(GenerateListing(leadInfo));
+                leadInfo.Seguinte();
+            }
+
+            leadList.Sort(delegate(LeadListing lhs, LeadListing rhs)
             {
                 if (lhs.Identificador == null || rhs.Identificador == null)
                 {
@@ -101,7 +106,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return lhs.Identificador.CompareTo(rhs.Identificador);
             });
 
-            return queryResult;
+            return leadList;
         }
 
         public static LeadInfo View(string sessionId, string leadId)
@@ -118,41 +123,41 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("lead", true);
             }
 
-            var queryResult = leadsTable.Edita(leadId);
-            var representativeId = queryResult.get_Vendedor();
+            var leadInfo = leadsTable.Edita(leadId);
+            var representativeId = leadInfo.get_Vendedor();
 
-            /*  if (representativeId != null && representativeId != sessionId)
+            /*if (representativeId != null && representativeId != sessionId)
               {
                   return null;
               }*/
 
             return new LeadInfo
             {
-                Identificador = queryResult.get_Entidade(),
-                Activo = queryResult.get_Activo(),
-                Nome = queryResult.get_Nome(),
-                Email = queryResult.get_Email(),
-                Telefone = queryResult.get_Telefone(),
-                Telefone2 = queryResult.get_Telefone2(),
-                DataCriacao = queryResult.get_DataCriacao(),
-                DataModificacao = queryResult.get_DataUltAct(),
-                Telemovel = queryResult.get_Telemovel(),
-                EnderecoWeb = queryResult.get_EnderecoWeb(),
-                TipoMercado = queryResult.get_TipoMercado(),
-                PessoaSingular = queryResult.get_PessoaSingular(),
-                Idioma = queryResult.get_Idioma(),
-                Morada2 = queryResult.get_Morada2(),
-                NumContribuinte = queryResult.get_NumContrib(),
-                Zona = queryResult.get_Zona(),
-                TipoTerceiro = queryResult.get_TipoTerceiro(),
-                Responsavel = UserIntegration.Reference(queryResult.get_Vendedor()),
+                Identificador = leadInfo.get_Entidade(),
+                Activo = leadInfo.get_Activo(),
+                Nome = leadInfo.get_Nome(),
+                Email = leadInfo.get_Email(),
+                Telefone = leadInfo.get_Telefone(),
+                Telefone2 = leadInfo.get_Telefone2(),
+                DataCriacao = leadInfo.get_DataCriacao(),
+                DataModificacao = leadInfo.get_DataUltAct(),
+                Telemovel = leadInfo.get_Telemovel(),
+                EnderecoWeb = leadInfo.get_EnderecoWeb(),
+                TipoMercado = leadInfo.get_TipoMercado(),
+                PessoaSingular = leadInfo.get_PessoaSingular(),
+                Idioma = leadInfo.get_Idioma(),
+                Morada2 = leadInfo.get_Morada2(),
+                NumContribuinte = leadInfo.get_NumContrib(),
+                Zona = leadInfo.get_Zona(),
+                TipoTerceiro = leadInfo.get_TipoTerceiro(),
+                Responsavel = UserIntegration.Reference(leadInfo.get_Vendedor()),
                 Localizacao = new Address
                 {
-                    Pais = queryResult.get_Pais(),
-                    Morada = queryResult.get_Morada(),
-                    Distrito = queryResult.get_Distrito(),
-                    Localidade = queryResult.get_Localidade(),
-                    CodigoPostal = queryResult.get_CodPostal()
+                    Pais = leadInfo.get_Pais(),
+                    Morada = leadInfo.get_Morada(),
+                    Distrito = leadInfo.get_Distrito(),
+                    Localidade = leadInfo.get_Localidade(),
+                    CodigoPostal = leadInfo.get_CodPostal()
                 },
             };
         }

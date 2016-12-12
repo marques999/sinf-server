@@ -102,25 +102,24 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where(new WhereClause("DataFim", Comparison.LessThan, DateTime.Now.ToString("yyyy-MM-dd HH:mm")), 2));
         }
 
-        private static Reference TypeReference(StdBELista queryResult)
+        private static Reference TypeReference(StdBELista activityInfo)
         {
-            return new Reference(TypeParser.String(queryResult.Valor("TipoActividade")), TypeParser.String(queryResult.Valor("DescricaoActividade")));
+            return new Reference(TypeParser.String(activityInfo.Valor("TipoActividade")), TypeParser.String(activityInfo.Valor("DescricaoActividade")));
         }
 
-        public static Reference TypeReference(string typeId)
+        private static Reference TypeReference(CrmBETipoActividade activityInfo)
+        {
+            return new Reference(activityInfo.get_TipoActividade(), activityInfo.get_Descricao());
+        }
+
+        private static Reference TypeReference(string typeId)
         {
             if (string.IsNullOrEmpty(typeId))
             {
                 return null;
             }
 
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var typeInfo = PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId);
-            return new Reference(typeInfo.get_TipoActividade(), typeInfo.get_Descricao());
+            return TypeReference(PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId));
         }
 
         private static EntityReference EntityReference(string entityId, string entityType)
@@ -150,12 +149,7 @@ namespace FirstREST.LibPrimavera.Integration
             activityInfo.set_IDTipoActividade(jsonObject.Tipo);
             activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
 
-            if (jsonObject.TipoEntidade == null)
-            {
-                activityInfo.set_TipoEntidadePrincipal(null);
-                activityInfo.set_EntidadePrincipal(null);
-            }
-            else
+            if (jsonObject.TipoEntidade != null)
             {
                 activityInfo.set_TipoEntidadePrincipal(jsonObject.TipoEntidade);
                 activityInfo.set_EntidadePrincipal(jsonObject.Entidade);
@@ -260,8 +254,6 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 throw new EntityExistsException("actividade", true);
             }
-
-            System.Diagnostics.Debug.Print(jsonObject.DataInicio.ToString());
 
             activityInfo.set_ID(activityId);
             activityInfo.set_Estado("0");

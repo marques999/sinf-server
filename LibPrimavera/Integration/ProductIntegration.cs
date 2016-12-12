@@ -100,6 +100,11 @@ namespace FirstREST.LibPrimavera.Integration
             var productList = new List<ProductListing>();
             var productInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARTIGO").Columns(sqlColumnsListing));
 
+            if (productInfo == null || productInfo.Vazia())
+            {
+                return productList;
+            }
+
             while (!productInfo.NoFim())
             {
                 productList.Add(GenerateListing(productInfo));
@@ -142,18 +147,17 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var productsTable = PrimaveraEngine.Engine.Comercial.Artigos;
+            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("ARTIGO")
+                .Columns(sqlColumnsFull)
+                .Where("ARTIGO.Artigo", Comparison.Equals, productId)
+                .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
 
-            if (productsTable.Existe(productId) == false)
+            if (productInfo == null || productInfo.Vazia())
             {
                 throw new NotFoundException("produto", false);
             }
 
-            var productInfo = PrimaveraEngine.Consulta(new SqlBuilder()
-                 .FromTable("ARTIGO")
-                 .Columns(sqlColumnsFull)
-                 .Where("ARTIGO.Artigo", Comparison.Equals, productId)
-                 .LeftJoin("FAMILIAS", "Familia", Comparison.Equals, "ARTIGO", "Familia"));
             var productUnit = TypeParser.String(productInfo.Valor("UnidadeVenda"));
             var priceList = GeneratePrices(productId, productUnit);
 
@@ -204,6 +208,11 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("ARTIGO")
                 .Columns(sqlColumnsListing)
                 .Where("ARTIGO.Familia", Comparison.Equals, categoryId));
+
+            if (productInfo == null || productInfo.Vazia())
+            {
+                throw new NotFoundException("categoria", true);
+            }
 
             while (!productInfo.NoFim())
             {

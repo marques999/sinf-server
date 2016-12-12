@@ -130,19 +130,6 @@ namespace FirstREST.LibPrimavera
             return Plataforma.Inicializada;
         }
 
-        /*  public static bool IsAuthenticated()
-          {
-              try
-              {
-                  return string.IsNullOrWhiteSpace(HttpContext.Current.User.Identity.Name) == false;
-              }
-              catch
-              {
-                  return false;
-              }
-          }
-          */
-
         public static SQLiteConnection getAuthenticationService()
         {
             return sqliteConnection;

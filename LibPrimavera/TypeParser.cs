@@ -29,8 +29,6 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        ///////////////////////////////////////////////////////////////////////
-
         internal static double Double(dynamic paramObject)
         {
             if (paramObject is double)
@@ -57,8 +55,6 @@ namespace FirstREST.LibPrimavera
 
             return paramType == typeof(decimal);
         }
-
-        ///////////////////////////////////////////////////////////////////////
 
         internal static DateTime Date(dynamic paramObject)
         {
@@ -106,8 +102,6 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        ///////////////////////////////////////////////////////////////////////
-
         internal static bool Boolean(dynamic paramObject)
         {
             if (paramObject is bool)
@@ -125,8 +119,6 @@ namespace FirstREST.LibPrimavera
             }
         }
 
-        ///////////////////////////////////////////////////////////////////////
-
         internal static int Integer(dynamic paramObject)
         {
             if (paramObject is int)
@@ -143,8 +135,6 @@ namespace FirstREST.LibPrimavera
                 return 0;
             }
         }
-
-        ///////////////////////////////////////////////////////////////////////
 
         private static Dictionary<String, EntityType> entities = new Dictionary<string, EntityType>
         {

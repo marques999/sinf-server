@@ -44,6 +44,11 @@ namespace FirstREST.LibPrimavera.Integration
             var warehouseList = new List<WarehouseListing>();
             var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("ARMAZENS").Columns(sqlColumnsListing));
 
+            if (warehouseInfo == null || warehouseInfo.Vazia())
+            {
+                return warehouseList;
+            };
+
             while (!warehouseInfo.NoFim())
             {
                 warehouseList.Add(new WarehouseListing
@@ -79,17 +84,15 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var warehousesTable = PrimaveraEngine.Engine.Comercial.Armazens;
-
-            if (warehousesTable.Existe(warehouseId) == false)
-            {
-                throw new NotFoundException("armazém", false);
-            }
-
             var warehouseInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ARMAZENS")
                 .Columns(sqlColumnsFull)
                 .Where("Armazem", Comparison.Equals, warehouseId));
+
+            if (warehouseInfo == null || warehouseInfo.Vazia())
+            {
+                throw new NotFoundException("armazém", false);
+            }
 
             return new Warehouse
             {
@@ -127,6 +130,11 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where("ARTIGOARMAZEM.Artigo", Comparison.Equals, productId)
                 .LeftJoin("ARMAZENS", "Armazem", Comparison.Equals, "ARTIGOARMAZEM", "Armazem")
                 .GroupBy(new string[] { "ARTIGOARMAZEM.Artigo", "ARMAZENS.Armazem" }));
+
+            if (warehouseInfo == null || warehouseInfo.Vazia())
+            {
+                return warehouseList;
+            }
 
             while (!warehouseInfo.NoFim())
             {

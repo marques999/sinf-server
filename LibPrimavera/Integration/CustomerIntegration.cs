@@ -48,12 +48,17 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<CustomerListing>();
+            var customerList = new List<CustomerListing>();
             var customerInfo = PrimaveraEngine.Consulta(new SqlBuilder().FromTable("CLIENTES").Columns(sqlColumnsListing));
+
+            if (customerInfo == null || customerInfo.Vazia())
+            {
+                return customerList;
+            }
 
             while (!customerInfo.NoFim())
             {
-                queryResult.Add(new CustomerListing()
+                customerList.Add(new CustomerListing()
                 {
                     Nome = TypeParser.String(customerInfo.Valor("Nome")),
                     Identificador = TypeParser.String(customerInfo.Valor("Cliente")),
@@ -68,7 +73,7 @@ namespace FirstREST.LibPrimavera.Integration
                 customerInfo.Seguinte();
             }
 
-            queryResult.Sort(delegate(CustomerListing lhs, CustomerListing rhs)
+            customerList.Sort(delegate(CustomerListing lhs, CustomerListing rhs)
             {
                 if (lhs.Nome == null || rhs.Nome == null)
                 {
@@ -78,7 +83,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return lhs.Nome.CompareTo(rhs.Nome);
             });
 
-            return queryResult;
+            return customerList;
         }
 
         private static SqlColumn[] sqlColumnsFull =		
@@ -116,7 +121,7 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumnsFull)
                 .Where("Cliente", Comparison.Equals, customerId));
 
-            if (customerInfo.Vazia())
+            if (customerInfo == null || customerInfo.Vazia())
             {
                 throw new NotFoundException("cliente", false);
             }
@@ -163,11 +168,6 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
             var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
             if (customersTable.Existe(customerId) == false)
@@ -193,12 +193,24 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (jsonObject.Localizacao.Pais.Equals("PT"))
             {
-                if (jsonObject.Localizacao.Distrito != null)
+                if (jsonObject.Localizacao.Distrito == null)
+                {
+                    customerInfo.set_Distrito(null);
+                    customerInfo.set_Localidade(null);
+                    customerInfo.set_LocalidadeCodigoPostal(null);
+                }
+                else
                 {
                     customerInfo.set_Distrito(jsonObject.Localizacao.Distrito);
                     customerInfo.set_Localidade(jsonObject.Localizacao.Localidade);
                     customerInfo.set_LocalidadeCodigoPostal(jsonObject.Localizacao.Localidade);
                 }
+            }
+            else
+            {
+                customerInfo.set_Distrito(null);
+                customerInfo.set_Localidade(null);
+                customerInfo.set_LocalidadeCodigoPostal(null);
             }
         }
 

@@ -92,13 +92,14 @@ namespace FirstREST.LibPrimavera.Integration
             return definitionTables.ContainsKey(definitionType) ? definitionTables[definitionType] : "";
         }
 
+        private static ActivityType GenerateActivity(StdBELista typeInfo)
+        {
+            return new ActivityType(typeInfo.Valor("Id"), typeInfo.Valor("TipoActividade"), typeInfo.Valor("Descricao"));
+        }
+
         private static Reference GenerateType(StdBELista queryInfo, DefinitionType definitionType)
         {
-            return new Reference()
-            {
-                Identificador = TypeParser.String(queryInfo.Valor(GetTypeIdName(definitionType))),
-                Descricao = TypeParser.String(queryInfo.Valor("Descricao"))
-            };
+            return new Reference(TypeParser.String(queryInfo.Valor(GetTypeIdName(definitionType))), TypeParser.String(queryInfo.Valor("Descricao")));
         }
 
         public static List<Reference> ListThirdPartyTypes()
@@ -108,19 +109,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var typeList = new List<Reference>();
+            var typeInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("TipoTerceiros")
                 .Columns(definitionColumns[DefinitionType.ThirdParty])
                 .Where("EntidadesExternas", Comparison.Equals, 1));
 
-            while (!queryObject.NoFim())
+            if (typeInfo == null || typeInfo.Vazia())
             {
-                queryResult.Add(GenerateType(queryObject, DefinitionType.ThirdParty));
-                queryObject.Seguinte();
+                return typeList;
             }
 
-            return queryResult;
+            while (!typeInfo.NoFim())
+            {
+                typeList.Add(GenerateType(typeInfo, DefinitionType.ThirdParty));
+                typeInfo.Seguinte();
+            }
+
+            return typeList;
         }
 
         public static List<Reference> ListCampaigns()
@@ -130,19 +136,24 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var campaignList = new List<Reference>();
+            var campaignInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable(definitionTables[DefinitionType.Campaign])
                 .Columns(definitionColumns[DefinitionType.Campaign])
                 .Where("Activa", Comparison.Equals, 1));
 
-            while (!queryObject.NoFim())
+            if (campaignInfo == null || campaignInfo.Vazia())
             {
-                queryResult.Add(GenerateType(queryObject, DefinitionType.Campaign));
-                queryObject.Seguinte();
+                return campaignList;
             }
 
-            return queryResult;
+            while (!campaignInfo.NoFim())
+            {
+                campaignList.Add(GenerateType(campaignInfo, DefinitionType.Campaign));
+                campaignInfo.Seguinte();
+            }
+
+            return campaignList;
         }
 
         public static List<ActivityType> ListActivityTypes()
@@ -152,22 +163,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<ActivityType>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var typeList = new List<ActivityType>();
+            var typeInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable(getTable(DefinitionType.ActivityType))
                 .Columns(getColumns(DefinitionType.ActivityType)));
 
-            while (!queryObject.NoFim())
+            if (typeInfo == null || typeInfo.Vazia())
             {
-                queryResult.Add(new ActivityType(
-                    queryObject.Valor("Id"),
-                    queryObject.Valor("TipoActividade"),
-                    queryObject.Valor("Descricao")
-                ));
-                queryObject.Seguinte();
+                return typeList;
             }
 
-            return queryResult;
+            while (!typeInfo.NoFim())
+            {
+                typeList.Add(GenerateActivity(typeInfo));
+                typeInfo.Seguinte();
+            }
+
+            return typeList;
         }
 
         public static List<Reference> ListTypes(DefinitionType definitionType)
@@ -182,18 +194,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("tipo", false);
             }
 
-            var queryResult = new List<Reference>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var typeList = new List<Reference>();
+            var typeInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable(getTable(definitionType))
                 .Columns(definitionColumns[definitionType]));
 
-            while (!queryObject.NoFim())
+            if (typeInfo == null || typeInfo.Vazia())
             {
-                queryResult.Add(GenerateType(queryObject, definitionType));
-                queryObject.Seguinte();
+                return typeList;
             }
 
-            return queryResult;
+            while (!typeInfo.NoFim())
+            {
+                typeList.Add(GenerateType(typeInfo, definitionType));
+                typeInfo.Seguinte();
+            }
+
+            return typeList;
         }
     }
 }
