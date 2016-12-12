@@ -175,7 +175,12 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return new EntityReference(customerId, EntityType.Customer, customersTable.DaNome(customerId));
+            return new EntityReference
+            {
+                Identificador = customerId,
+                Tipo = EntityType.Customer.ToDescriptionString(),
+                Descricao = customersTable.DaNome(customerId)
+            };
         }
 
         private static void SetFields(GcpBECliente customerInfo, Customer jsonObject)

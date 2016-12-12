@@ -134,7 +134,12 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return new EntityReference(contactId, EntityType.Contact, contactsTable.DaNomeContacto(contactId));
+            return new EntityReference
+            {
+                Identificador = contactId,
+                Tipo = EntityType.Contact.ToDescriptionString(),
+                Descricao = contactsTable.DaNomeContacto(contactId)
+            };
         }
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)

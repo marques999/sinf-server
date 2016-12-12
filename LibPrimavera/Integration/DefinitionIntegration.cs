@@ -28,7 +28,7 @@ namespace FirstREST.LibPrimavera.Integration
                     new SqlColumn("Descricao", null),          
                 } 
             },
-                        {
+            {
                 DefinitionType.Campaign, new SqlColumn[]
                 {
                     new SqlColumn("Campanha", null),

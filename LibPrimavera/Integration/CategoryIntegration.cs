@@ -25,26 +25,31 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<CategoryListing>();
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var categoryList = new List<CategoryListing>();
+            var categoryInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("FAMILIAS")
                 .Columns(sqlColumnsFull)
                 .InnerJoin("ARTIGO", "Familia", Comparison.Equals, "FAMILIAS", "Familia")
                 .GroupBy(new string[] { "FAMILIAS.Familia", "FAMILIAS.Descricao" }));
 
-            while (!queryObject.NoFim())
+            if (categoryInfo == null || categoryInfo.Vazia())
             {
-                queryResult.Add(new CategoryListing()
-                {
-                    Identificador = TypeParser.String(queryObject.Valor("Familia")),
-                    Descricao = TypeParser.String(queryObject.Valor("Descricao")),
-                    NumeroProdutos = TypeParser.Integer(queryObject.Valor("Count"))
-                });
-
-                queryObject.Seguinte();
+                return categoryList;
             }
 
-            queryResult.Sort(delegate(CategoryListing lhs, CategoryListing rhs)
+            while (!categoryInfo.NoFim())
+            {
+                categoryList.Add(new CategoryListing()
+                {
+                    Identificador = TypeParser.String(categoryInfo.Valor("Familia")),
+                    Descricao = TypeParser.String(categoryInfo.Valor("Descricao")),
+                    NumeroProdutos = TypeParser.Integer(categoryInfo.Valor("Count"))
+                });
+
+                categoryInfo.Seguinte();
+            }
+
+            categoryList.Sort(delegate(CategoryListing lhs, CategoryListing rhs)
             {
                 if (lhs.Identificador == null || rhs.Identificador == null)
                 {
@@ -54,7 +59,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return lhs.Descricao.CompareTo(rhs.Descricao);
             });
 
-            return queryResult;
+            return categoryList;
         }
 
         public static Category Get(string categoryId)

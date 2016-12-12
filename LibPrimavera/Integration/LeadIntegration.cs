@@ -47,11 +47,12 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static EntityReference GenerateReference(StdBELista queryObject)
         {
-            return new EntityReference(
-                TypeParser.String(queryObject.Valor("Entidade")),
-                EntityType.Lead,
-                TypeParser.String(queryObject.Valor("Nome"))
-            );
+            return new EntityReference
+            {
+                Tipo = EntityType.Lead.ToDescriptionString(),
+                Identificador = TypeParser.String(queryObject.Valor("Entidade")),
+                Descricao = TypeParser.String(queryObject.Valor("Nome"))
+            };
         }
 
         private static bool CheckPermissions(CrmBEEntidadeExterna leadInfo, string sessionId)

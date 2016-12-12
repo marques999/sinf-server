@@ -70,16 +70,21 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryResult = new List<ActivityListing>();
-            var queryObject = PrimaveraEngine.Consulta(sqlBuilder);
+            var activityList = new List<ActivityListing>();
+            var activityInfo = PrimaveraEngine.Consulta(sqlBuilder);
 
-            while (!queryObject.NoFim())
+            if (activityInfo == null || activityInfo.Vazia())
             {
-                queryResult.Add(GenerateListing(queryObject));
-                queryObject.Seguinte();
+                return activityList;
             }
 
-            return queryResult;
+            while (!activityInfo.NoFim())
+            {
+                activityList.Add(GenerateListing(activityInfo));
+                activityInfo.Seguinte();
+            }
+
+            return activityList;
         }
 
         public static List<ActivityListing> ListActive(string sessionId)
@@ -131,12 +136,12 @@ namespace FirstREST.LibPrimavera.Integration
 
             switch (entityType)
             {
-                case "L":
-                    return LeadIntegration.Reference(entityId);
-                case "C":
-                    return CustomerIntegration.Reference(entityId);
-                case "X":
-                    return ContactIntegration.Reference(entityId);
+            case "L":
+                return LeadIntegration.Reference(entityId);
+            case "C":
+                return CustomerIntegration.Reference(entityId);
+            case "X":
+                return ContactIntegration.Reference(entityId);
             }
 
             return null;

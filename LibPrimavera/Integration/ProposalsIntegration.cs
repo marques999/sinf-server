@@ -96,22 +96,22 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            var proposalInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("PROPOSTASOPV")
                 .Columns(sqlColumnsListing)
                 .Where("IdOportunidade", Comparison.Equals, opportunityId));
 
-            if (queryObject == null || queryObject.Vazia())
+            if (proposalInfo == null || proposalInfo.Vazia())
             {
                 throw new NotFoundException("oportunidade", true);
             }
 
             var queryResult = new List<Proposals>();
 
-            while (!queryObject.NoFim())
+            while (!proposalInfo.NoFim())
             {
-                queryResult.Add(GenerateListing(queryObject, opportunityId));
-                queryObject.Seguinte();
+                queryResult.Add(GenerateListing(proposalInfo, opportunityId));
+                proposalInfo.Seguinte();
             }
 
             return queryResult;
@@ -125,7 +125,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var proposalsTable = PrimaveraEngine.Engine.CRM.PropostasOPV.Edita(opportunityId, proposalNumber);
-            var queryRes = ProposalLinesIntegration.List(opportunityId, proposalNumber);
+            var proposalInfo = ProposalLinesIntegration.List(opportunityId, proposalNumber);
 
             //var linhax = opportunityInfo.get_Linhas().Edita(opportunityInfo);
 
@@ -134,7 +134,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return null; 
             }*/
 
-            return GenerateProposal(proposalsTable, queryRes);
+            return GenerateProposal(proposalsTable, proposalInfo);
         }
 
         /*private static Proposals GenerateProposal(CrmBELinhasPropostaOPV opportunityInfo)
@@ -221,7 +221,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var proposalInfo = new CrmBEPropostaOPV();
-            var opportunitiesTable = PrimaveraEngine.Engine.CRM.PropostasOPV;
+            var proposalsTable = PrimaveraEngine.Engine.CRM.PropostasOPV;
 
             /*if (opportunitiesTable.Existe(opportunityId))
             {
@@ -229,7 +229,7 @@ namespace FirstREST.LibPrimavera.Integration
             }*/
 
             SetFields(proposalInfo, jsonObject);
-            opportunitiesTable.Actualiza(proposalInfo);
+            proposalsTable.Actualiza(proposalInfo);
 
             /* for (int i = 0; i < jsonObject.ProposalsLines.Count; i++)
              {
