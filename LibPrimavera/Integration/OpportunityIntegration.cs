@@ -44,6 +44,12 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CABECOPORTUNIDADESVENDA.ValorTotalOV", null),
         };
 
+        private static SqlColumn[] sqlColumnsReference =
+        {
+            new SqlColumn("CABECOPORTUNIDADESVENDA.ID", null),
+            new SqlColumn("CABECOPORTUNIDADESVENDA.Descricao", null),
+        };
+
         private static Opportunity GenerateListing(StdBELista opportunityInfo)
         {
             return new Opportunity()
@@ -76,6 +82,33 @@ namespace FirstREST.LibPrimavera.Integration
         public static Reference Reference(string opportunityId)
         {
             return new Reference(opportunityId, PrimaveraEngine.Engine.CRM.OportunidadesVenda.DaValorAtributo(opportunityId, "Descricao"));
+        }
+
+        private static List<Reference> ByCustomer(string customerId)
+        {
+            var opportunityList = new List<Reference>();
+            var opportunityInfo = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CABECOPORTUNIDADESVENDA")
+                .Columns(sqlColumnsListing)
+                .Where("TipoEntidade", Comparison.Equals, "C")
+                .Where("Entidade", Comparison.Equals, customerId));
+
+            if (opportunityInfo == null || opportunityInfo.Vazia())
+            {
+                return opportunityList;
+            }
+
+            while (!opportunityInfo.NoFim())
+            {
+                opportunityList.Add(new Reference
+                {
+                    Identificador = TypeParser.String(opportunityInfo.Valor("ID")),
+                    Descricao = TypeParser.String(opportunityInfo.Valor("Descricao"))
+                });
+                opportunityInfo.Seguinte();
+            }
+
+            return opportunityList;
         }
 
         private static OpportunityInfo GenerateOpportunity(CrmBEOportunidadeVenda opportunityInfo)

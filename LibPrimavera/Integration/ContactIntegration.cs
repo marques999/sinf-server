@@ -144,8 +144,9 @@ namespace FirstREST.LibPrimavera.Integration
 
         private static void SetFields(CrmBEContacto contactInfo, Contact jsonObject)
         {
+            contactInfo.set_SexoMasculino(true);
             contactInfo.set_Nome(jsonObject.Nome);
-            contactInfo.set_Email(jsonObject.Email);
+            contactInfo.set_Email(jsonObject.Email); 
             contactInfo.set_Titulo(jsonObject.Titulo);
             contactInfo.set_Telefone(jsonObject.Telefone);
             contactInfo.set_Telefone2(jsonObject.Telefone2);
@@ -206,7 +207,7 @@ namespace FirstREST.LibPrimavera.Integration
             return GenerateContact(contactInfo);
         }
 
-        public static ContactListing Insert(string sessionId, Contact jsonObject)
+        public static ContactInfo Insert(string sessionId, Contact jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -230,14 +231,7 @@ namespace FirstREST.LibPrimavera.Integration
             // falta associar contacto a um cliente
             contactsTable.Actualiza(contactInfo);
 
-            return new ContactListing()
-            {
-                Identificador = contactId,
-                Nome = contactInfo.get_PrimeiroNome() + " " + contactInfo.get_UltimoNome(),
-                Email = contactInfo.get_Email(),
-                Telefone = contactInfo.get_Telemovel(),
-                DataModificacao = contactInfo.get_DataUltContacto()
-            };
+            return GenerateContact(contactInfo);
         }
 
         public static bool Delete(string sessionId, string contactId)

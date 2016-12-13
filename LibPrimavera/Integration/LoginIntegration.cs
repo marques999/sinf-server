@@ -75,13 +75,11 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static bool Logout(string sessionToken)
         {
-            return true;
+            return Authentication.TerminateSession(sessionToken);
         }
 
         public static Representative Update(string sessionUsername, UserInfo userInfo)
         {
-            string queryPassword = "UPDATE users SET ";
-
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -95,6 +93,7 @@ namespace FirstREST.LibPrimavera.Integration
             using (var queryResult = PrimaveraEngine.ConsultaSQLite(sqlQuery))
             {
                 int changedFields = 0;
+                string queryPassword = "UPDATE users SET ";
 
                 if (queryResult.Read())
                 {
