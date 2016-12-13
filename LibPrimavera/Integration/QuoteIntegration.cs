@@ -18,11 +18,9 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("LinhasDoc.Artigo", null),
             new SqlColumn("LinhasDoc.Descricao", null),
             new SqlColumn("LinhasDoc.Quantidade", null),
-            new SqlColumn("LinhasDoc.Unidade", null),
             new SqlColumn("LinhasDoc.PrecUnit", null),
-            new SqlColumn("LinhasDoc.Desconto1", null),
-            new SqlColumn("LinhasDoc.TotalILiquido", null),
-            new SqlColumn("LinhasDoc.PrecoLiquido", null)
+            new SqlColumn("LinhasDoc.TaxaIva", null),
+            new SqlColumn("LinhasDoc.Desconto1", null)
         };
 
         private static SqlColumn[] sqlQuoteColumns =
@@ -43,7 +41,8 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CabecDoc.CodPostal", null),
             new SqlColumn("CabecDoc.Localidade", null),
             new SqlColumn("CabecDoc.Distrito", null),
-            new SqlColumn("CabecDoc.Pais", null)
+            new SqlColumn("CabecDoc.Pais", null),
+            new SqlColumn("CabecDoc.NumContribuinte", null)
         };
  
         private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
@@ -118,11 +117,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             List<OrderInfo> quoteProducts = new List<OrderInfo>();
 
-
             var productsInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("LinhasDoc")
                 .Columns(sqlProductsColumns)
-                .Where("IdCabecDoc", Comparison.Equals, TypeParser.String(quoteInfo.Valor("Id"))));
+                .Where("IdCabecDoc", Comparison.Equals, quoteInfo.Valor("Id")));
 
             while (!productsInfo.NoFim())
             {
@@ -131,7 +129,7 @@ namespace FirstREST.LibPrimavera.Integration
                     Quantidade = TypeParser.Integer(productsInfo.Valor("Quantidade")),
                     Preco = TypeParser.Double(productsInfo.Valor("PrecUnit")),
                     Desconto = TypeParser.Double(productsInfo.Valor("Desconto1")),
-                    ResLiquido = TypeParser.Double(productsInfo.Valor("TotalILiquido")),
+                    Iva = TypeParser.Double(productsInfo.Valor("TaxaIva")),
                     Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")), TypeParser.String(productsInfo.Valor("Descricao")))
                 });
 
@@ -157,6 +155,7 @@ namespace FirstREST.LibPrimavera.Integration
                 TotalIva = TypeParser.Double(quoteInfo.Valor("TotalIva")),
                 TotalMerc = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
                 TotalDocumento = TypeParser.Double(quoteInfo.Valor("TotalDocumento")),
+                NumContribuinte = TypeParser.Double(quoteInfo.Valor("NumContribuinte")),
                 Produtos = quoteProducts
             };           
         }

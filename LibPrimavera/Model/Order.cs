@@ -9,9 +9,10 @@ namespace FirstREST.LibPrimavera.Model
         /// </summary>
 
         private int _quantidade;
-        private double _liquido;
+        private double _iliquido;
         private double _desconto;
         private double _preco;
+        private double _iva;
 
         /// <summary>
         /// Public access properties
@@ -88,22 +89,22 @@ namespace FirstREST.LibPrimavera.Model
             }
         }
 
-        [JsonProperty(PropertyName = "netIncome")]
-        public double ResLiquido
+        [JsonProperty(PropertyName = "tax")]
+        public double Iva
         {
             get
             {
-                return _liquido;
+                return _iva;
             }
             set
             {
-                if (value < 0.0)
+                if (value < 0)
                 {
-                    _liquido = 0.0;
+                    _iva = 0;
                 }
                 else
                 {
-                    _liquido = value;
+                    _iva = value;
                 }
             }
         }

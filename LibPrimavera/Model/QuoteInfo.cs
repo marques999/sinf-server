@@ -58,5 +58,12 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
+
+        [JsonProperty(PropertyName = "taxPayNumb")]
+        public string NumContribuinte
+        {
+            get;
+            set;
+        }
     }
 }
