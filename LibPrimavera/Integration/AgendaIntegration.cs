@@ -136,12 +136,12 @@ namespace FirstREST.LibPrimavera.Integration
 
             switch (entityType)
             {
-            case "L":
-                return LeadIntegration.Reference(entityId);
-            case "C":
-                return CustomerIntegration.Reference(entityId);
-            case "X":
-                return ContactIntegration.Reference(entityId);
+                case "L":
+                    return LeadIntegration.Reference(entityId);
+                case "C":
+                    return CustomerIntegration.Reference(entityId);
+                case "X":
+                    return ContactIntegration.Reference(entityId);
             }
 
             return null;
@@ -151,10 +151,16 @@ namespace FirstREST.LibPrimavera.Integration
         {
             activityInfo.set_Resumo(jsonObject.Resumo);
             activityInfo.set_Descricao(jsonObject.Descricao);
+            activityInfo.set_LocalRealizacao(jsonObject.Local);
             activityInfo.set_IDTipoActividade(jsonObject.Tipo);
             activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
 
-            if (jsonObject.TipoEntidade != null)
+            if (jsonObject.TipoEntidade == null)
+            {
+                activityInfo.set_TipoEntidadePrincipal(null);
+                activityInfo.set_EntidadePrincipal(null);
+            }
+            else
             {
                 activityInfo.set_TipoEntidadePrincipal(jsonObject.TipoEntidade);
                 activityInfo.set_EntidadePrincipal(jsonObject.Entidade);
@@ -163,7 +169,15 @@ namespace FirstREST.LibPrimavera.Integration
             if (jsonObject.DataInicio != null)
             {
                 activityInfo.set_DataInicio(jsonObject.DataInicio);
-                activityInfo.set_DataFim(jsonObject.DataFim);
+
+                if (jsonObject.DataFim == null)
+                {
+                    activityInfo.set_TodoDia(true);
+                }
+                else
+                {
+                    activityInfo.set_DataFim(jsonObject.DataFim);
+                }
             }
         }
 

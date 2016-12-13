@@ -38,14 +38,7 @@ namespace FirstREST.LibPrimavera.Model
 
         [JsonProperty(PropertyName = "date")]
         [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataEncomenda
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "description")]
-        public string Descricao
+        public DateTime Data
         {
             get;
             set;
