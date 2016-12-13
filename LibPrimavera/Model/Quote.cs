@@ -1,68 +1,50 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace FirstREST.LibPrimavera.Model
 {
     public class Quote
     {
-        [JsonProperty(PropertyName = "description")]
-        public string Descricao
+        [JsonProperty(PropertyName = "quoteNum")]
+        public int NumEncomenda
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "notes")]
-        public string Notas
+        [JsonProperty(PropertyName = "clientRef")]
+        public string Cliente
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "entity")]
-        public string Entidade
+        [JsonProperty(PropertyName = "clientName")]
+        public string NomeCliente
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "source")]
-        public string TipoEntidade
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "opportunity")]
-        public string Oportunidade
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "total")]
-        public double Total
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "products")]
-        public List<Order> Produtos
+        [JsonProperty(PropertyName = "totalDocument")]
+        public double TotalDocumento
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "date")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime DataEncomenda
+        public System.DateTime Data
         {
             get;
             set;
         }
+        
+        /*[JsonProperty(PropertyName = "description")]
+        public string Descricao
+        {
+            get;
+            set;
+        }*/
     }
 }

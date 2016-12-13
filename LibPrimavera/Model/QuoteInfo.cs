@@ -6,36 +6,54 @@ namespace FirstREST.LibPrimavera.Model
 {
     public class QuoteInfo : Quote
     {
-        [JsonProperty(PropertyName = "id")]
-        public string NumEncomenda
-        {
-            get;
-            set;
-        }
-
+        private Address _shippingAddress;
+        
         [JsonProperty(PropertyName = "products")]
-        public new List<OrderInfo> Produtos
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty(PropertyName = "billingAddress")]
-        public Address EnderecoFacturacao
+        public List<OrderInfo> Produtos
         {
             get;
             set;
         }
 
         [JsonProperty(PropertyName = "shippingAddress")]
-        public Address EnderecoExpedicao
+        public Address EnderecoEntrega
+        {
+            get
+            {
+                return _shippingAddress;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    _shippingAddress = value;
+                }
+            }
+        }
+
+        [JsonProperty(PropertyName = "totalMerc")]
+        public double TotalMerc
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "opportunity")]
-        public new Reference Oportunidade
+        [JsonProperty(PropertyName = "totalIva")]
+        public double TotalIva
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "totalDesc")]
+        public double TotalDesc
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty(PropertyName = "opportunityId")]
+        public string IdOportunidade
         {
             get;
             set;
