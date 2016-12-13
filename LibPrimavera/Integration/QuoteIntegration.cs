@@ -116,17 +116,18 @@ namespace FirstREST.LibPrimavera.Integration
             var quoteInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteColumns)
-                .Where("NumDoc", Comparison.Equals, quoteId));
+                .Where("NumDoc", Comparison.Equals, quoteId)
+                .Where("TipoDoc", Comparison.Equals, "ECL"));
 
             if (quoteInfo == null || quoteInfo.Vazia())
             {
                 throw new NotFoundException("encomenda", true);
             }
 
-            if (TypeParser.String(quoteInfo.Valor("TipoDoc")) != "ECL" || TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
+            /*if (TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
             {
                 return null;
-            }
+            }*/
 
             List<OrderInfo> quoteProducts = new List<OrderInfo>();
 

@@ -132,6 +132,11 @@ namespace FirstREST.LibPrimavera.Integration
                   return null;
               }*/
 
+            return GenerateInfo(leadInfo);
+        }
+
+        private static LeadInfo GenerateInfo(CrmBEEntidadeExterna leadInfo)
+        {
             return new LeadInfo
             {
                 Identificador = leadInfo.get_Entidade(),
@@ -290,7 +295,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var leadId = PrimaveraEngine.GenerateHash();
+            var leadId = PrimaveraEngine.GenerateName(jsonObject.Nome);
             var leadsTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
             var leadInfo = leadsTable.PreencheCamposDefeito(new CrmBEEntidadeExterna());
 
@@ -323,7 +328,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        public static bool Delete(string sessionId, string leadId)
+        public static LeadInfo Delete(string sessionId, string leadId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -341,7 +346,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (CheckPermissions(leadInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             leadInfo.set_EmModoEdicao(true);
@@ -349,7 +354,7 @@ namespace FirstREST.LibPrimavera.Integration
             leadInfo.set_DataUltAct(DateTime.Now);
             leadsTable.Actualiza(leadInfo);
 
-            return true;
+            return GenerateInfo(leadInfo);
         }
     }
 }

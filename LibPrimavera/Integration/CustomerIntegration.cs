@@ -285,7 +285,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var customerInfo = new GcpBECliente();
-            var customerId = PrimaveraEngine.GenerateHash();
+            var customerId = PrimaveraEngine.GenerateName(jsonObject.Nome);
             var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
             if (customersTable.Existe(customerId))

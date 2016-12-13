@@ -215,7 +215,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var contactInfo = new CrmBEContacto();
-            var contactId = PrimaveraEngine.GenerateHash();
+            var contactId = PrimaveraEngine.GenerateName(jsonObject.Nome);
             var contactsTable = PrimaveraEngine.Engine.CRM.Contactos;
 
             if (contactsTable.Existe(contactId))

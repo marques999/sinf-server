@@ -129,13 +129,15 @@ namespace FirstREST.Controllers
             {
                 try
                 {
-                    if (LeadIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id)))
+                    var operationResult = LeadIntegration.Delete(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id));
+
+                    if (operationResult == null)
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)
