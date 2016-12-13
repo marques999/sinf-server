@@ -6,7 +6,6 @@ using Interop.StdBE900;
 
 using FirstREST.QueryBuilder;
 using FirstREST.QueryBuilder.Enums;
-
 using FirstREST.LibPrimavera.Model;
 
 namespace FirstREST.LibPrimavera.Integration
@@ -24,6 +23,67 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("LinhasDoc.TotalILiquido", null),
             new SqlColumn("LinhasDoc.PrecoLiquido", null)
         };
+
+        private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
+        {
+            if (opportunityInfo.get_Anulado())
+            {
+                return false;
+            }
+
+            var representativeId = opportunityInfo.get_Responsavel();
+
+            if (representativeId != null && representativeId != sessionId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static SqlColumn[] sqlQuoteListing =
+        {
+            new SqlColumn("NumDoc", null),
+            new SqlColumn("Entidade", null),
+            new SqlColumn("Nome", null),
+            new SqlColumn("Data", null),
+            new SqlColumn("TotalMerc", null),
+        };
+
+        public static List<QuoteListing> List()
+        {
+            if (PrimaveraEngine.InitializeCompany() == false)
+            {
+                throw new DatabaseConnectionException();
+            }
+
+            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+                .FromTable("CabecDoc")
+                .Columns(sqlQuoteListing)
+                .Where("TipoDoc", Comparison.Equals, "ECL"));
+
+            if (queryObject == null || queryObject.Vazia())
+            {
+                return null;
+            }
+
+            var queryResult = new List<QuoteListing>();
+
+            while (!queryObject.NoFim())
+            {
+                queryResult.Add(new QuoteListing
+                {
+                    NumEncomenda = TypeParser.Integer(queryObject.Valor("NumDoc")),
+                    Cliente = TypeParser.String(queryObject.Valor("Entidade")),
+                    NomeCliente = TypeParser.String(queryObject.Valor("Nome")),
+                    Total = TypeParser.Double(queryObject.Valor("TotalMerc")),
+                    Data = TypeParser.Date(queryObject.Valor("Data"))
+                });
+                queryObject.Seguinte();
+            }
+
+            return queryResult;
+        }
 
         private static SqlColumn[] sqlQuoteColumns =
         {
@@ -45,62 +105,9 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CabecDoc.Distrito", null),
             new SqlColumn("CabecDoc.Pais", null)
         };
- 
-        private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
-        {
-            if (opportunityInfo.get_Anulado())
-            {
-                return false;
-            }
-
-            var representativeId = opportunityInfo.get_Responsavel();
-
-            if (representativeId != null && representativeId != sessionId)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static List<Quote> List()
-        {
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("CabecDoc")
-                .Columns(sqlQuoteColumns)
-                .Where("TipoDoc", Comparison.Equals, "ECL"));
-
-            if (queryObject.Vazia())
-            {
-                return null;
-            }
-
-            var queryResult = new List<Quote>();
-
-            while (!queryObject.NoFim())
-            {
-                queryResult.Add(new Quote
-                {
-                    NumEncomenda = TypeParser.Integer(queryObject.Valor("NumDoc")),
-                    Cliente = TypeParser.String(queryObject.Valor("Entidade")),
-                    NomeCliente = TypeParser.String(queryObject.Valor("Nome")),
-                    TotalDocumento = TypeParser.Double(queryObject.Valor("TotalMerc")),
-                    Data = TypeParser.Date(queryObject.Valor("Data"))
-                });
-                queryObject.Seguinte();
-            }
-
-            return queryResult;
-        }
 
         public static QuoteInfo View(string sessionId, string quoteId)
         {
-            
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
@@ -110,14 +117,18 @@ namespace FirstREST.LibPrimavera.Integration
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteColumns)
                 .Where("NumDoc", Comparison.Equals, quoteId));
-            
-            if (quoteInfo.Vazia() || TypeParser.String(quoteInfo.Valor("TipoDoc")) != "ECL" || TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
+
+            if (quoteInfo == null || quoteInfo.Vazia())
+            {
+                throw new NotFoundException("encomenda", true);
+            }
+
+            if (TypeParser.String(quoteInfo.Valor("TipoDoc")) != "ECL" || TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
             {
                 return null;
             }
 
             List<OrderInfo> quoteProducts = new List<OrderInfo>();
-
 
             var productsInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("LinhasDoc")
@@ -138,40 +149,42 @@ namespace FirstREST.LibPrimavera.Integration
                 productsInfo.Seguinte();
             }
 
-           return new QuoteInfo
-            {                
-                NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
-                Cliente = TypeParser.String(quoteInfo.Valor("Entidade")),
-                NomeCliente = TypeParser.String(quoteInfo.Valor("Nome")),
-                EnderecoEntrega = new Address
-                {
-                    Morada = TypeParser.String(quoteInfo.Valor("Morada")),
-                    CodigoPostal = TypeParser.String(quoteInfo.Valor("CodPostal")),
-                    Localidade = TypeParser.String(quoteInfo.Valor("Localidade")),
-                    Distrito = TypeParser.String(quoteInfo.Valor("Distrito")),
-                    Pais = TypeParser.String(quoteInfo.Valor("Pais"))
-                },
-                Data = TypeParser.Date(quoteInfo.Valor("Data")),
-                IdOportunidade = TypeParser.String(quoteInfo.Valor("IdOportunidade")),
-                TotalDesc = TypeParser.Double(quoteInfo.Valor("TotalDesc")),
-                TotalIva = TypeParser.Double(quoteInfo.Valor("TotalIva")),
-                TotalMerc = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
-                TotalDocumento = TypeParser.Double(quoteInfo.Valor("TotalDocumento")),
-                Produtos = quoteProducts
-            };           
+            return new QuoteInfo
+             {
+                 NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
+                 Cliente = TypeParser.String(quoteInfo.Valor("Entidade")),
+                 NomeCliente = TypeParser.String(quoteInfo.Valor("Nome")),
+                 EnderecoEntrega = new Address
+                 {
+                     Morada = TypeParser.String(quoteInfo.Valor("Morada")),
+                     CodigoPostal = TypeParser.String(quoteInfo.Valor("CodPostal")),
+                     Localidade = TypeParser.String(quoteInfo.Valor("Localidade")),
+                     Distrito = TypeParser.String(quoteInfo.Valor("Distrito")),
+                     Pais = TypeParser.String(quoteInfo.Valor("Pais"))
+                 },
+                 Data = TypeParser.Date(quoteInfo.Valor("Data")),
+                 IdOportunidade = TypeParser.String(quoteInfo.Valor("IdOportunidade")),
+                 TotalDesc = TypeParser.Double(quoteInfo.Valor("TotalDesc")),
+                 TotalIva = TypeParser.Double(quoteInfo.Valor("TotalIva")),
+                 TotalMerc = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
+                 TotalDocumento = TypeParser.Double(quoteInfo.Valor("TotalDocumento")),
+                 Produtos = quoteProducts
+             };
         }
 
         private static void SetOptionalFields(GcpBEDocumentoVenda quoteInfo, QuoteInfo jsonObject)
         {
             if (jsonObject.Cliente != null)
             {
-                quoteInfo.set_Entidade(jsonObject.Cliente);               
-                quoteInfo.set_EntidadeFac(jsonObject.Cliente);               
+                quoteInfo.set_Entidade(jsonObject.Cliente);
+                quoteInfo.set_EntidadeFac(jsonObject.Cliente);
             }
 
             if (jsonObject.NomeCliente != null)
+            {
                 quoteInfo.set_Nome(jsonObject.NomeCliente);
-            
+            }
+
             if (jsonObject.EnderecoEntrega != null)
             {
                 if (jsonObject.EnderecoEntrega != null)
@@ -186,7 +199,6 @@ namespace FirstREST.LibPrimavera.Integration
                     quoteInfo.set_Pais(jsonObject.EnderecoEntrega.Pais);
             }
         }
-        
 
         public static bool Update(string sessionId, string quoteId, QuoteInfo jsonObject)
         {
@@ -199,10 +211,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CabecDoc")
-                .Columns(new SqlColumn[]{new SqlColumn("CabecDoc.Id", null)})
+                .Columns(new SqlColumn[] { new SqlColumn("CabecDoc.Id", null) })
                 .Where("NumDoc", Comparison.Equals, quoteId));
 
-            if (queryObject.Vazia())
+            if (queryObject == null || queryObject.Vazia())
             {
                 return false;
             }
@@ -213,6 +225,7 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 return false;
             }
+
             try
             {
                 quoteInfo.set_EmModoEdicao(true);
@@ -227,6 +240,7 @@ namespace FirstREST.LibPrimavera.Integration
                 PrimaveraEngine.Engine.DesfazTransaccao();
                 return false;
             }
+
             return true;
         }
 
@@ -237,7 +251,7 @@ namespace FirstREST.LibPrimavera.Integration
             quoteInfo.set_CambioMAlt(QuotesConstants.cambioMAlt);
             quoteInfo.set_CambioMBase(QuotesConstants.cambioMBase);
             quoteInfo.set_CondPag(QuotesConstants.condPag); //Para alterar
-            
+
             quoteInfo.set_Serie(QuotesConstants.serie);
             quoteInfo.set_Tipodoc(QuotesConstants.tipoDoc);
             quoteInfo.set_Responsavel(sessionId);
@@ -261,9 +275,8 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 SetDefaultQuotesInfo(sessionId, quoteInfo);
                 SetOptionalFields(quoteInfo, jsonObject);
-
                 System.Diagnostics.Debug.Print(System.DateTime.Now + "");
-                
+
                 if (jsonObject.Produtos != null)
                 {
                     foreach (var produto in jsonObject.Produtos)
