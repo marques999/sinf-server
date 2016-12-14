@@ -161,16 +161,20 @@ namespace FirstREST.LibPrimavera
             }
 
             var nameArray = sb.ToString().Split(' ');
-            var firstName = nameArray[0];
 
             if (nameArray.Length > 1)
             {
-                return nameArray[0].Substring(0, 2) + nameArray[nameArray.Length - 1].Substring(0, 3);
+                return GenerateSubstring(nameArray[0], 3) + GenerateSubstring(nameArray[nameArray.Length - 1], 3);
             }
             else
             {
-                return firstName.Substring(0, firstName.Length < 6 ? firstName.Length : 6);
+                return GenerateSubstring(nameArray[0], 6);
             }
+        }
+
+        private static string GenerateSubstring(string fullName, int maxLength)
+        {
+            return fullName.Substring(0, fullName.Length < maxLength ? fullName.Length : maxLength);
         }
     }
 }

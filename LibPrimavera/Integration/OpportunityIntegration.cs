@@ -105,6 +105,7 @@ namespace FirstREST.LibPrimavera.Integration
                     Identificador = TypeParser.String(opportunityInfo.Valor("ID")),
                     Descricao = TypeParser.String(opportunityInfo.Valor("Descricao"))
                 });
+
                 opportunityInfo.Seguinte();
             }
 
@@ -284,11 +285,13 @@ namespace FirstREST.LibPrimavera.Integration
 
             opportunityInfo.set_EmModoEdicao(true);
             //SetFields(opportunityInfo, jsonObject);
+            System.Diagnostics.Debug.Print(jsonObject.LossMotive + "ei");
 
-               System.Diagnostics.Debug.Print(jsonObject.LossMotive + "ei");
             if (jsonObject.MarginOV == 0)
             {
                 opportunityInfo.set_EstadoVenda(jsonObject.Status);
+                opportunityInfo.set_DataFecho(DateTime.Now);
+
                 if (jsonObject.LossMotive != "")
                 {
                     opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
@@ -300,7 +303,7 @@ namespace FirstREST.LibPrimavera.Integration
                 opportunityInfo.set_MargemPercOV(Convert.ToSingle(jsonObject.MarginPercOV));
                 opportunityInfo.set_ValorTotalOV(jsonObject.TotalValueOV);
             }
-            
+
             opportunitiesTable.Actualiza(opportunityInfo);
 
             return GenerateOpportunity(opportunityInfo);

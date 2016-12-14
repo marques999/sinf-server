@@ -14,13 +14,13 @@ namespace FirstREST.Controllers
     {
         // GET api/leads/
         // FEATURE: Listar leads
-        public HttpResponseMessage Get([FromUri]string token)
+        public HttpResponseMessage Get(string id)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken(id))
             {
                 try
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(Authentication.GetRepresentative(token)));
+                    return Request.CreateResponse(HttpStatusCode.OK, LeadIntegration.List(Authentication.GetRepresentative(id)));
                 }
                 catch (Exception ex)
                 {
@@ -35,13 +35,13 @@ namespace FirstREST.Controllers
 
         // GET api/leads/{$prospectId}/
         // FEATURE: Visualizar lead
-        public HttpResponseMessage Get(string id, [FromUri]string token)
+        public HttpResponseMessage Get(string id, string sid)
         {
-            if (Authentication.VerifyToken(token))
+            if (Authentication.VerifyToken("1"))
             {
                 try
                 {
-                    var operationResult = LeadIntegration.View(Authentication.GetRepresentative(token), HttpUtility.UrlDecode(id));
+                    var operationResult = LeadIntegration.View(Authentication.GetRepresentative("1"), HttpUtility.UrlDecode(id));
 
                     if (operationResult == null)
                     {

@@ -14,8 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(CrmBEContacto contactInfo, string sessionId)
         {
-            //return contactInfo.get_CriadoPor() == null || contactInfo.get_CriadoPor().Equals(sessionId);
-            return true;
+            return contactInfo.get_CriadoPor() == null || contactInfo.get_CriadoPor().Equals(sessionId);
         }
 
         private static SqlColumn[] sqlColumnsListing =
@@ -146,11 +145,17 @@ namespace FirstREST.LibPrimavera.Integration
         {
             contactInfo.set_SexoMasculino(true);
             contactInfo.set_Nome(jsonObject.Nome);
-            contactInfo.set_Email(jsonObject.Email); 
+            contactInfo.set_Email(jsonObject.Email);
             contactInfo.set_Titulo(jsonObject.Titulo);
             contactInfo.set_Telefone(jsonObject.Telefone);
             contactInfo.set_Telefone2(jsonObject.Telefone2);
             contactInfo.set_Telemovel(jsonObject.Telemovel);
+
+            if (jsonObject.Localizacao == null)
+            {
+                return;
+            }
+
             contactInfo.set_Pais(jsonObject.Localizacao.Pais);
             contactInfo.set_Morada(jsonObject.Localizacao.Morada);
             contactInfo.set_CodPostal(jsonObject.Localizacao.CodigoPostal);
@@ -194,10 +199,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var contactInfo = contactsTable.Edita(contactId);
 
-            if (CheckPermissions(contactInfo, sessionId) == false)
+            /*if (CheckPermissions(contactInfo, sessionId) == false)
             {
                 return null;
-            }
+            }*/
 
             contactInfo.set_EmModoEdicao(true);
             contactInfo.set_DataUltContacto(DateTime.Now);
@@ -228,7 +233,6 @@ namespace FirstREST.LibPrimavera.Integration
             contactInfo.set_DataUltContacto(DateTime.Now);
             contactInfo.set_ID(PrimaveraEngine.generateGUID());
             SetFields(contactInfo, jsonObject);
-            // falta associar contacto a um cliente
             contactsTable.Actualiza(contactInfo);
 
             return GenerateContact(contactInfo);
@@ -248,10 +252,10 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("contacto", false);
             }
 
-            if (CheckPermissions(contactsTable.Edita(contactId), sessionId) == false)
+            /*if (CheckPermissions(contactsTable.Edita(contactId), sessionId) == false)
             {
                 return false;
-            }
+            }*/
 
             contactsTable.Remove(contactId);
 
