@@ -17,13 +17,6 @@ namespace FirstREST.LibPrimavera.Model
         /// Public access properties
         /// </summary>
 
-        [JsonProperty(PropertyName = "product")]
-        public string Produto
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "price")]
         public double Preco
         {
@@ -57,9 +50,9 @@ namespace FirstREST.LibPrimavera.Model
                 {
                     _desconto = 0.0;
                 }
-                else if (value > 1.0)
+                else if (value > 100.0)
                 {
-                    _desconto = 1.0;
+                    _desconto = 100.0;
                 }
                 else
                 {

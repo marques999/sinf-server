@@ -269,12 +269,12 @@ namespace FirstREST.LibPrimavera.Integration
         }
 
         public static QuoteInfo Insert(string sessionId, QuoteInfo jsonObject)
-        {
+        {           
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
-
+           
             var quoteInfo = new GcpBEDocumentoVenda();
 
             try
@@ -290,7 +290,6 @@ namespace FirstREST.LibPrimavera.Integration
                         PrimaveraEngine.Engine.Comercial.Vendas.AdicionaLinha(quoteInfo, produto.Produto.Identificador, produto.Quantidade, "", "", produto.Preco, produto.Desconto);
                     }
                 }
-
                 PrimaveraEngine.Engine.IniciaTransaccao();
                 PrimaveraEngine.Engine.Comercial.Vendas.Actualiza(quoteInfo);
                 PrimaveraEngine.Engine.TerminaTransaccao();
