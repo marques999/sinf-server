@@ -116,7 +116,7 @@ namespace FirstREST.Controllers
                     }
                     else
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK);
+                        return Request.CreateResponse(HttpStatusCode.OK, operationResult);
                     }
                 }
                 catch (Exception ex)

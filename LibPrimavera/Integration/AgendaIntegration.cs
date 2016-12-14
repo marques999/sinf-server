@@ -43,16 +43,12 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("TIPOSTAREFA.TipoActividade", null),
             new SqlColumn("TIPOSTAREFA.Descricao", "DescricaoActividade"),
         };
-        // ???????????
+
         private static ActivityListing GenerateListing(StdBELista queryResult)
         {
-            //   var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
-            //   var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
-
             return new ActivityListing
             {
                 Tipo = TypeReference(queryResult),
-                //    Entidade = EntityReference(entityId, entityType),
                 DataFim = TypeParser.Date(queryResult.Valor("DataFim")),
                 Resumo = TypeParser.String(queryResult.Valor("Resumo")),
                 Estado = TypeParser.Integer(queryResult.Valor("Estado")),
@@ -124,7 +120,7 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return TypeReference(PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId));  
+            return TypeReference(PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId));
         }
 
         private static EntityReference EntityReference(string entityId, string entityType)
@@ -133,12 +129,12 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 switch (entityType)
                 {
-                case "L":
-                    return LeadIntegration.Reference(entityId);
-                case "C":
-                    return CustomerIntegration.Reference(entityId);
-                case "X":
-                    return ContactIntegration.Reference(entityId);
+                    case "L":
+                        return LeadIntegration.Reference(entityId);
+                    case "C":
+                        return CustomerIntegration.Reference(entityId);
+                    case "X":
+                        return ContactIntegration.Reference(entityId);
                 }
             }
 
@@ -152,6 +148,7 @@ namespace FirstREST.LibPrimavera.Integration
             activityInfo.set_LocalRealizacao(jsonObject.Local);
             activityInfo.set_IDTipoActividade(jsonObject.Tipo);
             activityInfo.set_Prioridade(jsonObject.Prioridade.ToString());
+            activityInfo.set_Duracao((int)Math.Round(jsonObject.DataFim.Subtract(jsonObject.DataInicio).TotalMinutes));
 
             if (jsonObject.TipoEntidade == null)
             {
@@ -218,6 +215,7 @@ namespace FirstREST.LibPrimavera.Integration
                 DataModificacao = activityInfo.get_DataUltAct(),
                 DataFim = activityInfo.get_DataFim(),
                 DataInicio = activityInfo.get_DataInicio(),
+                Local = activityInfo.get_LocalRealizacao(),
                 Entidade = EntityReference(entityId, entityType),
                 Prioridade = Convert.ToInt32(activityInfo.get_Prioridade()),
                 Estado = Convert.ToInt32(activityInfo.get_Estado()),
@@ -249,14 +247,14 @@ namespace FirstREST.LibPrimavera.Integration
 
             activityInfo.set_EmModoEdicao(true);
             SetFields(activityInfo, jsonObject);
-            activityInfo.set_Duracao(jsonObject.DataFim.Subtract(jsonObject.DataInicio).Minutes);
             activityInfo.set_DataUltAct(DateTime.Now);
             activitiesTable.Actualiza(activityInfo);
+            activityInfo.set_EmModoEdicao(false);
 
             return GenerateActivity(activityInfo);
         }
 
-        public static ActivityListing Insert(string sessionId, Activity jsonObject)
+        public static ActivityInfo Insert(string sessionId, Activity jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -278,25 +276,10 @@ namespace FirstREST.LibPrimavera.Integration
             activityInfo.set_DataCriacao(DateTime.Now);
             activityInfo.set_DataUltAct(DateTime.Now);
             SetFields(activityInfo, jsonObject);
-            activityInfo.set_Duracao(jsonObject.DataFim.Subtract(jsonObject.DataInicio).Minutes);
             activityInfo = activitiesTable.PreencheDadosRelacionados(activityInfo);
             activitiesTable.Actualiza(activityInfo);
 
-            var entityId = activityInfo.get_EntidadePrincipal();
-            var entityType = activityInfo.get_TipoEntidadePrincipal();
-
-            return new ActivityListing
-            {
-                Resumo = activityInfo.get_Resumo(),
-                Identificador = activityInfo.get_ID(),
-                DataFim = activityInfo.get_DataFim(),
-                DataInicio = activityInfo.get_DataInicio(),
-                DataModificacao = activityInfo.get_DataUltAct(),
-                Entidade = EntityReference(entityId, entityType),
-                Estado = Convert.ToInt32(activityInfo.get_Estado()),
-                Prioridade = Convert.ToInt32(activityInfo.get_Prioridade()),
-                Tipo = TypeReference(activityInfo.get_IDTipoActividade())
-            };
+            return GenerateActivity(activityInfo);
         }
 
         public static ActivityInfo Delete(string sessionId, string activityId)

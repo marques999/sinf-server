@@ -79,7 +79,6 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-
             var leadList = new List<LeadListing>();
             var leadInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
@@ -124,7 +123,6 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 throw new NotFoundException("lead", true);
             }
-
 
             var leadInfo = leadsTable.Edita(leadId);
             var representativeId = leadInfo.get_Vendedor();
@@ -285,9 +283,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (convert2client)
             {
-                PrimaveraEngine.Engine.CRM.EntidadesExternas
-                    .TransformarNoutraEntidade(leadId,
-                    clientId, "C", null, null, null);
+                PrimaveraEngine.Engine.CRM.EntidadesExternas.TransformarNoutraEntidade(leadId, clientId, "C", null, null, null);
             }
 
             return true;

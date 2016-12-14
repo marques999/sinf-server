@@ -287,7 +287,7 @@ namespace FirstREST.LibPrimavera.Integration
             return generateCustomer(customerInfo);
         }
 
-        public static CustomerListing Insert(string sessionId, Customer jsonObject)
+        public static CustomerInfo Insert(string sessionId, Customer jsonObject)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -313,17 +313,7 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_DataUltimaActualizacao(DateTime.Now);
             customersTable.Actualiza(customerInfo);
 
-            return new CustomerListing()
-            {
-                Nome = customerInfo.get_Nome(),
-                DataCriacao = customerInfo.get_DataCriacao(),
-                Estado = customerInfo.get_Situacao(),
-                Telefone = customerInfo.get_Telefone(),
-                Identificador = customerInfo.get_Cliente(),
-                Debito = customerInfo.get_DebitoContaCorrente(),
-                Pendentes = customerInfo.get_DebitoEncomendasPendentes(),
-                DataModificacao = customerInfo.get_DataUltimaActualizacao(),
-            };
+            return generateCustomer(customerInfo);
         }
 
         public static CustomerInfo Delete(string sessionId, string customerId)
