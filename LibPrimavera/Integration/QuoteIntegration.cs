@@ -55,12 +55,13 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 throw new DatabaseConnectionException();
             }
-
-            var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
+            SqlBuilder query = new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteListing)
                 .Where("TipoDoc", Comparison.Equals, "ECL")
-                .Where("Serie", Comparison.Equals, QuotesConstants.serie));
+                .Where("Serie", Comparison.Equals, QuotesConstants.serie);
+            query.AddOrderBy("NumDoc", Sorting.Descending);
+            var queryObject = PrimaveraEngine.Consulta(query);
 
             if (queryObject == null || queryObject.Vazia())
             {
