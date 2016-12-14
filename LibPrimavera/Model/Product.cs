@@ -41,13 +41,6 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "tax")]
-        public string IVA
-        {
-            get;
-            set;
-        }
-
         [JsonProperty(PropertyName = "discount")]
         public double Desconto
         {

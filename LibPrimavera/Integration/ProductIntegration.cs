@@ -72,6 +72,7 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("ARTIGO.Artigo", null),
             new SqlColumn("ARTIGO.Descricao", null),
             new SqlColumn("ARTIGO.UnidadeVenda", null),	
+            new SqlColumn("ARTIGO.Iva", null),
             new SqlColumn("ARTIGO.STKActual", "Stock")
         };
 
@@ -86,6 +87,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Identificador = productId,
                 PrecoMedio = FindLowest(productId, productUnit),
                 Stock = TypeParser.Double(productInfo.Valor("Stock")),
+                IVA = TypeParser.Double(productInfo.Valor("Iva")),
                 Descricao = TypeParser.String(productInfo.Valor("Descricao"))
             };
         }
@@ -166,7 +168,7 @@ namespace FirstREST.LibPrimavera.Integration
                 Unidade = productUnit,
                 PrecoMedio = CalculateAverage(priceList),
                 Precos = GeneratePrices(productId, productUnit),
-                IVA = TypeParser.String(productInfo.Valor("Iva")),
+                IVA = TypeParser.Double(productInfo.Valor("Iva")),
                 Stock = TypeParser.Double(productInfo.Valor("Stock")),
                 Armazens = WarehouseIntegration.GetWarehouses(productId),
                 Desconto = TypeParser.Double(productInfo.Valor("Desconto")),

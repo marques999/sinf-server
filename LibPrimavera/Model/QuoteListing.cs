@@ -29,8 +29,8 @@ namespace FirstREST.LibPrimavera.Model
             set;
         }
 
-        [JsonProperty(PropertyName = "totalMerc")]
-        public double Total
+        [JsonProperty(PropertyName = "TotalDocument")]
+        public double TotalDocumento
         {
             get;
             set;

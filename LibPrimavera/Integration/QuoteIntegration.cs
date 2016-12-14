@@ -17,11 +17,10 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("LinhasDoc.Artigo", null),
             new SqlColumn("LinhasDoc.Descricao", null),
             new SqlColumn("LinhasDoc.Quantidade", null),
-            new SqlColumn("LinhasDoc.Unidade", null),
             new SqlColumn("LinhasDoc.PrecUnit", null),
-            new SqlColumn("LinhasDoc.Desconto1", null),
-            new SqlColumn("LinhasDoc.TotalILiquido", null),
-            new SqlColumn("LinhasDoc.PrecoLiquido", null)
+            new SqlColumn("LinhasDoc.TaxaIva", null),
+            new SqlColumn("LinhasDoc.Unidade", null),
+            new SqlColumn("LinhasDoc.Desconto1", null)
         };
 
         private static bool CheckPermissions(GcpBEDocumentoVenda opportunityInfo, string sessionId)
@@ -47,7 +46,7 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("Entidade", null),
             new SqlColumn("Nome", null),
             new SqlColumn("Data", null),
-            new SqlColumn("TotalMerc", null),
+            new SqlColumn("TotalDocumento", null),
         };
 
         public static List<QuoteListing> List()
@@ -60,7 +59,8 @@ namespace FirstREST.LibPrimavera.Integration
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteListing)
-                .Where("TipoDoc", Comparison.Equals, "ECL"));
+                .Where("TipoDoc", Comparison.Equals, "ECL")
+                .Where("Serie", Comparison.Equals, QuotesConstants.serie));
 
             if (queryObject == null || queryObject.Vazia())
             {
@@ -76,7 +76,7 @@ namespace FirstREST.LibPrimavera.Integration
                     NumEncomenda = TypeParser.Integer(queryObject.Valor("NumDoc")),
                     Cliente = TypeParser.String(queryObject.Valor("Entidade")),
                     NomeCliente = TypeParser.String(queryObject.Valor("Nome")),
-                    Total = TypeParser.Double(queryObject.Valor("TotalMerc")),
+                    TotalDocumento = TypeParser.Double(queryObject.Valor("TotalDocumento")),
                     Data = TypeParser.Date(queryObject.Valor("Data"))
                 });
                 queryObject.Seguinte();
@@ -97,6 +97,7 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("CabecDoc.IdOportunidade", null),
             new SqlColumn("CabecDoc.TotalDocumento", null),
             new SqlColumn("CabecDoc.TotalIva", null),
+            new SqlColumn("CabecDoc.NumContribuinte", null),
             new SqlColumn("CabecDoc.TotalDesc", null),
             new SqlColumn("CabecDoc.TotalMerc", null),
             new SqlColumn("CabecDoc.Morada", null),
@@ -116,25 +117,26 @@ namespace FirstREST.LibPrimavera.Integration
             var quoteInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteColumns)
+                .Where("TipoDoc", Comparison.Equals, QuotesConstants.tipoDoc)
                 .Where("NumDoc", Comparison.Equals, quoteId)
-                .Where("TipoDoc", Comparison.Equals, "ECL"));
+                .Where("Serie", Comparison.Equals, QuotesConstants.serie));
 
             if (quoteInfo == null || quoteInfo.Vazia())
             {
                 throw new NotFoundException("encomenda", true);
             }
 
-            /*if (TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
+            if (TypeParser.String(quoteInfo.Valor("Responsavel")) != sessionId)
             {
                 return null;
-            }*/
+            }
 
             List<OrderInfo> quoteProducts = new List<OrderInfo>();
 
             var productsInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("LinhasDoc")
                 .Columns(sqlProductsColumns)
-                .Where("IdCabecDoc", Comparison.Equals, TypeParser.String(quoteInfo.Valor("Id"))));
+                .Where("IdCabecDoc", Comparison.Equals, quoteInfo.Valor("Id")));
 
             while (!productsInfo.NoFim())
             {
@@ -143,34 +145,37 @@ namespace FirstREST.LibPrimavera.Integration
                     Quantidade = TypeParser.Integer(productsInfo.Valor("Quantidade")),
                     Preco = TypeParser.Double(productsInfo.Valor("PrecUnit")),
                     Desconto = TypeParser.Double(productsInfo.Valor("Desconto1")),
-                    ResLiquido = TypeParser.Double(productsInfo.Valor("TotalILiquido")),
-                    Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")), TypeParser.String(productsInfo.Valor("Descricao")))
+                    Iva = TypeParser.Double(productsInfo.Valor("TaxaIva")),
+                    Unidade = TypeParser.String(productsInfo.Valor("Unidade")),
+                    Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")),
+                   TypeParser.String(productsInfo.Valor("Descricao")))
                 });
 
                 productsInfo.Seguinte();
             }
 
             return new QuoteInfo
-             {
-                 NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
-                 Cliente = TypeParser.String(quoteInfo.Valor("Entidade")),
-                 NomeCliente = TypeParser.String(quoteInfo.Valor("Nome")),
-                 EnderecoEntrega = new Address
-                 {
-                     Morada = TypeParser.String(quoteInfo.Valor("Morada")),
-                     CodigoPostal = TypeParser.String(quoteInfo.Valor("CodPostal")),
-                     Localidade = TypeParser.String(quoteInfo.Valor("Localidade")),
-                     Distrito = TypeParser.String(quoteInfo.Valor("Distrito")),
-                     Pais = TypeParser.String(quoteInfo.Valor("Pais"))
-                 },
-                 Data = TypeParser.Date(quoteInfo.Valor("Data")),
-                 IdOportunidade = TypeParser.String(quoteInfo.Valor("IdOportunidade")),
-                 TotalDesc = TypeParser.Double(quoteInfo.Valor("TotalDesc")),
-                 TotalIva = TypeParser.Double(quoteInfo.Valor("TotalIva")),
-                 TotalMerc = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
-                 TotalDocumento = TypeParser.Double(quoteInfo.Valor("TotalDocumento")),
-                 Produtos = quoteProducts
-             };
+            {
+                NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
+                Cliente = TypeParser.String(quoteInfo.Valor("Entidade")),
+                NomeCliente = TypeParser.String(quoteInfo.Valor("Nome")),
+                EnderecoEntrega = new Address
+                {
+                    Morada = TypeParser.String(quoteInfo.Valor("Morada")),
+                    CodigoPostal = TypeParser.String(quoteInfo.Valor("CodPostal")),
+                    Localidade = TypeParser.String(quoteInfo.Valor("Localidade")),
+                    Distrito = TypeParser.String(quoteInfo.Valor("Distrito")),
+                    Pais = TypeParser.String(quoteInfo.Valor("Pais"))
+                },
+                Data = TypeParser.Date(quoteInfo.Valor("Data")),
+                IdOportunidade = TypeParser.String(quoteInfo.Valor("IdOportunidade")),
+                TotalDesc = TypeParser.Double(quoteInfo.Valor("TotalDesc")),
+                TotalIva = TypeParser.Double(quoteInfo.Valor("TotalIva")),
+                TotalMerc = TypeParser.Double(quoteInfo.Valor("TotalMerc")),
+                TotalDocumento = TypeParser.Double(quoteInfo.Valor("TotalDocumento")),
+                NumContribuinte = TypeParser.String(quoteInfo.Valor("NumContribuinte")),
+                Produtos = quoteProducts
+            };
         }
 
         private static void SetOptionalFields(GcpBEDocumentoVenda quoteInfo, QuoteInfo jsonObject)
@@ -285,7 +290,6 @@ namespace FirstREST.LibPrimavera.Integration
                         PrimaveraEngine.Engine.Comercial.Vendas.AdicionaLinha(quoteInfo, produto.Produto.Identificador, produto.Quantidade, "", "", produto.Preco, produto.Desconto);
                     }
                 }
-
                 PrimaveraEngine.Engine.IniciaTransaccao();
                 PrimaveraEngine.Engine.Comercial.Vendas.Actualiza(quoteInfo);
                 PrimaveraEngine.Engine.TerminaTransaccao();

@@ -10,6 +10,7 @@ namespace FirstREST.LibPrimavera.Model
 
         private double _price;
         private double _stock;
+        private double _iva;
 
         /// <summary>
         /// Public access properties
@@ -74,6 +75,26 @@ namespace FirstREST.LibPrimavera.Model
         {
             get;
             set;
+        }
+
+        [JsonProperty(PropertyName = "tax")]
+        public double IVA
+        {
+            get
+            {
+                return _iva;
+            }
+            set
+            {
+                if (value < 0.0)
+                {
+                    _iva = 0.0;
+                }
+                else
+                {
+                    _iva = value;
+                }
+            }
         }
     }
 }
