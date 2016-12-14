@@ -14,7 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(GcpBECliente customerInfo, string sessionId)
         {
-            /*if (customerInfo.get_Inactivo())
+            if (customerInfo.get_Situacao().Equals("INACTIVO"))
             {
                 return false;
             }
@@ -24,7 +24,7 @@ namespace FirstREST.LibPrimavera.Integration
             if (representativeId != null && representativeId != sessionId)
             {
                 return false;
-            }*/
+            }
 
             return true;
         }
@@ -189,11 +189,17 @@ namespace FirstREST.LibPrimavera.Integration
             customerInfo.set_Fax(jsonObject.Telefone2);
             customerInfo.set_Telefone(jsonObject.Telefone);
             customerInfo.set_Telefone2(jsonObject.Telemovel);
-            customerInfo.set_Pais(jsonObject.Localizacao.Pais);
             customerInfo.set_EnderecoWeb(jsonObject.EnderecoWeb);
             customerInfo.set_PessoaSingular(jsonObject.Particular);
-            customerInfo.set_Morada(jsonObject.Localizacao.Morada);
             customerInfo.set_NumContribuinte(jsonObject.NumContribuinte);
+
+            if (jsonObject.Localizacao == null)
+            {
+                return;
+            }
+
+            customerInfo.set_Pais(jsonObject.Localizacao.Pais);
+            customerInfo.set_Morada(jsonObject.Localizacao.Morada);
             customerInfo.set_CodigoPostal(jsonObject.Localizacao.CodigoPostal);
 
             if (jsonObject.Localizacao.Pais.Equals("PT"))
@@ -255,19 +261,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customerQuery = PrimaveraEngine.Consulta(new SqlBuilder()
+                .Column("Cliente")
+                .FromTable("CLIENTES")
+                .Where("Cliente", Comparison.Equals, customerId));
 
-            if (customersTable.Existe(customerId) == false)
+            if (customerQuery == null || customerQuery.Vazia())
             {
                 throw new NotFoundException("cliente", false);
             }
 
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
             var customerInfo = customersTable.Edita(customerId);
 
-            if (CheckPermissions(customerInfo, sessionId) == false)
+            /*if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return null;
-            }
+            }*/
 
             customerInfo.set_EmModoEdicao(true);
             SetFields(customerInfo, jsonObject);
@@ -285,7 +295,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             var customerInfo = new GcpBECliente();
-            var customerId = PrimaveraEngine.GenerateHash();
+            var customerId = PrimaveraEngine.GenerateName(jsonObject.Nome);
             var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
 
             if (customersTable.Existe(customerId))
@@ -323,19 +333,23 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
+            var customerQuery = PrimaveraEngine.Consulta(new SqlBuilder()
+                .Column("Cliente")
+                .FromTable("CLIENTES")
+                .Where("Cliente", Comparison.Equals, customerId));
 
-            if (customersTable.Existe(customerId) == false)
+            if (customerQuery == null || customerQuery.Vazia())
             {
                 throw new NotFoundException("cliente", false);
             }
 
+            var customersTable = PrimaveraEngine.Engine.Comercial.Clientes;
             var customerInfo = customersTable.Edita(customerId);
 
-            if (CheckPermissions(customerInfo, sessionId) == false)
+            /*if (CheckPermissions(customerInfo, sessionId) == false)
             {
                 return null;
-            }
+            }*/
 
             customerInfo.set_EmModoEdicao(true);
             customerInfo.set_Situacao("INACTIVO");

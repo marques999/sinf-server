@@ -115,10 +115,10 @@ namespace FirstREST.LibPrimavera.Integration
                 .Where("IdOportunidade", Comparison.Equals, formattedId)
                 .Where("NumProposta", Comparison.Equals, proposalNumber));
 
-            if (lineInfo == null || lineInfo.Vazia())
+            /*if (lineInfo == null || lineInfo.Vazia())
             {
                 throw new NotFoundException("proposta", true);
-            }
+            }*/
 
             var lineList = new List<ProposalsLine>();
 

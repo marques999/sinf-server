@@ -146,5 +146,35 @@ namespace FirstREST.LibPrimavera
         {
             return hashGenerator.EncodeLong(DateTime.Now.Ticks);
         }
+
+        public static string GenerateName(string fullName)
+        {
+            var sb = new StringBuilder();
+            var trimmedName = fullName.Trim().ToUpperInvariant();
+
+            foreach (char stringChar in trimmedName)
+            {
+                if ((stringChar >= '0' && stringChar <= '9') || (stringChar >= 'A' && stringChar <= 'Z') || stringChar == ' ')
+                {
+                    sb.Append(stringChar);
+                }
+            }
+
+            var nameArray = sb.ToString().Split(' ');
+
+            if (nameArray.Length > 1)
+            {
+                return GenerateSubstring(nameArray[0], 3) + GenerateSubstring(nameArray[nameArray.Length - 1], 3);
+            }
+            else
+            {
+                return GenerateSubstring(nameArray[0], 6);
+            }
+        }
+
+        private static string GenerateSubstring(string fullName, int maxLength)
+        {
+            return fullName.Substring(0, fullName.Length < maxLength ? fullName.Length : maxLength);
+        }
     }
 }

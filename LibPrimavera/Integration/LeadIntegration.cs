@@ -79,6 +79,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
+
             var leadList = new List<LeadListing>();
             var leadInfo = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("ENTIDADESEXTERNAS")
@@ -124,6 +125,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new NotFoundException("lead", true);
             }
 
+
             var leadInfo = leadsTable.Edita(leadId);
             var representativeId = leadInfo.get_Vendedor();
 
@@ -132,6 +134,11 @@ namespace FirstREST.LibPrimavera.Integration
                   return null;
               }*/
 
+            return GenerateInfo(leadInfo);
+        }
+
+        private static LeadInfo GenerateInfo(CrmBEEntidadeExterna leadInfo)
+        {
             return new LeadInfo
             {
                 Identificador = leadInfo.get_Entidade(),
@@ -165,21 +172,24 @@ namespace FirstREST.LibPrimavera.Integration
 
         public static EntityReference Reference(string leadId)
         {
-            if (PrimaveraEngine.InitializeCompany() == false)
-            {
-                throw new DatabaseConnectionException();
-            }
-
-            if (PrimaveraEngine.Engine.CRM.EntidadesExternas.Existe(leadId) == false)
+            if (string.IsNullOrEmpty(leadId))
             {
                 return null;
             }
 
-            return GenerateReference(PrimaveraEngine.Consulta(new SqlBuilder()
-                .FromTable("ENTIDADESEXTERNAS")
-                .Columns(sqlColumnsReference)
-                .Where("ENTIDADESEXTERNAS.Entidade", Comparison.Equals, leadId)
-                .Where("PotencialCliente", Comparison.Equals, "TRUE")));
+            var leadsTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
+
+            if (leadsTable.Existe(leadId) == false)
+            {
+                return null;
+            }
+
+            return new EntityReference
+            {
+                Identificador = leadId,
+                Tipo = EntityType.Lead.ToDescriptionString(),
+                Descricao = leadsTable.DaValorAtributo(leadId, "Nome")
+            };
         }
 
         private static void SetFields(CrmBEEntidadeExterna leadInfo, Lead jsonObject)
@@ -262,9 +272,9 @@ namespace FirstREST.LibPrimavera.Integration
                 var clientsTable = PrimaveraEngine.Engine.Comercial.Clientes;
                 clientId = leadId;
                 if (clientsTable.Existe(clientId))
-                    clientId = PrimaveraEngine.GenerateHash();
-                if (clientsTable.Existe(clientId))
-                    return false;
+                    //clientId = PrimaveraEngine.GenerateHash();
+                    if (clientsTable.Existe(clientId))
+                        return false;
             }
 
             leadInfo.set_EmModoEdicao(true);
@@ -290,7 +300,7 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
-            var leadId = PrimaveraEngine.GenerateHash();
+            var leadId = PrimaveraEngine.GenerateName(jsonObject.Nome);
             var leadsTable = PrimaveraEngine.Engine.CRM.EntidadesExternas;
             var leadInfo = leadsTable.PreencheCamposDefeito(new CrmBEEntidadeExterna());
 
@@ -323,7 +333,7 @@ namespace FirstREST.LibPrimavera.Integration
             };
         }
 
-        public static bool Delete(string sessionId, string leadId)
+        public static LeadInfo Delete(string sessionId, string leadId)
         {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
@@ -341,7 +351,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             if (CheckPermissions(leadInfo, sessionId) == false)
             {
-                return false;
+                return null;
             }
 
             leadInfo.set_EmModoEdicao(true);
@@ -349,7 +359,7 @@ namespace FirstREST.LibPrimavera.Integration
             leadInfo.set_DataUltAct(DateTime.Now);
             leadsTable.Actualiza(leadInfo);
 
-            return true;
+            return GenerateInfo(leadInfo);
         }
     }
 }

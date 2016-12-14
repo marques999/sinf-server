@@ -148,7 +148,7 @@ namespace FirstREST.LibPrimavera.Integration
                     Desconto = TypeParser.Double(productsInfo.Valor("Desconto1")),
                     Iva = TypeParser.Double(productsInfo.Valor("TaxaIva")),
                     Unidade = TypeParser.String(productsInfo.Valor("Unidade")),
-                    Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")), 
+                    Produto = new Reference(TypeParser.String(productsInfo.Valor("Artigo")),
                    TypeParser.String(productsInfo.Valor("Descricao")))
                 });
 
@@ -156,7 +156,7 @@ namespace FirstREST.LibPrimavera.Integration
             }
 
             return new QuoteInfo
-            {               
+            {
                 NumEncomenda = TypeParser.Integer(quoteInfo.Valor("NumDoc")),
                 Cliente = TypeParser.String(quoteInfo.Valor("Entidade")),
                 NomeCliente = TypeParser.String(quoteInfo.Valor("Nome")),
@@ -270,12 +270,12 @@ namespace FirstREST.LibPrimavera.Integration
         }
 
         public static QuoteInfo Insert(string sessionId, QuoteInfo jsonObject)
-        {           
+        {
             if (PrimaveraEngine.InitializeCompany() == false)
             {
                 throw new DatabaseConnectionException();
             }
-           
+
             var quoteInfo = new GcpBEDocumentoVenda();
 
             try

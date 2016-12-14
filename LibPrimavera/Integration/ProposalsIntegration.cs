@@ -101,10 +101,10 @@ namespace FirstREST.LibPrimavera.Integration
                 .Columns(sqlColumnsListing)
                 .Where("IdOportunidade", Comparison.Equals, opportunityId));
 
-            if (proposalInfo == null || proposalInfo.Vazia())
+            /*if (proposalInfo == null || proposalInfo.Vazia())
             {
                 throw new NotFoundException("oportunidade", true);
-            }
+            }*/
 
             var queryResult = new List<Proposals>();
 

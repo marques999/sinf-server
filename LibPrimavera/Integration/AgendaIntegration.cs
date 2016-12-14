@@ -14,7 +14,7 @@ namespace FirstREST.LibPrimavera.Integration
     {
         private static bool CheckPermissions(CrmBEActividade activityInfo, string sessionId)
         {
-            /*if (activityInfo.get_Estado().Equals("1"))
+            if (activityInfo.get_Estado().Equals("1"))
             {
                 return false;
             }
@@ -24,7 +24,7 @@ namespace FirstREST.LibPrimavera.Integration
             if (representativeId != null && representativeId != sessionId)
             {
                 return false;
-            }*/
+            }
 
             return true;
         }
@@ -43,16 +43,16 @@ namespace FirstREST.LibPrimavera.Integration
             new SqlColumn("TIPOSTAREFA.TipoActividade", null),
             new SqlColumn("TIPOSTAREFA.Descricao", "DescricaoActividade"),
         };
-
+        // ???????????
         private static ActivityListing GenerateListing(StdBELista queryResult)
         {
-            var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
-            var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
+            //   var entityId = TypeParser.String(queryResult.Valor("EntidadePrincipal"));
+            //   var entityType = TypeParser.String(queryResult.Valor("TipoEntidadePrincipal"));
 
             return new ActivityListing
             {
                 Tipo = TypeReference(queryResult),
-                Entidade = EntityReference(entityId, entityType),
+                //    Entidade = EntityReference(entityId, entityType),
                 DataFim = TypeParser.Date(queryResult.Valor("DataFim")),
                 Resumo = TypeParser.String(queryResult.Valor("Resumo")),
                 Estado = TypeParser.Integer(queryResult.Valor("Estado")),
@@ -124,24 +124,22 @@ namespace FirstREST.LibPrimavera.Integration
                 return null;
             }
 
-            return TypeReference(PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId));
+            return TypeReference(PrimaveraEngine.Engine.CRM.TiposActividade.EditaID(typeId));  
         }
 
         private static EntityReference EntityReference(string entityId, string entityType)
         {
-            if (string.IsNullOrEmpty(entityType))
+            if (string.IsNullOrEmpty(entityType) == false)
             {
-                return null;
-            }
-
-            switch (entityType)
-            {
+                switch (entityType)
+                {
                 case "L":
                     return LeadIntegration.Reference(entityId);
                 case "C":
                     return CustomerIntegration.Reference(entityId);
                 case "X":
                     return ContactIntegration.Reference(entityId);
+                }
             }
 
             return null;
@@ -244,10 +242,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var activityInfo = activitiesTable.Edita(activityId);
 
-            if (CheckPermissions(activityInfo, sessionId) == false)
+            /*if (CheckPermissions(activityInfo, sessionId) == false)
             {
                 return null;
-            }
+            }*/
 
             activityInfo.set_EmModoEdicao(true);
             SetFields(activityInfo, jsonObject);
@@ -317,10 +315,10 @@ namespace FirstREST.LibPrimavera.Integration
 
             var activityInfo = activitiesTable.Edita(activityId);
 
-            if (CheckPermissions(activityInfo, sessionId) == false)
+            /*if (CheckPermissions(activityInfo, sessionId) == false)
             {
                 return null;
-            }
+            }*/
 
             activityInfo.set_EmModoEdicao(true);
             activityInfo.set_Estado("1");
