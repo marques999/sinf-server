@@ -39,12 +39,5 @@ namespace FirstREST.LibPrimavera.Model
             get;
             set;
         }
-        
-        /*[JsonProperty(PropertyName = "description")]
-        public string Descricao
-        {
-            get;
-            set;
-        }*/
     }
 }

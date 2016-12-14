@@ -9,7 +9,6 @@ namespace FirstREST.LibPrimavera.Model
         /// </summary>
 
         private int _quantidade;
-        private double _iliquido;
         private double _desconto;
         private double _preco;
         private double _iva;
@@ -107,6 +106,13 @@ namespace FirstREST.LibPrimavera.Model
                     _iva = value;
                 }
             }
+        }
+
+        [JsonProperty(PropertyName = "units")]
+        public string Unidade
+        {
+            get;
+            set;
         }
     }
 }
