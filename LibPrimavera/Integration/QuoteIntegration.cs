@@ -55,14 +55,12 @@ namespace FirstREST.LibPrimavera.Integration
             {
                 throw new DatabaseConnectionException();
             }
-
-            var query = new SqlBuilder()
+            SqlBuilder query = new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(sqlQuoteListing)
                 .Where("TipoDoc", Comparison.Equals, "ECL")
                 .Where("Serie", Comparison.Equals, QuotesConstants.serie);
             query.AddOrderBy("NumDoc", Sorting.Descending);
-
             var queryObject = PrimaveraEngine.Consulta(query);
 
             if (queryObject == null || queryObject.Vazia())
@@ -82,7 +80,6 @@ namespace FirstREST.LibPrimavera.Integration
                     TotalDocumento = TypeParser.Double(queryObject.Valor("TotalDocumento")),
                     Data = TypeParser.Date(queryObject.Valor("Data"))
                 });
-
                 queryObject.Seguinte();
             }
 
@@ -217,6 +214,8 @@ namespace FirstREST.LibPrimavera.Integration
                 throw new DatabaseConnectionException();
             }
 
+            var quotesTable = PrimaveraEngine.Engine.Comercial.Vendas;
+
             var queryObject = PrimaveraEngine.Consulta(new SqlBuilder()
                 .FromTable("CabecDoc")
                 .Columns(new SqlColumn[] { new SqlColumn("CabecDoc.Id", null) })
@@ -227,7 +226,6 @@ namespace FirstREST.LibPrimavera.Integration
                 return false;
             }
 
-            var quotesTable = PrimaveraEngine.Engine.Comercial.Vendas;
             var quoteInfo = quotesTable.EditaID(quoteId);
 
             if (CheckPermissions(quoteInfo, sessionId) == false)
@@ -259,13 +257,16 @@ namespace FirstREST.LibPrimavera.Integration
             quoteInfo.set_Cambio(QuotesConstants.cambio);
             quoteInfo.set_CambioMAlt(QuotesConstants.cambioMAlt);
             quoteInfo.set_CambioMBase(QuotesConstants.cambioMBase);
-            quoteInfo.set_CondPag(QuotesConstants.condPag);
+            quoteInfo.set_CondPag(QuotesConstants.condPag); //Para alterar
+
             quoteInfo.set_Serie(QuotesConstants.serie);
             quoteInfo.set_Tipodoc(QuotesConstants.tipoDoc);
             quoteInfo.set_Responsavel(sessionId);
             quoteInfo.set_TipoEntidade(QuotesConstants.tipoEntidade);
             quoteInfo.set_DataDoc(System.DateTime.Now);
             quoteInfo.set_DataVenc(System.DateTime.Now);
+
+            //PrimaveraEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(quoteInfo);
         }
 
         public static QuoteInfo Insert(string sessionId, QuoteInfo jsonObject)
