@@ -1,12 +1,6 @@
-*.com
-*.class
-*.dll
-*.exe
 *.pdb
 *.dll.config
 *.cache
-!/packages/*/lib/*.dll
-!/packages/*/lib/*/*.dll
 !*CommonReferences/*.dll
 UpgradeLog.XML
 _UpgradeReport_Files/
@@ -35,11 +29,7 @@ Thumbs.db
 [Tt]est[Rr]esults
 *.[Cc]ache
 *[Rr]esharper*
-packages
 NuGet.exe
 _[Ss]cripts
-*.exe
-*.dll
-*.nupkg
 *.ncrunchsolution
 *.dot[Cc]over

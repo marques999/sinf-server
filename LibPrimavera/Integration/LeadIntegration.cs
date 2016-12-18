@@ -278,7 +278,6 @@ namespace FirstREST.LibPrimavera.Integration
             leadInfo.set_EmModoEdicao(true);
             leadInfo.set_DataUltAct(DateTime.Now);
             SetFields(leadInfo, jsonObject);
-            //LINE NOT NEEDED, will not copy that value! if (convert2client) leadInfo.set_TipoTerceiro(null);//remover tipo, pode nao aceite para o clientes
             leadsTable.Actualiza(leadInfo);
 
             if (convert2client)
@@ -352,6 +351,7 @@ namespace FirstREST.LibPrimavera.Integration
 
             leadInfo.set_EmModoEdicao(true);
             leadInfo.set_Activo(false);
+            leadInfo.set_TipoEntidade("004");
             leadInfo.set_DataUltAct(DateTime.Now);
             leadsTable.Actualiza(leadInfo);
 

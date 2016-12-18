@@ -37,7 +37,6 @@ namespace FirstREST.LibPrimavera
         public static bool VerifyToken(string userToken)
         {
             return true;
-            //return DateTime.FromBinary(BitConverter.ToInt64(Convert.FromBase64String(userToken), 0)) >= DateTime.UtcNow.AddMinutes(-30);
         }
 
         public static string GetRepresentative(string sessionId)

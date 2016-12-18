@@ -133,7 +133,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var operationResult = CustomerIntegration.Delete(Authentication.GetRepresentative(token), Encoding.UTF8.GetString(Convert.FromBase64String(id)));
-                    
+
                     if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);

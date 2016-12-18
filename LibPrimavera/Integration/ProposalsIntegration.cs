@@ -137,22 +137,6 @@ namespace FirstREST.LibPrimavera.Integration
             return GenerateProposal(proposalsTable, proposalInfo);
         }
 
-        /*private static Proposals GenerateProposal(CrmBELinhasPropostaOPV opportunityInfo)
-        {
- 	        return new Proposals()
-                    {
-                        ProposalNumber = TypeParser.String(opportunityInfo.get_NumProposta()),
-                        Description = opportunityInfo.get_Descricao(),
-                        PaymentMethod = opportunityInfo.get_ModoPagamento(),
-                        PaymentCondition = opportunityInfo.get_CondPagamento(),
-                        Cost = opportunityInfo.get_Custo(),
-                        Value = opportunityInfo.get_Valor(),
-                        DiscountValue = opportunityInfo.get_ValorDesconto(),
-                        Rentability = opportunityInfo.get_Rentabilidade(),
-                        Margin = opportunityInfo.get_Margem()
-                    };
-        }*/
-
         private static void SetFields(CrmBEPropostaOPV proposalInfo, Proposals jsonObject)
         {
             proposalInfo.set_IdOportunidade(jsonObject.idOportunidade);
@@ -197,7 +181,6 @@ namespace FirstREST.LibPrimavera.Integration
             //var linhasProposta = currentProposal.get_Linhas();
 
             proposalInfo.set_EmModoEdicao(true);
-            //SetFields(proposalInfo, jsonObject);
             proposalInfo.set_NumProposta(jsonObject.ProposalNumber);
             proposalInfo.set_Descricao(jsonObject.Description);
             proposalInfo.set_ModoPagamento(jsonObject.PaymentMethod);

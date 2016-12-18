@@ -72,7 +72,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var operationResult = QuoteIntegration.Insert(Authentication.GetRepresentative(null), jsonObject);
-                   
+
                     if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);
@@ -102,7 +102,7 @@ namespace FirstREST.Controllers
                 try
                 {
                     var operationResult = QuoteIntegration.Update(Authentication.GetRepresentative(null), HttpUtility.UrlDecode(id), jsonObject);
-                    
+
                     if (operationResult == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.NotFound);

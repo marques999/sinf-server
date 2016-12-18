@@ -1,19 +1,19 @@
-﻿using FirstREST.LibPrimavera;
-using FirstREST.LibPrimavera.Integration;
-using FirstREST.LibPrimavera.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
     public class ProposalsController : ApiController
     {
         // GET: api/proposals/{$proposalsId}/{$proposalNumber}
+        // FEATURE: Listar proposttas da oportunidade
         public HttpResponseMessage Get(string id, short sid)
         {
             if (Authentication.VerifyToken("?"))
@@ -34,6 +34,7 @@ namespace FirstREST.Controllers
         }
 
         // GET: api/proposals/{$proposalsId}
+        // FEATURE: Visualizar proposta
         public HttpResponseMessage Get(string id)
         {
             if (Authentication.VerifyToken("?"))
@@ -54,9 +55,9 @@ namespace FirstREST.Controllers
         }
 
         // POST: api/proposals
+        // FEATURE: Adicionar proposta
         public HttpResponseMessage Post([FromBody] Proposals jsonObject)
         {
-
             if (Authentication.VerifyToken("?"))
             {
                 try
@@ -84,6 +85,7 @@ namespace FirstREST.Controllers
         }
 
         // PUT: api/proposals/{$proposalsId}
+        // FEATURE: Editar proposta existente
         public HttpResponseMessage Put(string id, [FromBody] Proposals jsonObject)
         {
             if (Authentication.VerifyToken("?"))
@@ -113,7 +115,7 @@ namespace FirstREST.Controllers
         }
 
         // DELETE: api/proposals/{$proposalsId}/{$proposalNumber}
-        // FEATURE : apagar uma proposta
+        // FEATURE: Remover proposta existente
         public HttpResponseMessage Delete(string id, short sid)
         {
             if (Authentication.VerifyToken("?"))
@@ -141,7 +143,7 @@ namespace FirstREST.Controllers
         }
 
         // DELETE: api/proposals/{$proposalsId}
-        // FEATURE : apagar todas as propostas
+        // FEATURE: Remover todas as propostas
         public HttpResponseMessage Delete(string id)
         {
             if (Authentication.VerifyToken("?"))

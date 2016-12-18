@@ -255,7 +255,6 @@ namespace FirstREST.LibPrimavera.Integration
             opportunityInfo.set_DataRealFacturacao(jsonObject.RealBillingDate);
             opportunityInfo.set_DataFecho(jsonObject.ClosureDate);
             opportunityInfo.set_MotivoPerda(jsonObject.LossMotive);
-            //opportunityInfo.set_Oportunidade(jsonObject.OpportunityId);
             opportunityInfo.set_Moeda(jsonObject.Currency);
             opportunityInfo.set_Resumo(jsonObject.Brief);
             opportunityInfo.set_TipoEntidade(jsonObject.EntityType);
@@ -284,8 +283,6 @@ namespace FirstREST.LibPrimavera.Integration
             }*/
 
             opportunityInfo.set_EmModoEdicao(true);
-            //SetFields(opportunityInfo, jsonObject);
-            System.Diagnostics.Debug.Print(jsonObject.LossMotive + "ei");
 
             if (jsonObject.MarginOV == 0)
             {

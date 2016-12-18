@@ -1,19 +1,19 @@
-﻿using FirstREST.LibPrimavera;
-using FirstREST.LibPrimavera.Integration;
-using FirstREST.LibPrimavera.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+
+using FirstREST.LibPrimavera;
+using FirstREST.LibPrimavera.Model;
+using FirstREST.LibPrimavera.Integration;
 
 namespace FirstREST.Controllers
 {
     public class ProposalLineController : ApiController
     {
         // GET: api/ProposalLine/{$opportunityID}/{$proposalNumber}/{$lineNumber}
+        // FEATURE: Visualizar linha individual da proposta
         public HttpResponseMessage Get(string id, short sid, short tid)
         {
             if (Authentication.VerifyToken("?"))
@@ -34,9 +34,9 @@ namespace FirstREST.Controllers
         }
 
         // GET: api/ProposalLine/{$opportunityID}/{$proposalNumber}
+        // FEATURE: Visualizar linhas da proposta
         public HttpResponseMessage Get(string id, short sid)
         {
-
             if (Authentication.VerifyToken("?"))
             {
                 try
@@ -55,9 +55,9 @@ namespace FirstREST.Controllers
         }
 
         // POST: api/ProposalLine
+        // FEATURE: Adicionar linha de proposta
         public HttpResponseMessage Post([FromBody] ProposalsLine jsonObject)
         {
-
             if (Authentication.VerifyToken("?"))
             {
                 try
@@ -85,6 +85,7 @@ namespace FirstREST.Controllers
         }
 
         // PUT: api/ProposalLine/{$opportunityID}
+        // FEATURE: Editar linhas da proposta
         public HttpResponseMessage Put(string id, [FromBody] ProposalsLine jsonObject)
         {
             if (Authentication.VerifyToken("?"))
@@ -114,6 +115,7 @@ namespace FirstREST.Controllers
         }
 
         // DELETE: api/ProposalLine/{$opportunityID}
+        // FEATURE: Remover linhas da proposta
         public HttpResponseMessage Delete(string id, [FromBody] ProposalsLine jsonObject)
         {
             if (Authentication.VerifyToken("?"))

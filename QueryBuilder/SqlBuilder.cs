@@ -203,12 +203,6 @@ namespace FirstREST.QueryBuilder
             return this;
         }
 
-        public SqlBuilder OrderBy(string field, Sorting @order)
-        {
-            AddOrderBy(field, @order);
-            return this;
-        }
-
         public WhereClause Where(Enum field, Comparison @operator, object compareValue)
         {
             return Where(field.ToString(), @operator, compareValue, 1);
